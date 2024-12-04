@@ -38,6 +38,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.unit.dp
+import split.composeapp.generated.resources.group_icon_outlined
 
 @Composable
 fun HomeScreem(
@@ -156,7 +157,7 @@ fun ExpenseCardList() {
             title = "E-1302",
             primaryText = "you are owed ₹475.00",
             secondaryText = "Kumar K. owes you ₹475.00",
-            imageRes = Res.drawable.refresh,
+            imageRes = Res.drawable.group_icon_outlined,
             isOwed = true
         )
 
@@ -165,7 +166,7 @@ fun ExpenseCardList() {
             title = "SIH TRIP KOTA",
             primaryText = "you owe ₹181.67",
             secondaryText = "You owe Ankur C. ₹181.67",
-            imageRes = Res.drawable.refresh,
+            imageRes = Res.drawable.group_icon_outlined,
             isOwed = false
         )
 
@@ -174,7 +175,7 @@ fun ExpenseCardList() {
             title = "Non-group expenses",
             primaryText = "settled up",
             secondaryText = "",
-            imageRes = Res.drawable.refresh,
+            imageRes = Res.drawable.group_icon_outlined,
             isOwed = false
         )
     }
