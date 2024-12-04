@@ -64,6 +64,7 @@ import androidx.navigation.compose.rememberNavController
 import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
 import com.falcon.split.data.network.ApiClient
+import com.falcon.split.screens.mainNavigation.history.HistoryScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -188,11 +189,13 @@ fun NavHostMain(
                 HistoryScreen(onNavigate, prefs, newsViewModel, snackBarHostState, navControllerMain)
             }
             composable(route = BottomBarScreen.Profile.route) {
-                HistoryScreen(onNavigate, prefs, newsViewModel, snackBarHostState, navControllerMain)
+                GroupScreen(onNavigate, prefs, newsViewModel, snackBarHostState, navControllerMain)
             }
         }
     }
 }
+
+
 
 fun getTitle(currentScreen: NavDestination?): String {
     return when (currentScreen?.route) {

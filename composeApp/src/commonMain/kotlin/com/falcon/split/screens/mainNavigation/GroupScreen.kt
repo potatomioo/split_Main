@@ -8,17 +8,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
 
-
 @Composable
-fun HistoryScreen(
-    onNavigate: (String) -> Unit,
+fun GroupScreen(
+    onNavigate: (rootName: String) -> Unit,
     prefs: DataStore<Preferences>,
     newsViewModel: MainViewModel,
     snackBarHostState: SnackbarHostState,
-    navControllerMain: NavHostController,
+    navControllerMain: NavHostController
 ) {
-    Text("History")
-
+    Text("GroupScreen")
 }
-
-
