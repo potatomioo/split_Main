@@ -36,9 +36,16 @@ import split.composeapp.generated.resources.refresh
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import split.composeapp.generated.resources.add_icon
 import split.composeapp.generated.resources.group_icon_outlined
+import split.composeapp.generated.resources.nunito_bold_1
+import split.composeapp.generated.resources.nunito_semibold_1
 
 @Composable
 fun HomeScreem(
@@ -56,24 +63,34 @@ fun HomeScreem(
         BalanceCard(100.0, 100.0, 100.0)
         RecentGroupsCard()
     }
+
 }
 
 @Composable
 fun RecentGroupsCard() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(800.dp),
-        colors = CardDefaults.cardColors(
-            // Using a light blue-gray that works well on white backgrounds
-            containerColor = Color.White
-        ),
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(800.dp),
+            colors = CardDefaults.cardColors(
+                // Using a light blue-gray that works well on white backgrounds
+                containerColor = Color.White
+            ),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 10.dp
+            )
+        ) {
+            ExpenseCardList()
+        }
+        AddExpenseFAB(
+            onClick = {},
+            modifier = Modifier
+                .align(Alignment.BottomEnd)  // Aligns FAB to the bottom-right corner
+                .padding(end = 16.dp, bottom = 16.dp)  // Adds spacing from screen edges
         )
-    ) {
-        ExpenseCardList()
     }
 }
 
@@ -267,16 +284,38 @@ fun BalanceCard(
     }
 }
 
-
-@Preview
 @Composable
-fun BalanceCardPreview() {
-    MaterialTheme {
-        BalanceCard(
-            totalBalance = 100.00,
-            willGet = 100.00,
-            willPay = 0.00,
-            modifier = Modifier.padding(16.dp)
+fun AddExpenseFAB(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Extended FAB with custom styling
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        modifier = modifier,
+        containerColor = Color(0xFF5DC095),
+        contentColor = Color.White,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 12.dp
         )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Receipt icon
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add expense icon",
+                modifier = Modifier.size(24.dp)
+            )
+
+            // Button text
+            Text(
+                text = "Add expense",
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
     }
 }
