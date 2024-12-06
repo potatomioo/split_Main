@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "280065041634",
+    "project_id": "split-54f90",
+    "storage_bucket": "split-54f90.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280065041634:android:86f4be0799a7920f746abb",
+        "android_client_info": {
+          "package_name": "com.falcon.split"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "280065041634-08vjbkjqvjmpl24nuplrl47dicvl92v3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQq6OYXFKBbF2wJHbTQz7NNG5Tjxyn8dA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "280065041634-08vjbkjqvjmpl24nuplrl47dicvl92v3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
