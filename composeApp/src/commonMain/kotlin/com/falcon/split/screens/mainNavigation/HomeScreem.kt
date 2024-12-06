@@ -24,28 +24,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import split.composeapp.generated.resources.Res
-import split.composeapp.generated.resources.refresh
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import split.composeapp.generated.resources.add_icon
 import split.composeapp.generated.resources.group_icon_outlined
-import split.composeapp.generated.resources.nunito_bold_1
-import split.composeapp.generated.resources.nunito_semibold_1
 
 @Composable
 fun HomeScreem(
@@ -53,7 +40,8 @@ fun HomeScreem(
     prefs: DataStore<Preferences>,
     snackBarHostState: SnackbarHostState,
     navControllerBottomNav: NavHostController,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    navControllerMain: NavHostController
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -61,13 +49,13 @@ fun HomeScreem(
         modifier = Modifier.fillMaxSize()
     ) {
         BalanceCard(100.0, 100.0, 100.0)
-        RecentGroupsCard()
+        RecentGroupsCard(navControllerMain)
     }
 
 }
 
 @Composable
-fun RecentGroupsCard() {
+fun RecentGroupsCard(navControllerMain: NavHostController) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         Card(
@@ -86,7 +74,9 @@ fun RecentGroupsCard() {
             ExpenseCardList()
         }
         AddExpenseFAB(
-            onClick = {},
+            onClick = {
+                navControllerMain.navigate("create_expense")
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)  // Aligns FAB to the bottom-right corner
                 .padding(end = 16.dp, bottom = 16.dp)  // Adds spacing from screen edges

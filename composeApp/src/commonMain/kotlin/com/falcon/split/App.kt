@@ -258,10 +258,15 @@ fun App(
                     )
                 }
             }
+            composable("create_expense") {
+                CreateExpense(navControllerMain)
+            }
         }
     }
 
 }
+
+
 
 @Composable
 fun OptionMenuPopup(

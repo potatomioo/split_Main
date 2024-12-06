@@ -183,7 +183,7 @@ fun NavHostMain(
 
 
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreem(onNavigate, prefs, snackBarHostState, navControllerBottomNav, newsViewModel)
+                HomeScreem(onNavigate, prefs, snackBarHostState, navControllerBottomNav, newsViewModel, navControllerMain)
             }
             composable(route = BottomBarScreen.Reels.route) {
                 HistoryScreen(onNavigate, prefs, newsViewModel, snackBarHostState, navControllerMain)
