@@ -196,7 +196,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.split.news"
+            packageName = "com.falcon.split"
             packageVersion = "1.0.0"
         }
     }

@@ -15,7 +15,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 
 class MainActivity : ComponentActivity() {
     companion object {
-        const val NEWS_PATH_SEGMENT = "news"
+        const val NEWS_PATH_SEGMENT = "Split"
     }
 
     @SuppressLint("ServiceCast")

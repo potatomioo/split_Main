@@ -200,15 +200,15 @@ fun NavHostMain(
 fun getTitle(currentScreen: NavDestination?): String {
     return when (currentScreen?.route) {
         BottomBarScreen.Home.route -> {
-            "Feed"
+            "Home"
         }
 
         BottomBarScreen.Reels.route -> {
-            "News"
+            "History"
         }
 
         BottomBarScreen.Profile.route -> {
-            "Timeline"
+            "Groups"
         }
 
         else -> {
