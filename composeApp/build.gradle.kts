@@ -127,8 +127,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
 
-            implementation(libs.firebase.firestore)
-            implementation(libs.firebase.auth)
+            implementation(libs.firebase.bom)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
