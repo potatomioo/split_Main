@@ -117,7 +117,7 @@ fun CreateExpense(
                         contentDescription = null,
                         modifier = Modifier
                             .size(48.dp)
-                            .padding(end = 12.dp),
+                            .padding(horizontal = 12.dp),
                         contentScale = ContentScale.Fit
                     )
                               },
@@ -140,7 +140,7 @@ fun CreateExpense(
                             contentDescription = null,
                             modifier = Modifier
                                 .size(48.dp)
-                                .padding(end = 12.dp),
+                                .padding(horizontal = 12.dp),
                             contentScale = ContentScale.Fit
                         ) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGroupDropdown) },
