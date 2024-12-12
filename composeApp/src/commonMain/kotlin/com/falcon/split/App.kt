@@ -260,7 +260,9 @@ fun App(
                 }
             }
             composable("create_expense") {
-                CreateExpense(navControllerMain)
+                CreateExpense(navControllerMain, {}) {
+
+                }
             }
         }
     }
