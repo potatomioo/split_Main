@@ -62,6 +62,7 @@ import com.falcon.split.data.network.models.UserState
 import com.falcon.split.screens.WelcomePage
 import com.falcon.split.screens.mainNavigation.CreateExpense
 import com.falcon.split.screens.mainNavigation.NavHostMain
+import com.falcon.split.screens.mainNavigation.ProfileScreen
 import com.falcon.split.screens.mainNavigation.navigateTo
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
@@ -190,23 +191,6 @@ fun App(
                         Spacer(
                             modifier = Modifier.height(35.dp)
                         )
-                        LineWithText()
-                        Spacer(
-                            modifier = Modifier.height(20.dp)
-                        )
-                        Text(
-                            text = "Continue Without SignIn",
-                            fontSize = 14.sp,
-                            color = Color.LightGray,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .clickable {
-                                    navControllerMain.navigate("app_content")
-                                    scope.launch {
-                                        setUserSkippedSignIn(prefs) // Setting In DataStore That User Skipped Sign-In As Of Now
-                                    }
-                                }
-                        )
                     }
                 }
                 if (requestSendForGetUserData.value) {
@@ -262,6 +246,17 @@ fun App(
             composable("create_expense") {
                 CreateExpense(navControllerMain, {}) {
 
+                }
+            }
+            composable("profile") {
+                ProfileScreen(
+                    navControllerMain,
+                    prefs
+                ) {
+                    scope.launch {
+                        deleteUser(prefs)
+                        navControllerMain.navigate("welcome_page")
+                    }
                 }
             }
         }

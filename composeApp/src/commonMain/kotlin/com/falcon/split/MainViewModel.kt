@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.falcon.split.utils.Result
+import kotlinx.coroutines.delay
+
 class MainViewModel(
     private val apiClient: ApiClient,
     private val prefs: DataStore<Preferences>
@@ -32,6 +34,7 @@ class MainViewModel(
         viewModelScope.launch {
             _userDetails.value = UserState.Loading
             val result = apiClient.getUserDetailsFromGoogleAuthToken(googleToken)
+            delay(2700) // TODO: Remove this delay later
             _userDetails.value = when (result) {
                 is Result.Success -> {
                     println("DEBUG_TAG" + "User ID: "+ result.data.userId)
