@@ -109,6 +109,7 @@ fun ProfileScreen(
         }
         TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
         TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
+        TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
         TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
         Spacer(modifier = Modifier.height(16.dp))
         androidx.compose.material3.Button(
@@ -149,6 +150,51 @@ fun TextWithBorder(headingValue: String, descriptionValue: String){
                     mTextFieldSize = coordinates.size.toSize()
                 }
             ,
+            label = {Text(headingValue, modifier = Modifier
+                .clickable {
+                    mExpanded = !mExpanded
+                })}
+        )
+    }
+}
+
+@Composable
+fun TextWithBorderEditable(headingValue: String, descriptionValue: String){
+    var mSelectedText by remember(descriptionValue) { mutableStateOf(descriptionValue) }
+    var mExpanded by remember { mutableStateOf(false) }
+    var mTextFieldSize by remember { mutableStateOf(Size.Zero)}
+    Column(
+        Modifier
+            .padding(10.dp, 5.dp)
+    ) {
+        OutlinedTextField(
+            readOnly = false,
+            value = mSelectedText.toString(),
+            onValueChange = {
+                mSelectedText = it
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    // This value is used to assign to
+                    // the DropDown the same width
+                    mTextFieldSize = coordinates.size.toSize()
+                }
+            ,
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(Res.drawable.copy_icon),
+                    contentDescription = "Copy",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            ClipboardManager.copyToClipboard(descriptionValue)
+//                            clipboardManager.copyText(descriptionValue)
+                            // TODO: Add A Toast Or Something Here To Notify That Text Is Copies, maybe consider using snackbar
+                        },
+                )
+            },
             label = {Text(headingValue, modifier = Modifier
                 .clickable {
                     mExpanded = !mExpanded

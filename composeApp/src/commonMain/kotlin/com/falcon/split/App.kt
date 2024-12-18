@@ -61,7 +61,6 @@ import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
-import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.screens.WelcomePage
 import com.falcon.split.screens.mainNavigation.CreateExpense
 import com.falcon.split.screens.mainNavigation.CreateExpenseFromAGroup
@@ -289,7 +288,8 @@ fun App(
                     onNavigateBack = { navControllerMain.popBackStack() },
                     onAddExpense = { groupId ->
                         navControllerMain.navigate("add_expense/$groupId")
-                    }
+                    },
+                    navControllerMain = navControllerMain
                 )
             }
         }

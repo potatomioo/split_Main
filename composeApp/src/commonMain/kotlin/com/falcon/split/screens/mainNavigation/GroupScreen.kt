@@ -30,19 +30,12 @@ fun GroupsScreen(
     navControllerMain: NavHostController
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Groups") }
-            )
-        },
         floatingActionButton = {
-            AddExpenseFAB(
-                onClick = {
-                    navControllerMain.navigate("create_expense_in_a_group")
-                },
-                modifier = Modifier
-                    .padding(end = 16.dp, bottom = 16.dp)  // Adds spacing from screen edges
-            )
+            FloatingActionButton(
+                onClick = { navControllerMain.navigate("create_group") }
+            ) {
+                Icon(Icons.Default.Add, "Add Expense")
+            }
         }
     ) { padding ->
         Box(

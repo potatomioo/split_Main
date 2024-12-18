@@ -9,8 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.ExpenseSplit
 import com.falcon.split.data.network.models_app.Group
@@ -21,7 +21,8 @@ import kotlinx.datetime.Clock
 fun GroupDetailsScreen(
     groupId: String,
     onNavigateBack: () -> Unit,
-    onAddExpense: (String) -> Unit
+    onAddExpense: (String) -> Unit,
+    navControllerMain: NavHostController
 ) {
     // Dummy data for the group
     val group = remember {
@@ -109,11 +110,13 @@ fun GroupDetailsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onAddExpense(groupId) }
-            ) {
-                Icon(Icons.Default.Add, "Add Expense")
-            }
+            AddExpenseFAB(
+                onClick = {
+                    navControllerMain.navigate("create_expense_in_a_group")
+                },
+                modifier = Modifier
+                    .padding(end = 16.dp, bottom = 16.dp)  // Adds spacing from screen edges
+            )
         }
     ) { padding ->
         LazyColumn(

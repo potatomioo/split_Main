@@ -39,14 +39,6 @@ fun MyRewardsUpperComposable() {
         modifier = Modifier
             .padding(24.dp)
     ) {
-        Text(
-            text = "Reward History",
-            fontSize = 24.sp,
-            fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal)),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            )
-        )
         Spacer(
             modifier = Modifier
                 .size(24.dp)
