@@ -2,6 +2,7 @@
 
 package com.falcon.split
 
+import SettingScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -273,6 +274,12 @@ fun App(
                         navControllerMain.navigate("welcome_page")
                     }
                 }
+            }
+            composable("settings"){
+                SettingScreen(
+                    navControllerMain,
+                    onNavigateBack = {navControllerMain.popBackStack()}
+                )
             }
             composable(
                 route = "group_details/{groupId}",
