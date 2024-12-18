@@ -12,13 +12,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,76 +58,79 @@ import split.composeapp.generated.resources.copy_icon
 import split.composeapp.generated.resources.nunito_bold_1
 import split.composeapp.generated.resources.picture_preview
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
     prefs: DataStore<Preferences>,
-    onSignOut: () -> Unit,
+    onSignOut: () -> Unit
 ) {
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .padding(24.dp)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        androidx.compose.material3.Text(
-            text = "Profile",
-            fontSize = 24.sp,
-            fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
-            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // State to hold the fetched UserModel
-        var userModel by remember { mutableStateOf<UserModel?>(null) }
-
-        // LaunchedEffect to fetch UserModel once when the composable is first composed
-        LaunchedEffect(Unit) {
-            userModel = getUserAsUserModel(prefs)
-        }
-        // Check if the profile image is available, otherwise show a placeholder
-        AsyncImage(
-            model = userModel?.profileImageUrl ?: Res.drawable.picture_preview, // Show placeholder if no image URL
-            contentDescription = "Profile picture",
-            modifier = Modifier
-                .size(150.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Spacer(modifier = Modifier.width(10.dp))
-            androidx.compose.material3.Text(
-                text = "Info",
-                fontSize = 21.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") },
+                navigationIcon = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.ArrowBack, "Back")
+                    }
+                }
             )
         }
-        TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
-        TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
-        TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
-        Spacer(modifier = Modifier.height(16.dp))
-        androidx.compose.material3.Button(
-            onClick = onSignOut,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
-            ),
+    ) { padding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            androidx.compose.material3.Text(
-                text = "Sign Out",
+            // State to hold the fetched UserModel
+            var userModel by remember { mutableStateOf<UserModel?>(null) }
+
+            // LaunchedEffect to fetch UserModel once when the composable is first composed
+            LaunchedEffect(Unit) {
+                userModel = getUserAsUserModel(prefs)
+            }
+            // Check if the profile image is available, otherwise show a placeholder
+            AsyncImage(
+                model = userModel?.profileImageUrl ?: Res.drawable.picture_preview, // Show placeholder if no image URL
+                contentDescription = "Profile picture",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Spacer(modifier = Modifier.width(10.dp))
+                androidx.compose.material3.Text(
+                    text = "Info",
+                    fontSize = 21.sp,
+                    fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
+                )
+            }
+            TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
+            TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
+            TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
+            Spacer(modifier = Modifier.height(16.dp))
+            androidx.compose.material3.Button(
+                onClick = onSignOut,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black,
+                    contentColor = Color.White
+                ),
+            ) {
+                androidx.compose.material3.Text(
+                    text = "Sign Out",
+                )
+            }
         }
     }
 }
