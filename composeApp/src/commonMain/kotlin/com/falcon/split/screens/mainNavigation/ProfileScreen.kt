@@ -82,30 +82,9 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-
-                .fillMaxWidth()
                 .padding(24.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.width(10.dp))
-            androidx.compose.material3.Text(
-                text = "Info",
-                fontSize = 21.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
-            )
-        }
-        TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
-        TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
-        TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
-        TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
-        Spacer(modifier = Modifier.height(16.dp))
-        androidx.compose.material3.Button(
-            onClick = onSignOut,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
-            )
         ) {
             // State to hold the fetched UserModel
             var userModel by remember { mutableStateOf<UserModel?>(null) }
@@ -139,6 +118,7 @@ fun ProfileScreen(
             }
             TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
             TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
+            TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
             TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
             Spacer(modifier = Modifier.height(16.dp))
             androidx.compose.material3.Button(
