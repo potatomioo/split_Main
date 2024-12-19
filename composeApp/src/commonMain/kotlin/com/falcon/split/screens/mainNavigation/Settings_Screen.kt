@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.ErrorRed
+import com.falcon.split.ThemePurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,15 +41,34 @@ fun SettingScreen(
                 .padding(padding)
         ) {
             items(1){
-                SettingOption("Terms & Condition","Terms and Condition for using",{})
+                settingType("General")
+                SettingOption("Contact Us","Contact our team",{})
                 SettingOption("Theme","Change the theme of app",{navController.navigate("ThemeChangeScreen")})
                 SettingOption("Payment Account","Change your current payment account",{})
                 SettingOption("Delete Account","Delete your account",{})
+                settingType("Developer")
+                SettingOption("Resource Used","Resources used for app",{})
+                SettingOption("Bug Report","Report bugs here",{})
+                SettingOption("Terms & Condition","Terms and Condition for using",{})
+                SettingOption("Privacy Poicy","All the privacy policies",{})
             }
         }
     }
 }
 
+@Composable
+fun settingType(
+    title : String
+) {
+    Text(
+        title,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = ThemePurple,
+        modifier = Modifier
+            .padding(15.dp)
+    )
+}
 
 @Composable
 fun SettingOption(
