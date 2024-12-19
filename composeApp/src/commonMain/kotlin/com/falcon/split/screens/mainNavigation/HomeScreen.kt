@@ -35,7 +35,7 @@ import androidx.compose.material.icons.filled.Add
 import split.composeapp.generated.resources.group_icon_outlined
 
 @Composable
-fun HomeScreem(
+fun HomeScreen(
     onNavigate: (rootName: String) -> Unit,
     prefs: DataStore<Preferences>,
     snackBarHostState: SnackbarHostState,

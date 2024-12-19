@@ -9,8 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.falcon.split.ErrorRed
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.ExpenseSplit
 import com.falcon.split.data.network.models_app.Group
@@ -93,6 +98,9 @@ fun GroupDetailsScreen(
         )
     }
 
+    //ShowOptionsMenu State
+    var showOptionsMenu by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -103,9 +111,19 @@ fun GroupDetailsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Open settings */ }) {
+                    IconButton(onClick = { showOptionsMenu = true }) {
                         Icon(Icons.Default.MoreVert, "More options")
                     }
+                    GroupOptionsMenu(
+                        showMenu = showOptionsMenu,
+                        onDismiss = { showOptionsMenu = false },
+                        onDeleteClick = {
+                            // Handle delete group
+                        },
+                        onRemoveMemberClick = {
+                            // Handle remove member
+                        }
+                    )
                 }
             )
         },
@@ -261,5 +279,84 @@ private fun ExpenseCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+
+
+
+@Composable
+fun GroupOptionsMenu(
+    showMenu: Boolean,
+    onDismiss: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onRemoveMemberClick: () -> Unit
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    DropdownMenu(
+        expanded = showMenu,
+        onDismissRequest = onDismiss,
+        offset = DpOffset(-10.dp,1.dp)
+    ) {
+        DropdownMenuItem(
+            text = { Text("Remove Member") },
+            onClick = {
+                onDismiss()
+                onRemoveMemberClick()
+            },
+            leadingIcon = {
+                Icon(Icons.Default.Person, "Remove Member")
+            }
+        )
+
+        DropdownMenuItem(
+            text = { Text("Delete Group", color = ErrorRed) },
+            onClick = {
+                onDismiss()
+                showDeleteDialog = true
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Delete,
+                    "Delete Group",
+                    tint = ErrorRed
+                )
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(
+                    "Delete Group",
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Text("Are you sure you want to delete this group?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteClick()
+                    }
+                ) {
+                    Text("Delete", color = ErrorRed)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel", color = Color.Black)
+                }
+            }
+        )
     }
 }
