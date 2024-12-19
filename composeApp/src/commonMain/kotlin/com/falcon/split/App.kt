@@ -65,6 +65,7 @@ import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
 import com.falcon.split.screens.WelcomePage
 import com.falcon.split.screens.mainNavigation.CreateExpense
+import com.falcon.split.screens.mainNavigation.CreateExpenseFromAGroup
 import com.falcon.split.screens.mainNavigation.CreateGroupScreen
 import com.falcon.split.screens.mainNavigation.GroupDetailsScreen
 import com.falcon.split.screens.mainNavigation.NavHostMain
@@ -262,9 +263,12 @@ fun App(
                 )
             }
             composable("create_expense") {
-                CreateExpense(navControllerMain, {}) {
+                CreateExpense(navControllerMain, { expense ->
 
-                }
+                }, {})
+            }
+            composable("create_expense_in_a_group") {
+                CreateExpenseFromAGroup(navControllerMain, {} ) {}
             }
             composable("profile") {
                 ProfileScreen(
@@ -297,7 +301,8 @@ fun App(
                     onNavigateBack = { navControllerMain.popBackStack() },
                     onAddExpense = { groupId ->
                         navControllerMain.navigate("add_expense/$groupId")
-                    }
+                    },
+                    navControllerMain = navControllerMain
                 )
             }
         }

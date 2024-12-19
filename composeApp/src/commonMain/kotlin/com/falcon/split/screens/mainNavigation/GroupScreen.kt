@@ -11,12 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.screens.mainNavigation.AddExpenseFAB
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
-import split.composeapp.generated.resources.description_icon
 import split.composeapp.generated.resources.group_icon_filled
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,20 +26,15 @@ fun GroupsScreen(
     onCreateGroupClick: () -> Unit,
     onGroupClick: (Group) -> Unit,
     groups: List<Group>,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    navControllerMain: NavHostController
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Groups") }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onCreateGroupClick,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                onClick = { navControllerMain.navigate("create_group") }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Create Group")
+                Icon(Icons.Default.Add, "Add Expense")
             }
         }
     ) { padding ->
@@ -186,7 +182,8 @@ private fun EmptyGroupsView(
 @Composable
 fun GroupsScreenWithDummyData(
     onCreateGroupClick: () -> Unit,
-    onGroupClick: (Group) -> Unit
+    onGroupClick: (Group) -> Unit,
+    navControllerMain: NavHostController
 ) {
     // Dummy groups data
     val dummyGroups = remember {
@@ -243,6 +240,9 @@ fun GroupsScreenWithDummyData(
         groups = dummyGroups,
         isLoading = isLoading,
         onCreateGroupClick = onCreateGroupClick,
-        onGroupClick = onGroupClick
+        onGroupClick = onGroupClick,
+        navControllerMain = navControllerMain
     )
+
+
 }

@@ -9,5 +9,6 @@ data class UserModel(
     val name: String,
     val email: String,
     val profileImageUrl: String,
-    val token: String
+    val token: String,
+    val upiId: String? = null
 )

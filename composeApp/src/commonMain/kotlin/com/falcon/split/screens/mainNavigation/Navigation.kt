@@ -116,20 +116,6 @@ fun NavHostMain(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = {
-                            //TODO()
-                        },
-                        content = {
-                            Icon(
-                                painter = painterResource(Res.drawable.refresh),
-                                contentDescription = "refresh",
-                                modifier = Modifier
-                                    .size(25.dp)
-                                    .clip(CutCornerShape(CornerSize(3.dp))),
-                            )
-                        },
-                    )
                     IconButton(onClick = {
                         openUserOptionsMenu.value = true
                     }) {
@@ -196,7 +182,8 @@ fun NavHostMain(
                     },
                     onGroupClick = { group ->
                         navControllerMain.navigate("group_details/${group.groupId}")
-                    }
+                    },
+                    navControllerMain = navControllerMain
                 )
             }
         }

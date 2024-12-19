@@ -82,9 +82,30 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
+
+                .fillMaxWidth()
                 .padding(24.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.width(10.dp))
+            androidx.compose.material3.Text(
+                text = "Info",
+                fontSize = 21.sp,
+                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
+            )
+        }
+        TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
+        TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
+        TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
+        TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
+        Spacer(modifier = Modifier.height(16.dp))
+        androidx.compose.material3.Button(
+            onClick = onSignOut,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            )
         ) {
             // State to hold the fetched UserModel
             var userModel by remember { mutableStateOf<UserModel?>(null) }
@@ -159,6 +180,51 @@ fun TextWithBorder(headingValue: String, descriptionValue: String){
                     mTextFieldSize = coordinates.size.toSize()
                 }
             ,
+            label = {Text(headingValue, modifier = Modifier
+                .clickable {
+                    mExpanded = !mExpanded
+                })}
+        )
+    }
+}
+
+@Composable
+fun TextWithBorderEditable(headingValue: String, descriptionValue: String){
+    var mSelectedText by remember(descriptionValue) { mutableStateOf(descriptionValue) }
+    var mExpanded by remember { mutableStateOf(false) }
+    var mTextFieldSize by remember { mutableStateOf(Size.Zero)}
+    Column(
+        Modifier
+            .padding(10.dp, 5.dp)
+    ) {
+        OutlinedTextField(
+            readOnly = false,
+            value = mSelectedText.toString(),
+            onValueChange = {
+                mSelectedText = it
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    // This value is used to assign to
+                    // the DropDown the same width
+                    mTextFieldSize = coordinates.size.toSize()
+                }
+            ,
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(Res.drawable.copy_icon),
+                    contentDescription = "Copy",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            ClipboardManager.copyToClipboard(descriptionValue)
+//                            clipboardManager.copyText(descriptionValue)
+                            // TODO: Add A Toast Or Something Here To Notify That Text Is Copies, maybe consider using snackbar
+                        },
+                )
+            },
             label = {Text(headingValue, modifier = Modifier
                 .clickable {
                     mExpanded = !mExpanded
