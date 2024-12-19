@@ -2,6 +2,8 @@
 
 package com.falcon.split
 
+import SettingScreen
+import ThemeChangeSwitcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -256,6 +258,7 @@ fun App(
                     },
                     onNavigateBack = {
                         // Navigate back
+                        navControllerMain.popBackStack()
                     }
                 )
             }
@@ -277,6 +280,16 @@ fun App(
                         navControllerMain.navigate("welcome_page")
                     }
                 }
+            }
+            composable("settings"){
+                SettingScreen(
+                    navControllerMain,
+                    onNavigateBack = {navControllerMain.popBackStack()}
+                )
+            }
+            composable("ThemeChangeScreen"){
+                var HowIsTheme = remember{ mutableStateOf(false) }
+                ThemeChangeSwitcher(isDarkMode = false)
             }
             composable(
                 route = "group_details/{groupId}",
