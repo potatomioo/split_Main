@@ -289,7 +289,7 @@ fun App(
             }
             composable("ThemeChangeScreen"){
                 var HowIsTheme = remember{ mutableStateOf(false) }
-                ThemeChangeSwitcher(isDarkMode = false)
+                ThemeChangeSwitcher(isDarkMode = false,{},{})
             }
             composable(
                 route = "group_details/{groupId}",

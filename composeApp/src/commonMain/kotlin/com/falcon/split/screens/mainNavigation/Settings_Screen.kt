@@ -23,6 +23,9 @@ fun SettingScreen(
     navController: NavHostController,
     onNavigateBack:() -> Unit
 ) {
+    //For delete Account
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,7 +48,11 @@ fun SettingScreen(
                 SettingOption("Contact Us","Contact our team",{})
                 SettingOption("Theme","Change the theme of app",{navController.navigate("ThemeChangeScreen")})
                 SettingOption("Payment Account","Change your current payment account",{})
-                SettingOption("Delete Account","Delete your account",{})
+                SettingOption(
+                    "Delete Account",
+                    "Delete your account",
+                    {showDeleteDialog = true}
+                )
                 settingType("Developer")
                 SettingOption("Resource Used","Resources used for app",{})
                 SettingOption("Bug Report","Report bugs here",{})
@@ -53,6 +60,11 @@ fun SettingScreen(
                 SettingOption("Privacy Poicy","All the privacy policies",{})
             }
         }
+        DeleteAccountDialog(
+            showDeleteDialog,
+            onDismiss = {showDeleteDialog = false},
+            onConfirmDelete = {}
+        )
     }
 }
 
@@ -124,3 +136,41 @@ fun SettingOption(
 }
 
 
+@Composable
+fun DeleteAccountDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmDelete: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(
+                    "Delete Account",
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Text("Are you sure you want to delete your account? This action cannot be undone.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onConfirmDelete()
+                        onDismiss()
+                    }
+                ) {
+                    Text("Delete", color = ErrorRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel", color = Color.Black)
+                }
+            }
+        )
+    }
+}
