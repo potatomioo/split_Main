@@ -71,6 +71,8 @@ import com.falcon.split.screens.mainNavigation.GroupDetailsScreen
 import com.falcon.split.screens.mainNavigation.NavHostMain
 import com.falcon.split.screens.mainNavigation.ProfileScreen
 import com.falcon.split.screens.mainNavigation.navigateTo
+import com.falcon.split.utils.EmailUtils
+import com.falcon.split.utils.rememberEmailUtils
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import com.mmk.kmpauth.google.GoogleButtonUiContainer
@@ -87,6 +89,7 @@ import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.nunito_regular_1
 import split.composeapp.generated.resources.profile_icon
 import split.composeapp.generated.resources.settings_icon
+
 
 @Composable
 @Preview
@@ -282,9 +285,11 @@ fun App(
                 }
             }
             composable("settings"){
+                val emailUtils = rememberEmailUtils()
                 SettingScreen(
                     navControllerMain,
-                    onNavigateBack = {navControllerMain.popBackStack()}
+                    onNavigateBack = {navControllerMain.popBackStack()},
+                    emailUtils = emailUtils
                 )
             }
             composable("ThemeChangeScreen"){

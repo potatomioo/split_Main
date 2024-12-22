@@ -16,12 +16,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.ErrorRed
 import com.falcon.split.ThemePurple
+import com.falcon.split.utils.EmailUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     navController: NavHostController,
-    onNavigateBack:() -> Unit
+    onNavigateBack:() -> Unit,
+    emailUtils: EmailUtils
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -45,7 +47,17 @@ fun SettingScreen(
         ) {
             items(1){
                 settingType("General")
-                SettingOption("Contact Us","Contact our team",{})
+                SettingOption(
+                    "Contact Us",
+                    "Contact our team",
+                    {
+                        emailUtils.sendEmail(
+                            to = "deeptanshushuklaji@gmail.com",
+                            subject = "Support Request - Split App",
+                            body = "Hello, I need assistance with..."
+                        )
+                    }
+                )
                 SettingOption("Theme","Change the theme of app",{navController.navigate("ThemeChangeScreen")})
                 SettingOption("Payment Account","Change your current payment account",{})
                 SettingOption(
