@@ -4,6 +4,9 @@ package com.falcon.split.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 
 actual class EmailUtils(private val context: Context) {
     actual fun sendEmail(to: String, subject: String, body: String) {
@@ -19,4 +22,11 @@ actual class EmailUtils(private val context: Context) {
             e.printStackTrace()
         }
     }
+}
+
+
+@Composable
+actual fun rememberEmailUtils(): EmailUtils {
+    val context = LocalContext.current
+    return remember { EmailUtils(context) }
 }

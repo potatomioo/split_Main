@@ -1,6 +1,8 @@
 // src/iosMain/kotlin/com/falcon/split/utils/EmailUtils.kt
 package com.falcon.split.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import platform.Foundation.*
 import platform.UIKit.*
 
@@ -16,4 +18,10 @@ actual class EmailUtils {
                 NSCharacterSet.URLQueryAllowedCharacterSet()
             ) ?: text
     }
+}
+
+
+@Composable
+actual fun rememberEmailUtils(): EmailUtils {
+    return remember { EmailUtils() }
 }

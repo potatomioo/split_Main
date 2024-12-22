@@ -1,6 +1,8 @@
 // src/desktopMain/kotlin/com/falcon/split/utils/EmailUtils.kt
 package com.falcon.split.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import java.awt.Desktop
 import java.net.URI
 
@@ -13,4 +15,10 @@ actual class EmailUtils {
             e.printStackTrace()
         }
     }
+}
+
+
+@Composable
+actual fun rememberEmailUtils(): EmailUtils {
+    return remember { EmailUtils() }
 }
