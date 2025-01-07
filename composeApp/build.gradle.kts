@@ -13,6 +13,7 @@ plugins {
 //    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    id("com.google.gms.google-services")
 }
 
 kotlin {

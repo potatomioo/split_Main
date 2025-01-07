@@ -10,6 +10,7 @@ plugins {
 //    alias(libs.plugins.google.playServices) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.kotlinCocoapods) apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
 apply<MyPlugin>()
