@@ -2,7 +2,10 @@
 
 package com.falcon.split.data.network
 
+import com.falcon.split.data.network.models.TransactionHistory
 import com.falcon.split.data.network.models.UserModel
+import com.falcon.split.data.network.models_app.Expense
+import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.utils.NetworkError
 import com.falcon.split.utils.Result
 import io.ktor.client.HttpClient
@@ -102,9 +105,40 @@ class ApiClient(
 
 
     suspend fun getUserDetailsFromGoogleAuthToken(googleToken: String): Result<UserModel, NetworkError> {
-//        val url = "${baseUrl}/api/auth/getUserFromGoogleToken" //TODO: REVERT BACK TO THIS
         val url = "https://mock-api-project.vercel.app/api/auth/getUserFromGoogleToken"
         val params = mapOf("googleToken" to googleToken)
         return makeApiCall(url = url, method = HttpMethod.Get, params = params)
+    }
+
+    suspend fun getUserTransactionHistory(googleToken: String): Result<List<TransactionHistory>, NetworkError> {
+        val url = "https://mock-api-project.vercel.app/api/auth/getUserTransactionHistory"
+        val params = mapOf("googleToken" to googleToken)
+        return makeApiCall(url = url, method = HttpMethod.Get, params = params)
+    }
+
+    suspend fun createExpense(
+        userJwtToken: String,
+        expense: Expense,
+    ): Result<Boolean, NetworkError> {
+        val url = "https://mock-api-project.vercel.app/api/auth/createExpense"
+        val params = mapOf("googleToken" to userJwtToken)
+        return makeApiCall(url = url, body = expense, method = HttpMethod.Get, params = params)
+    }
+
+    suspend fun getUserGroups(
+        userJwtToken: String,
+    ): Result<List<Group>, NetworkError> {
+        val url = "https://mock-api-project.vercel.app/api/auth/getUserGroups"
+        val params = mapOf("googleToken" to userJwtToken)
+        return makeApiCall(url = url, method = HttpMethod.Get, params = params)
+    }
+
+    suspend fun createGroup(
+        userJwtToken: String,
+        listOfMembers: List<Contact>
+    ): Result<Boolean, NetworkError> {
+        val url = "https://mock-api-project.vercel.app/api/auth/createGroup"
+        val params = mapOf("googleToken" to userJwtToken)
+        return makeApiCall(url = url, method = HttpMethod.Get, body = listOfMembers, params = params)
     }
 }

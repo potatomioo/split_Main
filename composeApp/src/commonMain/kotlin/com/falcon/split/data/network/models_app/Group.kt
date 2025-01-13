@@ -3,7 +3,9 @@ package com.falcon.split.data.network.models_app
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Group(
     val groupId: String = "",
     val name: String = "",

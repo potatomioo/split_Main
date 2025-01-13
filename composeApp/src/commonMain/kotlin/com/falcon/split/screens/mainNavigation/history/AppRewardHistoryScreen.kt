@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,49 +50,7 @@ fun MyRewardsUpperComposable() {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                text = "$ 667.89",
-                fontSize = 24.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal)),
-                color = Color(0xFF5664E9)
-            )
-            Text(
-                text = "Total Rewards",
-                fontSize = 14.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal)),
-                color = Color.LightGray
-            )
-            Spacer(
-                modifier = Modifier
-                    .size(16.dp)
-            )
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-            )
-            Spacer(
-                modifier = Modifier
-                    .size(16.dp)
-            )
-            Text(
-                text = "$ 667.89",
-                fontSize = 20.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal)),
-                color = Color(0xFF5664E9)
-            )
-            Text(
-                text = "103 Rewards",
-                fontSize = 12.sp,
-                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal)),
-                color = Color.LightGray
-            )
-            Spacer(
-                modifier = Modifier
-                    .size(16.dp)
-            )
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp),
