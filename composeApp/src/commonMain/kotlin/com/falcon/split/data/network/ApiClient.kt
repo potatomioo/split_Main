@@ -135,9 +135,11 @@ class ApiClient(
 
     suspend fun createGroup(
         userJwtToken: String,
-        listOfMembers: List<Contact>
+        listOfMembers: List<Contact>,
+        groupName: String
     ): Result<Boolean, NetworkError> {
         val url = "https://mock-api-project.vercel.app/api/auth/createGroup"
+        val createdBy: String = userJwtToken
         val params = mapOf("googleToken" to userJwtToken)
         return makeApiCall(url = url, method = HttpMethod.Get, body = listOfMembers, params = params)
     }

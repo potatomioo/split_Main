@@ -11,25 +11,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
-import split.composeapp.generated.resources.group_icon_outlined
 import split.composeapp.generated.resources.menu_icon_sec
-import split.composeapp.generated.resources.nunito_bold_1
 import split.composeapp.generated.resources.nunito_semibold_1
 
 
@@ -110,13 +109,30 @@ private fun RewardComposable(date: String, amount: String) {
                 )
             }
         }
-        Text(
-            text = amount,
-            fontSize = 16.sp,
-            fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal)),
-            color = Color(0xFF008030)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                onPayClickOnHistoryItem(
+                    upiId = "avishisht@paytm",
+                    amount = 100,
+                    currency = "INR"
+                )
+            }) {
+                Icon(Icons.Default.ArrowBack, "Back")
+            }
+            Text(
+                text = amount,
+                fontSize = 16.sp,
+                fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal)),
+                color = Color(0xFF008030)
+            )
+        }
     }
+}
+
+fun onPayClickOnHistoryItem(upiId: String, amount: Int, currency: String) {
+    TODO("Not yet implemented")
 }
 
 data class Reward (
