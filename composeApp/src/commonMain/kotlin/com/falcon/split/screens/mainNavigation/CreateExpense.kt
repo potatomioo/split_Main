@@ -237,7 +237,7 @@ fun CreateExpense(
                             groupId = selectedGroup!!,
                             description = description,
                             amount = expenseAmount,
-                            paidBy = selectedPayer!!,
+                            paidByUserId = selectedPayer!!,
                             createdAt = Clock.System.now(),
                             splitBetween = dummyUsers.map { (_, userId) ->
                                 ExpenseSplit(
@@ -433,7 +433,7 @@ fun CreateExpenseFromAGroup(
                             groupId = selectedGroup!!,
                             description = description,
                             amount = expenseAmount,
-                            paidBy = selectedPayer!!,
+                            paidByUserId = selectedPayer!!,
                             createdAt = Clock.System.now(),
                             splitBetween = dummyUsers.map { (_, userId) ->
                                 ExpenseSplit(

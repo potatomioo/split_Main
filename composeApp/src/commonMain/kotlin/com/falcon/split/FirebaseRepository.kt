@@ -331,7 +331,7 @@ class FirebaseRepository {
             .fold(mutableMapOf<String, Double>()) { balances, expense ->
                 balances.apply {
                     // Add amount to person who paid
-                    this[expense.paidBy] = (this[expense.paidBy] ?: 0.0) + expense.amount
+                    this[expense.paidByUserId] = (this[expense.paidByUserId] ?: 0.0) + expense.amount
                     // Subtract split amounts
                     expense.splitBetween.forEach { split ->
                         this[split.userId] = (this[split.userId] ?: 0.0) - split.amount

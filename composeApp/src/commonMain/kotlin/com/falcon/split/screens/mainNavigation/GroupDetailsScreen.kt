@@ -58,7 +58,7 @@ fun GroupDetailsScreen(
                 groupId = groupId,
                 description = "Hotel Booking",
                 amount = 12000.0,
-                paidBy = "user1",
+                paidByUserId = "user1",
                 createdAt = Clock.System.now(),
                 splitBetween = listOf(
                     ExpenseSplit("user1", 3000.0),
@@ -72,7 +72,7 @@ fun GroupDetailsScreen(
                 groupId = groupId,
                 description = "Dinner",
                 amount = 4000.0,
-                paidBy = "user2",
+                paidByUserId = "user2",
                 createdAt = Clock.System.now(),
                 splitBetween = listOf(
                     ExpenseSplit("user1", 1000.0),
@@ -86,7 +86,7 @@ fun GroupDetailsScreen(
                 groupId = groupId,
                 description = "Taxi",
                 amount = 1600.0,
-                paidBy = "user3",
+                paidByUserId = "user3",
                 createdAt = Clock.System.now(),
                 splitBetween = listOf(
                     ExpenseSplit("user1", 400.0),
@@ -161,7 +161,7 @@ fun GroupDetailsScreen(
             items(expenses) { expense ->
                 ExpenseCard(
                     expense = expense,
-                    paidByName = memberNames[expense.paidBy] ?: "Unknown"
+                    paidByName = memberNames[expense.paidByUserId] ?: "Unknown"
                 )
             }
         }
