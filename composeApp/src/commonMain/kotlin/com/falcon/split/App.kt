@@ -61,6 +61,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.falcon.split.contact.ContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
 import com.falcon.split.screens.WelcomePage
@@ -95,7 +96,8 @@ import split.composeapp.generated.resources.settings_icon
 @Preview
 fun App(
     client: ApiClient,
-    prefs: DataStore<Preferences>
+    prefs: DataStore<Preferences>,
+    contactManager: ContactManager
 ) {
     MaterialTheme {
 
@@ -162,7 +164,7 @@ fun App(
         var startDestination = runBlocking {
             if (getUserAsUserModel(prefs) != null) "app_content" else "welcome_page"
         }
-        startDestination = "payment_screen" // TODO: Remove Later
+//        startDestination = "payment_screen" // TODO: Remove Later
         NavHost(navController = navControllerMain, startDestination = startDestination) {
             composable("payment_screen") {
                 PaymentScreen(
@@ -171,7 +173,7 @@ fun App(
                     paymentUpiId = "john@okhdfcbank",
                     snackBarHostState = snackBarHostState,
                 ) {
-                    // Handle back navigation
+                    navControllerMain.popBackStack()
                 }
             }
             composable("welcome_page") {
@@ -273,7 +275,8 @@ fun App(
                     onNavigateBack = {
                         // Navigate back
                         navControllerMain.popBackStack()
-                    }
+                    },
+                    contactManager
                 )
             }
             composable("create_expense") {
