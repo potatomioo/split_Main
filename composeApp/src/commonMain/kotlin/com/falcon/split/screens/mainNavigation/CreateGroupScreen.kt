@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,10 +38,12 @@ fun CreateGroupScreen(
     var selectedContact by remember { mutableStateOf<ContactInfo?>(null) }
     
     // Dummy data for users - Replace with actual data from your ViewModel
-    val dummyUsers = mutableListOf(
-        "John Doe" to "user1",
-        "Jane Smith" to "user2"
-    )
+    val dummyUsers = remember {
+        mutableListOf(
+            "John Doe" to "user1",
+            "Jane Smith" to "user2"
+        )
+    }
 
     if (showContactPicker) {
         ContactPicker(
@@ -50,9 +53,11 @@ fun CreateGroupScreen(
             showContactPicker = false
         }
     }
-
-    selectedContact?.let { contact ->
-        dummyUsers.add("${contact.name}" to "next User")
+    LaunchedEffect(selectedContact){
+        selectedContact?.let { contact ->
+            dummyUsers.add(contact.name to "user ${dummyUsers.size + 1} ")
+            println("Hey printing this $dummyUsers")
+        }
     }
 
     Scaffold(
@@ -61,7 +66,7 @@ fun CreateGroupScreen(
                 title = { Text("Create New Group") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
