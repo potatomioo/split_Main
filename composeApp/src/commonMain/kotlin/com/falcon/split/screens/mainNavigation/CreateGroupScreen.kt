@@ -1,5 +1,6 @@
 package com.falcon.split.screens.mainNavigation
 
+import ContactPicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.falcon.split.contact.ContactInfo
+import com.falcon.split.contact.ContactManager
 import com.falcon.split.data.network.models_app.Group
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
@@ -23,20 +26,34 @@ import split.composeapp.generated.resources.group_icon_filled
 @Composable
 fun CreateGroupScreen(
     onGroupCreated: (Group) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    contactManager: ContactManager
 ) {
     var groupName by remember { mutableStateOf("") }
     var showMemberSelection by remember { mutableStateOf(false) }
     var selectedMembers by remember { mutableStateOf(setOf<String>()) }
+
+    var showContactPicker by remember { mutableStateOf(false) }
+    var selectedContact by remember { mutableStateOf<ContactInfo?>(null) }
     
     // Dummy data for users - Replace with actual data from your ViewModel
-    val dummyUsers = listOf(
+    val dummyUsers = mutableListOf(
         "John Doe" to "user1",
-        "Jane Smith" to "user2",
-        "Mike Johnson" to "user3",
-        "Sarah Wilson" to "user4",
-        "Alex Brown" to "user5"
+        "Jane Smith" to "user2"
     )
+
+    if (showContactPicker) {
+        ContactPicker(
+            contactManager = contactManager
+        ) { contact ->
+            selectedContact = contact
+            showContactPicker = false
+        }
+    }
+
+    selectedContact?.let { contact ->
+        dummyUsers.add("${contact.name}" to "next User")
+    }
 
     Scaffold(
         topBar = {
@@ -105,7 +122,11 @@ fun CreateGroupScreen(
                             "Select Members",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        IconButton(onClick = { showMemberSelection = !showMemberSelection }) {
+                        IconButton(onClick = {
+                            //showMemberSelection = !showMemberSelection
+                            //Changes this, and opening Contact on the click
+                            showContactPicker = true
+                        }) {
                             Icon(
                                 if (showMemberSelection) Icons.Default.KeyboardArrowDown
                                 else Icons.Default.KeyboardArrowDown,
@@ -121,6 +142,7 @@ fun CreateGroupScreen(
                             )
                         }
                     }
+//        }
 
                     AnimatedVisibility(visible = showMemberSelection) {
                         LazyColumn(
