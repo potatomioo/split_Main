@@ -1,7 +1,6 @@
 package com.falcon.split.screens.mainNavigation
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,41 +8,48 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import coil3.Image
-import com.falcon.split.ErrorRed
-import com.falcon.split.PaymentMethods.listOfPaymentMethods
-import com.falcon.split.PaymentMethods.paymentMethod
-import org.jetbrains.compose.resources.painterResource
-import split.composeapp.generated.resources.Res
+import com.falcon.split.ClipboardManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentScreen(
-    paymentAmount : Int,
-    PersonName : String,
-    onNavigateBack : () ->  Unit
+    paymentAmount: Int,
+    personName: String,
+    paymentUpiId: String,
+    snackBarHostState: SnackbarHostState,
+    onNavigateBack: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -53,7 +59,7 @@ fun PaymentScreen(
                     IconButton(onClick = {
                         onNavigateBack()
                     } ) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
@@ -71,7 +77,7 @@ fun PaymentScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    PersonName,
+                    personName,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
@@ -79,14 +85,13 @@ fun PaymentScreen(
                         .padding(top = 0.dp, bottom = 5.dp, start = 0.dp)
                 )
                 Text(
-                    "Amount to pay : $ ${paymentAmount}",
+                    "Amount to pay : $ $paymentAmount",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray,
                     modifier = Modifier
                         .padding(top = 0.dp, bottom = 0.dp)
                 )
-
             }
             Card(
                 colors = CardDefaults.cardColors(
@@ -96,7 +101,6 @@ fun PaymentScreen(
                 modifier = Modifier
                     .padding(8.dp)
             ) {
-
                 Text(
                     "Pay Using Apps",
                     fontSize = 10.sp,
@@ -105,27 +109,56 @@ fun PaymentScreen(
                     modifier = Modifier
                         .padding(top = 8.dp, start = 15.dp)
                 )
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                ) {
-                    items(listOfPaymentMethods){
-                        upiMethod(it)
-                    }
+                UpiMethod(appName = "Paytm", snackBarHostState = snackBarHostState) {
+                    ClipboardManager.copyToClipboard(paymentUpiId)
+                    OpenUpiApp.openPaytm()
+                }
+                UpiMethod(appName = "GooglePe", snackBarHostState = snackBarHostState) {
+                    ClipboardManager.copyToClipboard(paymentUpiId)
+                    OpenUpiApp.openGooglePay()
+                }
+                UpiMethod(appName = "PhonePe", snackBarHostState = snackBarHostState) {
+                    ClipboardManager.copyToClipboard(paymentUpiId)
+                    OpenUpiApp.openPhonePe()
                 }
             }
         }
     }
 }
 
-
-
 @Composable
-fun upiMethod(
-    paymentMethod: paymentMethod
+fun UpiMethod(
+    appName: String,
+    snackBarHostState: SnackbarHostState,
+    openPaymentApp: () -> Unit
 ) {
+    var isCancelled by remember { mutableStateOf(false) }
     Card(
-        onClick = paymentMethod.onClick,
+        onClick = {
+            val snackBarJob = CoroutineScope(Dispatchers.Main).launch {
+                snackBarHostState.showSnackbar(
+                    message = "UPI Id Copied to clipboard, Redirecting to $appName in 3 seconds",
+                    actionLabel = "Cancel",
+                    duration = SnackbarDuration.Short,
+                    withDismissAction = false
+                ).let { result ->
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            isCancelled = true
+                            this.cancel()
+                        }
+                        else -> {}
+                    }
+                }
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                delay(3000)
+                if (!isCancelled) {
+                    openPaymentApp()
+                    snackBarJob.cancel()
+                }
+            }
+        },
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
         ),
@@ -145,7 +178,7 @@ fun upiMethod(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    paymentMethod.name,
+                    appName,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black
@@ -158,7 +191,7 @@ fun upiMethod(
                 )
             }
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Open",
                 modifier = Modifier.size(24.dp)
             )

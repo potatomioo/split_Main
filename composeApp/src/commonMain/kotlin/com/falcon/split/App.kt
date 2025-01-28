@@ -69,9 +69,9 @@ import com.falcon.split.screens.mainNavigation.CreateExpenseFromAGroup
 import com.falcon.split.screens.mainNavigation.CreateGroupScreen
 import com.falcon.split.screens.mainNavigation.GroupDetailsScreen
 import com.falcon.split.screens.mainNavigation.NavHostMain
+import com.falcon.split.screens.mainNavigation.PaymentScreen
 import com.falcon.split.screens.mainNavigation.ProfileScreen
 import com.falcon.split.screens.mainNavigation.navigateTo
-import com.falcon.split.utils.EmailUtils
 import com.falcon.split.utils.rememberEmailUtils
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
@@ -159,10 +159,21 @@ fun App(
             SnackbarHost(hostState = snackBarHostState)
         }
     ) {
-        val startDestination = runBlocking {
+        var startDestination = runBlocking {
             if (getUserAsUserModel(prefs) != null) "app_content" else "welcome_page"
         }
+        startDestination = "payment_screen" // TODO: Remove Later
         NavHost(navController = navControllerMain, startDestination = startDestination) {
+            composable("payment_screen") {
+                PaymentScreen(
+                    paymentAmount = 1000,
+                    personName = "John Doe",
+                    paymentUpiId = "john@okhdfcbank",
+                    snackBarHostState = snackBarHostState,
+                ) {
+                    // Handle back navigation
+                }
+            }
             composable("welcome_page") {
                 WelcomePage(navControllerMain)
             }
