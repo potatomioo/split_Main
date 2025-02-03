@@ -178,7 +178,7 @@ fun App(
                 WelcomePage(navControllerMain)
             }
             composable("signin") {
-                AndroidSignInComposable(navControllerMain) // Android
+//                AndroidSignInComposable(navControllerMain) // Android
 
                 LaunchedEffect(Unit) {
                     val user = getUserAsUserModel(prefs)

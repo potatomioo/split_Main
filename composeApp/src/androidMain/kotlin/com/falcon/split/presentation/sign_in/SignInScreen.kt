@@ -15,15 +15,16 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SignInScreen(
-    state: SignInState,
+    state: UserState,
     onSignInClick: () -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(key1 = state.signInError) {
-        state.signInError?.let { error ->
+
+    LaunchedEffect(key1 = state) {
+        if (state is UserState.Error) {
             Toast.makeText(
                 context,
-                error,
+                state.error,
                 Toast.LENGTH_LONG
             ).show()
         }

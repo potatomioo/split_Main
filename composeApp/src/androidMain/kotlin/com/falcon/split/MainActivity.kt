@@ -25,6 +25,7 @@ import com.falcon.split.presentation.profile.ProfileScreen
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.SignInScreen
 import com.falcon.split.presentation.sign_in.SignInViewModel
+import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.OpenUpiApp
 import com.google.android.gms.auth.api.identity.Identity
 import io.ktor.client.engine.okhttp.OkHttp
@@ -72,7 +73,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun CallGoogleSignInAndroid(navControllerCommon: NavHostController) {
         val viewModel = viewModel<SignInViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
+        val state by viewModel.userDetails.collectAsStateWithLifecycle()
 
         LaunchedEffect(key1 = Unit) {
             if (googleAuthUiClient.getSignedInUser() != null) {
@@ -94,8 +95,8 @@ class MainActivity : ComponentActivity() {
             }
         )
 
-        LaunchedEffect(key1 = state.isSignInSuccessful) {
-            if (state.isSignInSuccessful) {
+        LaunchedEffect(state) {
+            if (state is UserState.Success) {
                 Toast.makeText(
                     applicationContext,
                     "Sign in successful",
