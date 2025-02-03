@@ -21,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -97,11 +96,10 @@ import split.composeapp.generated.resources.settings_icon
 fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
-    contactManager: ContactManager
+    contactManager: ContactManager,
+    AndroidSignInComposable: @Composable (navController: NavHostController) -> Unit,
+    AndroidProfileScreenComposable: @Composable (navController: NavHostController) -> Unit
 ) {
-    MaterialTheme {
-
-    }
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val factory = rememberPermissionsControllerFactory()
@@ -180,6 +178,8 @@ fun App(
                 WelcomePage(navControllerMain)
             }
             composable("signin") {
+                AndroidSignInComposable(navControllerMain) // Android
+
                 LaunchedEffect(Unit) {
                     val user = getUserAsUserModel(prefs)
                     if (user != null) {
@@ -328,8 +328,6 @@ fun App(
     }
 
 }
-
-
 
 @Composable
 fun OptionMenuPopup(
