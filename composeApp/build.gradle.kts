@@ -78,6 +78,10 @@ kotlin {
             implementation(libs.androidx.material3)
 
             implementation(libs.androidx.paging.compose.v330)
+
+            // Firebase Based Google Sign-In
+            implementation(libs.firebase.auth.ktx)
+            implementation(libs.play.services.auth)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

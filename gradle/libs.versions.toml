@@ -16,6 +16,7 @@ compose-plugin = "1.7.0"
 decomposeVersion = "2.1.0-compose-experimental"
 firebase-bom = "33.7.0"
 firebase-crashlytics-plugin = "3.0.2"
+firebaseAuthKtx = "23.1.0"
 firebaseFirestore = "1.8.0"
 foundation = "1.7.0"
 google-play-services = "4.4.2"
@@ -44,6 +45,7 @@ pagingCommon = "3.3.0-alpha02-0.5.1"
 pagingCompose = "3.3.4"
 pagingCommonKtx = "3.3.4"
 pagingComposeVersion = "3.3.4"
+playServicesAuth = "21.3.0"
 room = "2.7.0-alpha11"
 ksp = "2.0.21-1.0.25"
 roomPaging = "2.7.0-alpha11"
@@ -68,6 +70,7 @@ decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decom
 decompose-extension = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "decomposeVersion" }
 
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseFirestore" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestore" }
 foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "foundation" }
 kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauthGoogle" }
@@ -114,6 +117,7 @@ lottie-compose-desktop = { group = "com.airbnb.android", name = "lottie-compose-
 paging-common = { module = "app.cash.paging:paging-common", version.ref = "pagingCommon" }
 paging-common-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "pagingCommon" }
 
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
