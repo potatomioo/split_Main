@@ -97,9 +97,9 @@ import split.composeapp.generated.resources.settings_icon
 fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
-    contactManager: ContactManager,
-    AndroidSignInComposable: (@Composable (navController: NavHostController) -> Unit)?,
-    AndroidProfileScreenComposable: (@Composable (navController: NavHostController) -> Unit)?
+    contactManager: ContactManager? = null,
+    AndroidSignInComposable: (@Composable (navController: NavHostController) -> Unit)? = null,
+    AndroidProfileScreenComposable: (@Composable (navController: NavHostController) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -180,7 +180,6 @@ fun App(
             }
             composable("signin") {
                 AndroidSignInComposable?.invoke(navControllerMain) // Firebase Based Google Sign-In Android Specific Only
-
 //                GoogleCloudBasedGoogleSignInForKMM(prefs, navControllerMain, authReady, newsViewModel, scope) // Google Cloud Based Google Sign In For KMM, Works In KMM but need to setup separate server for JWT Token Conversion As Google Auth Id Provided By It is Temporary.
             }
             composable("app_content") {
@@ -212,7 +211,7 @@ fun App(
                         // Navigate back
                         navControllerMain.popBackStack()
                     },
-                    contactManager
+                    contactManager = contactManager!!
                 )
             }
             composable("create_expense") {
@@ -265,6 +264,7 @@ fun App(
 
 }
 
+@Deprecated("This method has been deprecated in favor of using Firebase Based Google-SignIn")
 @Composable
 private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Mentioned At Line 184
     prefs: DataStore<Preferences>,

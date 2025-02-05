@@ -9,11 +9,11 @@ import io.ktor.client.engine.darwin.Darwin
 
 fun MainViewController() = ComposeUIViewController {
     App(
-    client = remember {
-        ApiClient(createHttpClient(Darwin.create()))
-    },
-    prefs = remember {
-        createDataStore()
-    }
-)
+        client = remember {
+            ApiClient(createHttpClient(Darwin.create()))
+        },
+        prefs = remember {
+            createDataStore()
+        }
+    )
 }
