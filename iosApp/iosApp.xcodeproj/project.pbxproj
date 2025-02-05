@@ -327,6 +327,8 @@
 				);
 				INFOPLIST_FILE = iosApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
+				KOTLIN_FRAMEWORK_BUILD_TYPE = Debug;
+				KOTLIN_TARGET = ios_arm64;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -354,6 +356,8 @@
 				);
 				INFOPLIST_FILE = iosApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.3;
+				KOTLIN_FRAMEWORK_BUILD_TYPE = Debug;
+				KOTLIN_TARGET = ios_arm64;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
