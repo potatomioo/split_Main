@@ -222,6 +222,41 @@ fun GroupsScreenWithDummyData(
                 members = listOf("user1", "user2", "user3"),
                 createdBy = "user3",
                 createdAt = Clock.System.now()
+            ),
+            Group(
+                groupId = "1",
+                name = "Weekend Trip to Goa",
+                members = listOf("user1", "user2", "user3", "user4"),
+                createdBy = "user1",
+                createdAt = Clock.System.now()
+            ),
+            Group(
+                groupId = "2",
+                name = "House Expenses",
+                members = listOf("user1", "user2"),
+                createdBy = "user2",
+                createdAt = Clock.System.now()
+            ),
+            Group(
+                groupId = "3",
+                name = "Movie Night",
+                members = listOf("user1", "user2", "user3", "user5"),
+                createdBy = "user1",
+                createdAt = Clock.System.now()
+            ),
+            Group(
+                groupId = "4",
+                name = "Office Lunch Group",
+                members = listOf("user1", "user4", "user5", "user6", "user7"),
+                createdBy = "user4",
+                createdAt = Clock.System.now()
+            ),
+            Group(
+                groupId = "5",
+                name = "Flatmates",
+                members = listOf("user1", "user2", "user3"),
+                createdBy = "user3",
+                createdAt = Clock.System.now()
             )
         )
     }
