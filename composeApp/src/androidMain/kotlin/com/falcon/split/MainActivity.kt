@@ -37,21 +37,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.falcon.split.LottieAnimationSpec
-import com.falcon.split.LottieAnimationView
-import com.falcon.split.SignInProgressPopup
-import com.falcon.split.saveUser
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val googleAuthUiClient by lazy {
@@ -70,7 +64,9 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().apply {
             // Perform Some Code During Splash Screen
         }
+
         setContent {
+            val requestSendForGetUserData = remember { mutableStateOf(false) }
             App(
                 client = remember {
                     ApiClient(createHttpClient(OkHttp.create()))
@@ -80,7 +76,7 @@ class MainActivity : ComponentActivity() {
                 },
                 contactManager = contactManager,
                 AndroidSignInComposable = { navController ->
-                    CallGoogleSignInAndroid(navController)
+                    CallGoogleSignInAndroid(navController, requestSendForGetUserData)
                 },
                 AndroidProfileScreenComposable = { navController ->
                     CallProfileScreenInAndroid(navController)
@@ -91,10 +87,12 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun CallGoogleSignInAndroid(navControllerCommon: NavHostController) {
+    fun CallGoogleSignInAndroid(
+        navControllerCommon: NavHostController,
+        requestSendForGetUserData: MutableState<Boolean>
+    ) {
         val viewModel = viewModel<SignInViewModel>()
         val state by viewModel.userDetails.collectAsStateWithLifecycle()
-
         LaunchedEffect(key1 = Unit) {
             if (googleAuthUiClient.getSignedInUser() != null) {
                 navControllerCommon.navigate("app_content")
@@ -104,6 +102,7 @@ class MainActivity : ComponentActivity() {
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
             onResult = { result ->
+                requestSendForGetUserData.value = true
                 if (result.resultCode == RESULT_OK) {
                     lifecycleScope.launch {
                         val signInResult = googleAuthUiClient.signInWithIntent(
@@ -132,6 +131,7 @@ class MainActivity : ComponentActivity() {
             state = state,
             viewModel = viewModel,
             navControllerCommon = navControllerCommon,
+            requestSendForGetUserData = requestSendForGetUserData,
             onSignInClick = {
                 viewModel.makeStateLoading()
                 lifecycleScope.launch {
@@ -207,6 +207,7 @@ fun SignInScreen(
     state: UserState,
     viewModel: SignInViewModel,
     navControllerCommon: NavHostController,
+    requestSendForGetUserData: MutableState<Boolean>,
     onSignInClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -238,28 +239,29 @@ fun SignInScreen(
             modifier = Modifier.height(35.dp)
         )
     }
-
-    val userState by viewModel.userDetails.collectAsState()
-    when (userState) {
-        is UserState.Error -> {
-            val error = (userState as UserState.Error).error
-            println("ERROR_TAG$error")
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-            ) {
-                Text(
-                    text = "Error loading user: $error",
-                    modifier = Modifier.padding(16.dp)
-                )
+    if (requestSendForGetUserData.value) {
+        val userState by viewModel.userDetails.collectAsState()
+        when (userState) {
+            is UserState.Error -> {
+                val error = (userState as UserState.Error).error
+                println("ERROR_TAG$error")
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    Text(
+                        text = "Error loading user: $error",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
-        }
-        UserState.Loading -> {
-            SignInProgressPopup()
-        }
-        is UserState.Success -> {
-            navControllerCommon.navigate("app_content")
+            UserState.Loading -> {
+                SignInProgressPopup()
+            }
+            is UserState.Success -> {
+                navControllerCommon.navigate("app_content")
+            }
         }
     }
 }

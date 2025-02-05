@@ -80,6 +80,7 @@ import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.Font
@@ -178,74 +179,9 @@ fun App(
                 WelcomePage(navControllerMain)
             }
             composable("signin") {
-//                AndroidSignInComposable(navControllerMain) // Android
+                AndroidSignInComposable?.invoke(navControllerMain) // Firebase Based Google Sign-In Android Specific Only
 
-                LaunchedEffect(Unit) {
-                    val user = getUserAsUserModel(prefs)
-                    if (user != null) {
-                        navControllerMain.navigate("app_content")
-                    }
-                }
-                val requestSendForGetUserData = remember { mutableStateOf(false) }
-                if (authReady) {
-                    Column (
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        LottieAnimationView(LottieAnimationSpec("login_animation.json"))
-                        Spacer(
-                            modifier = Modifier.height(60.dp)
-                        )
-                        GoogleButtonUiContainer(
-                            onGoogleSignInResult = { googleUser ->
-                                newsViewModel.getUserDetailsFromGoogleAuthToken(googleUser?.idToken.toString())
-                                println("Google Token:")
-                                println(googleUser?.idToken)
-                                requestSendForGetUserData.value = true
-                            }
-                        ) {
-                            GoogleSignInButton(
-                                onClick = {
-                                    this.onClick()
-                                }
-                            )
-                        }
-                        Spacer(
-                            modifier = Modifier.height(35.dp)
-                        )
-                    }
-                }
-                if (requestSendForGetUserData.value) {
-                    val userState by newsViewModel.userDetails.collectAsState()
-                    when (userState) {
-                        is UserState.Error -> {
-                            val error = (userState as UserState.Error).error
-                            println("ERROR_TAG" + error.name)
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.White)
-                            ) {
-                                Text(
-                                    text = "Error loading user: ${error.name}",
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        }
-                        is UserState.Loading -> {
-                            SignInProgressPopup()
-                        }
-                        is UserState.Success -> {
-                            // Saving the User Details and navigate further
-                            val user = (userState as UserState.Success).user
-                            scope.launch {
-                                saveUser(prefs, user)
-                                navControllerMain.navigate("app_content")
-                            }
-                        }
-                    }
-                }
+//                GoogleCloudBasedGoogleSignInForKMM(prefs, navControllerMain, authReady, newsViewModel, scope) // Google Cloud Based Google Sign In For KMM, Works In KMM but need to setup separate server for JWT Token Conversion As Google Auth Id Provided By It is Temporary.
             }
             composable("app_content") {
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
@@ -327,6 +263,84 @@ fun App(
         }
     }
 
+}
+
+@Composable
+private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Mentioned At Line 184
+    prefs: DataStore<Preferences>,
+    navControllerMain: NavHostController,
+    authReady: Boolean,
+    newsViewModel: MainViewModel,
+    scope: CoroutineScope
+) {
+    LaunchedEffect(Unit) {
+        val user = getUserAsUserModel(prefs)
+        if (user != null) {
+            navControllerMain.navigate("app_content")
+        }
+    }
+    val requestSendForGetUserData = remember { mutableStateOf(false) }
+    if (authReady) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LottieAnimationView(LottieAnimationSpec("login_animation.json"))
+            Spacer(
+                modifier = Modifier.height(60.dp)
+            )
+            GoogleButtonUiContainer(
+                onGoogleSignInResult = { googleUser ->
+                    newsViewModel.getUserDetailsFromGoogleAuthToken(googleUser?.idToken.toString())
+                    println("Google Token:")
+                    println(googleUser?.idToken)
+                    requestSendForGetUserData.value = true
+                }
+            ) {
+                GoogleSignInButton(
+                    onClick = {
+                        this.onClick()
+                    }
+                )
+            }
+            Spacer(
+                modifier = Modifier.height(35.dp)
+            )
+        }
+    }
+    if (requestSendForGetUserData.value) {
+        val userState by newsViewModel.userDetails.collectAsState()
+        when (userState) {
+            is UserState.Error -> {
+                val error = (userState as UserState.Error).error
+                println("ERROR_TAG" + error.name)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    Text(
+                        text = "Error loading user: ${error.name}",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            is UserState.Loading -> {
+                SignInProgressPopup()
+            }
+
+            is UserState.Success -> {
+                // Saving the User Details and navigate further
+                val user = (userState as UserState.Success).user
+                scope.launch {
+                    saveUser(prefs, user)
+                    navControllerMain.navigate("app_content")
+                }
+            }
+        }
+    }
 }
 
 @Composable
