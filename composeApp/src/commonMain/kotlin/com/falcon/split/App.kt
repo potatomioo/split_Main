@@ -97,8 +97,8 @@ fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
     contactManager: ContactManager,
-    AndroidSignInComposable: @Composable (navController: NavHostController) -> Unit,
-    AndroidProfileScreenComposable: @Composable (navController: NavHostController) -> Unit
+    AndroidSignInComposable: (@Composable (navController: NavHostController) -> Unit)?,
+    AndroidProfileScreenComposable: (@Composable (navController: NavHostController) -> Unit)?
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }

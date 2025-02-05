@@ -103,14 +103,17 @@ class MainActivity : ComponentActivity() {
                     Toast.LENGTH_LONG
                 ).show()
 
-                navControllerCommon.navigate("profile")
+                navControllerCommon.navigate("app_content")
                 viewModel.resetState()
             }
         }
 
         SignInScreen(
             state = state,
+            viewModel = viewModel,
+            navControllerCommon = navControllerCommon,
             onSignInClick = {
+                viewModel.makeStateLoading()
                 lifecycleScope.launch {
                     val signInIntentSender = googleAuthUiClient.signIn()
                     launcher.launch(

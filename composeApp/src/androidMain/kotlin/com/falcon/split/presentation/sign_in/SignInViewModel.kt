@@ -35,4 +35,8 @@ class SignInViewModel: ViewModel() {
     fun resetState() {
         _userDetails.value = UserState.Success(UserData())
     }
+
+    fun makeStateLoading() {
+        _userDetails.value = UserState.Loading
+    }
 }
