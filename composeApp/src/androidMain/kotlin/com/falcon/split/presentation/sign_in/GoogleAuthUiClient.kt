@@ -3,6 +3,8 @@ package com.falcon.split.presentation.sign_in
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import com.falcon.split.SignInResult
+import com.falcon.split.UserModelGoogleFirebaseBased
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -39,7 +41,7 @@ class GoogleAuthUiClient(
             val user = auth.signInWithCredential(googleCredentials).await().user
             SignInResult(
                 data = user?.run {
-                    UserData(
+                    UserModelGoogleFirebaseBased(
                         userId = uid,
                         username = displayName,
                         profilePictureUrl = photoUrl?.toString()
@@ -67,8 +69,8 @@ class GoogleAuthUiClient(
         }
     }
 
-    fun getSignedInUser(): UserData? = auth.currentUser?.run {
-        UserData(
+    fun getSignedInUser(): UserModelGoogleFirebaseBased? = auth.currentUser?.run {
+        UserModelGoogleFirebaseBased(
             userId = uid,
             username = displayName,
             profilePictureUrl = photoUrl?.toString()

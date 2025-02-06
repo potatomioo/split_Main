@@ -23,6 +23,14 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        binaries.all {
+            // Replace "YourFrameworkName" with your actual framework name
+            freeCompilerArgs += listOf("-output-name", "com.falcon.split.Split")
+            baseName = "com.falcon.split.Split"
+        }
+    }
+
 
     jvm("desktop")
 

@@ -1,4 +1,4 @@
-package com.falcon.split.data.network.models
+package com.falcon.split.presentation.sign_in
 
 import kotlinx.serialization.Serializable
 
