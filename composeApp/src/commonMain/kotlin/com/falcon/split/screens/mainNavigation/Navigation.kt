@@ -127,9 +127,6 @@ fun NavHostMain(
                             contentDescription = "Settings",
                             modifier = Modifier
                                 .rotate(90F)
-                                .clickable {
-                                    openUserOptionsMenu.value = true
-                                }
                         )
                     }
                 }
