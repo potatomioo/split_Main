@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -22,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +41,7 @@ import com.falcon.split.presentation.profile.ProfileScreen
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.SignInScreen
 import com.falcon.split.presentation.sign_in.SignInViewModel
+import com.falcon.split.screens.PhoneNumberBottomSheet
 import com.falcon.split.screens.mainNavigation.OpenUpiApp
 import com.falcon.split.screens.mainNavigation.PaymentScreen
 import com.google.android.gms.auth.api.identity.Identity
@@ -64,15 +68,19 @@ class MainActivity : ComponentActivity() {
             // Perform Some Code During Splash Screen
         }
         setContent {
-            App(
-                client = remember {
-                    ApiClient(createHttpClient(OkHttp.create()))
-                },
-                prefs = remember {
-                    createDataStore(context = this)
-                },
-                contactManager
-            )
+
+//            App(
+//                client = remember {
+//                    ApiClient(createHttpClient(OkHttp.create()))
+//                },
+//                prefs = remember {
+//                    createDataStore(context = this)
+//                },
+//                contactManager
+//            )
+
+            YourScreen()
+
 //            val navController = rememberNavController()
 //            NavHost(navController = navController, startDestination = "sign_in") {
 //                composable("sign_in") {
@@ -243,3 +251,31 @@ class MainActivity : ComponentActivity() {
 //        }
 //    }
 //}
+
+
+@Composable
+fun YourScreen() {
+    var showPhoneInput by remember { mutableStateOf(false) }
+
+    Box(
+        contentAlignment = Alignment.Center
+    ){
+        Button(
+            onClick = {
+                showPhoneInput = true
+            }
+        ) {
+            Text("True")
+        }
+    }
+
+    // Bottom sheet overlay
+    PhoneNumberBottomSheet(
+        isVisible = showPhoneInput,
+        onDismiss = { showPhoneInput = false },
+        onPhoneNumberSubmit = { phoneNumber ->
+            // Handle the phone number
+            showPhoneInput = false
+        }
+    )
+}

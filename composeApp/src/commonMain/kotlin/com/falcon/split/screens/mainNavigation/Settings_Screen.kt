@@ -23,7 +23,8 @@ import com.falcon.split.utils.EmailUtils
 fun SettingScreen(
     navController: NavHostController,
     onNavigateBack:() -> Unit,
-    emailUtils: EmailUtils
+    emailUtils: EmailUtils,
+    showPhoneInput : State<Boolean>
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -64,6 +65,10 @@ fun SettingScreen(
                     "Delete Account",
                     "Delete your account",
                     {showDeleteDialog = true}
+                )
+                SettingOption(
+                    "Register Mobile Number",
+                    "Add your mobile number with Split",
                 )
                 settingType("Developer")
                 SettingOption("Resource Used","Resources used for app",{})

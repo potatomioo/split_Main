@@ -64,6 +64,7 @@ import coil3.util.DebugLogger
 import com.falcon.split.contact.ContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
+import com.falcon.split.screens.PhoneNumberBottomSheet
 import com.falcon.split.screens.WelcomePage
 import com.falcon.split.screens.mainNavigation.CreateExpense
 import com.falcon.split.screens.mainNavigation.CreateExpenseFromAGroup
@@ -113,6 +114,19 @@ fun App(
     val viewModel = viewModel {
         PermissionsViewModel(controller)
     }
+
+    //MobileNumberState
+    var showPhoneInput by remember { mutableStateOf(false) }
+    PhoneNumberBottomSheet(
+        isVisible = showPhoneInput,
+        onDismiss = { showPhoneInput = false },
+        onPhoneNumberSubmit = { phoneNumber ->
+            // Handle the phone number
+            showPhoneInput = false
+        }
+    )
+
+
     when(viewModel.notificationPermissionState) {
         PermissionState.Granted -> {
             println("Notification Permission Granted")
@@ -303,7 +317,8 @@ fun App(
                 SettingScreen(
                     navControllerMain,
                     onNavigateBack = {navControllerMain.popBackStack()},
-                    emailUtils = emailUtils
+                    emailUtils = emailUtils,
+                    showPhoneInput
                 )
             }
             composable("ThemeChangeScreen"){
