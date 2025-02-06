@@ -27,6 +27,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +54,7 @@ import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.SignInViewModel
+import com.falcon.split.screens.PhoneNumberBottomSheet
 import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.OpenUpiApp
 import com.google.android.gms.auth.api.identity.Identity
@@ -104,8 +109,78 @@ class MainActivity : ComponentActivity() {
                     CallProfileScreenInAndroid(navController)
                 }
             )
-        }
-    }
+
+//            val navController = rememberNavController()
+//            NavHost(navController = navController, startDestination = "sign_in") {
+//                composable("sign_in") {
+//                    val viewModel = viewModel<SignInViewModel>()
+//                    val state by viewModel.state.collectAsStateWithLifecycle()
+//
+//                    LaunchedEffect(key1 = Unit) {
+//                        if(googleAuthUiClient.getSignedInUser() != null) {
+//                            navController.navigate("profile")
+//                        }
+//                    }
+//
+//                    val launcher = rememberLauncherForActivityResult(
+//                        contract = ActivityResultContracts.StartIntentSenderForResult(),
+//                        onResult = { result ->
+//                            if(result.resultCode == RESULT_OK) {
+//                                lifecycleScope.launch {
+//                                    val signInResult = googleAuthUiClient.signInWithIntent(
+//                                        intent = result.data ?: return@launch
+//                                    )
+//                                    viewModel.onSignInResult(signInResult)
+//                                }
+//                            }
+//                        }
+//                    )
+//
+//                    LaunchedEffect(key1 = state.isSignInSuccessful) {
+//                        if(state.isSignInSuccessful) {
+//                            Toast.makeText(
+//                                applicationContext,
+//                                "Sign in successful",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+//
+//                            navController.navigate("profile")
+//                            viewModel.resetState()
+//                        }
+//                    }
+//
+//                    SignInScreen(
+//                        state = state,
+//                        onSignInClick = {
+//                            lifecycleScope.launch {
+//                                val signInIntentSender = googleAuthUiClient.signIn()
+//                                launcher.launch(
+//                                    IntentSenderRequest.Builder(
+//                                        signInIntentSender ?: return@launch
+//                                    ).build()
+//                                )
+//                            }
+//                        }
+//                    )
+//                }
+//                composable("profile") {
+//                    ProfileScreen(
+//                        userData = googleAuthUiClient.getSignedInUser(),
+//                        onSignOut = {
+//                            lifecycleScope.launch {
+//                                googleAuthUiClient.signOut()
+//                                Toast.makeText(
+//                                    applicationContext,
+//                                    "Signed out",
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//
+//                                navController.popBackStack()
+//                            }
+//                        }
+//                    )
+//                }
+//            }
 
 
     @Composable
@@ -379,3 +454,31 @@ fun SignInScreen(
 //        }
 //    }
 //}
+
+
+@Composable
+fun YourScreen() {
+    var showPhoneInput by remember { mutableStateOf(false) }
+
+    Box(
+        contentAlignment = Alignment.Center
+    ){
+        Button(
+            onClick = {
+                showPhoneInput = true
+            }
+        ) {
+            Text("True")
+        }
+    }
+
+    // Bottom sheet overlay
+    PhoneNumberBottomSheet(
+        isVisible = showPhoneInput,
+        onDismiss = { showPhoneInput = false },
+        onPhoneNumberSubmit = { phoneNumber ->
+            // Handle the phone number
+            showPhoneInput = false
+        }
+    )
+}

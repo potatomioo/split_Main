@@ -23,7 +23,7 @@ import com.falcon.split.utils.EmailUtils
 fun SettingScreen(
     navController: NavHostController,
     onNavigateBack:() -> Unit,
-    emailUtils: EmailUtils
+    emailUtils: EmailUtils,
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }

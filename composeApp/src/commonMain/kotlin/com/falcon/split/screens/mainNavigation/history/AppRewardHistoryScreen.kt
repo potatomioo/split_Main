@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
@@ -26,7 +27,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
 import org.jetbrains.compose.resources.painterResource
+import split.composeapp.generated.resources.GroupPic
+import split.composeapp.generated.resources.HistoryPic
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.menu_icon_sec
 import split.composeapp.generated.resources.nunito_semibold_1
@@ -34,47 +38,58 @@ import split.composeapp.generated.resources.nunito_semibold_1
 
 @Composable
 fun MyRewardsUpperComposable() {
-    Column(
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier
-            .padding(24.dp)
-    ) {
-        Spacer(
-            modifier = Modifier
-                .size(24.dp)
-        )
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+
+    var lazyListState = rememberLazyListState()
+
+
+    LazyColumn(
+        state = lazyListState,
+        content = {
+            val rewardList = listOf(
+                Reward("1 January 2024", "$8.19"),
+                Reward("2 January 2024", "$8.19"),
+                Reward("3 January 2024", "$8.19"),
+                Reward("4 January 2024", "$8.19"),
+                Reward("5 January 2024", "$8.19"),
+                Reward("6 January 2024", "$8.19"),
+                Reward("7 January 2024", "$8.19"),
+                Reward("2 January 2024", "$8.19"),
+                Reward("3 January 2024", "$8.19"),
+                Reward("4 January 2024", "$8.19"),
+                Reward("5 January 2024", "$8.19"),
+                Reward("6 January 2024", "$8.19"),
+                Reward("7 January 2024", "$8.19")
             )
-            Spacer(
-                modifier = Modifier
-                    .size(16.dp)
-            )
-            LazyColumn(content = {
-                val rewardList = listOf(
-                    Reward("1 January 2024", "$8.19"),
-                    Reward("2 January 2024", "$8.19"),
-                    Reward("3 January 2024", "$8.19"),
-                    Reward("4 January 2024", "$8.19"),
-                    Reward("5 January 2024", "$8.19"),
-                    Reward("6 January 2024", "$8.19"),
-                    Reward("7 January 2024", "$8.19")
+            item {
+                UpwardFlipHeaderImage(
+                    Res.drawable.HistoryPic,
+                    lazyListState
                 )
-                items(rewardList) { content ->
-                    RewardComposable(date = content.date.toString(), amount = content.amount.toString())
-                }
-            })
+            }
+            items(rewardList) {
+                    content ->
+                RewardComposable(date = content.date.toString(), amount = content.amount.toString())
+            }
         }
-    }
+    )
+
+//    Column(
+//        horizontalAlignment = Alignment.Start,
+//        modifier = Modifier
+//            .padding(24.dp)
+//    ) {
+//        Column(
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        ) {
+//            Spacer(
+//                modifier = Modifier
+//                    .size(16.dp)
+//            )
+//        }
+//    }
 }
 
 @Composable
@@ -84,6 +99,7 @@ private fun RewardComposable(date: String, amount: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(15.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
