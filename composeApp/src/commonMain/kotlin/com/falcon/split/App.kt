@@ -115,16 +115,6 @@ fun App(
         PermissionsViewModel(controller)
     }
 
-    //MobileNumberState
-    var showPhoneInput by remember { mutableStateOf(false) }
-    PhoneNumberBottomSheet(
-        isVisible = showPhoneInput,
-        onDismiss = { showPhoneInput = false },
-        onPhoneNumberSubmit = { phoneNumber ->
-            // Handle the phone number
-            showPhoneInput = false
-        }
-    )
 
 
     when(viewModel.notificationPermissionState) {
@@ -318,7 +308,6 @@ fun App(
                     navControllerMain,
                     onNavigateBack = {navControllerMain.popBackStack()},
                     emailUtils = emailUtils,
-                    showPhoneInput
                 )
             }
             composable("ThemeChangeScreen"){

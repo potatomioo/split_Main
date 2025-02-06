@@ -69,17 +69,15 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
 
-//            App(
-//                client = remember {
-//                    ApiClient(createHttpClient(OkHttp.create()))
-//                },
-//                prefs = remember {
-//                    createDataStore(context = this)
-//                },
-//                contactManager
-//            )
-
-            YourScreen()
+            App(
+                client = remember {
+                    ApiClient(createHttpClient(OkHttp.create()))
+                },
+                prefs = remember {
+                    createDataStore(context = this)
+                },
+                contactManager
+            )
 
 //            val navController = rememberNavController()
 //            NavHost(navController = navController, startDestination = "sign_in") {
