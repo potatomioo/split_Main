@@ -1,4 +1,5 @@
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,7 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -17,6 +20,8 @@ import com.falcon.split.screens.mainNavigation.AddExpenseFAB
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
+import split.composeapp.generated.resources.GroupPic
+import split.composeapp.generated.resources.HomePic
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.group_icon_filled
 
@@ -32,7 +37,8 @@ fun GroupsScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navControllerMain.navigate("create_group") }
+                onClick = { navControllerMain.navigate("create_group") },
+                containerColor = Color(0xFF8fcb39)
             ) {
                 Icon(Icons.Default.Add, "Add Expense")
             }
@@ -41,6 +47,7 @@ fun GroupsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(padding)
         ) {
             if (isLoading) {
@@ -55,9 +62,41 @@ fun GroupsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(0.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    item{
+                        Box(){
+                            Image(
+                                painter = painterResource(Res.drawable.GroupPic), // Replace with your image resource
+                                contentDescription = "Home illustration",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(250.dp)
+                                    .padding(0.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    text = "Number of Groups",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color(0xFF64748B)
+                                )
+                                Text(
+                                    text = "${groups.size}",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF1E293B)
+                                )
+                            }
+
+                        }
+                    }
                     items(groups) { group ->
                         GroupCard(
                             group = group,
@@ -80,6 +119,7 @@ private fun GroupCard(
     OutlinedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth()
+            .padding(10.dp)
     ) {
         Column(
             modifier = Modifier
