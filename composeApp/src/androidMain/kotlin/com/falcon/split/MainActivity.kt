@@ -27,10 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,7 +66,7 @@ class MainActivity : ComponentActivity() {
             oneTapClient = Identity.getSignInClient(applicationContext)
         )
     }
-    private lateinit var contactManager : AndroidContactManager
+    private lateinit var contactManager: AndroidContactManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,295 +106,253 @@ class MainActivity : ComponentActivity() {
                     CallProfileScreenInAndroid(navController)
                 }
             )
-
-//            val navController = rememberNavController()
-//            NavHost(navController = navController, startDestination = "sign_in") {
-//                composable("sign_in") {
-//                    val viewModel = viewModel<SignInViewModel>()
-//                    val state by viewModel.state.collectAsStateWithLifecycle()
-//
-//                    LaunchedEffect(key1 = Unit) {
-//                        if(googleAuthUiClient.getSignedInUser() != null) {
-//                            navController.navigate("profile")
-//                        }
-//                    }
-//
-//                    val launcher = rememberLauncherForActivityResult(
-//                        contract = ActivityResultContracts.StartIntentSenderForResult(),
-//                        onResult = { result ->
-//                            if(result.resultCode == RESULT_OK) {
-//                                lifecycleScope.launch {
-//                                    val signInResult = googleAuthUiClient.signInWithIntent(
-//                                        intent = result.data ?: return@launch
-//                                    )
-//                                    viewModel.onSignInResult(signInResult)
-//                                }
-//                            }
-//                        }
-//                    )
-//
-//                    LaunchedEffect(key1 = state.isSignInSuccessful) {
-//                        if(state.isSignInSuccessful) {
-//                            Toast.makeText(
-//                                applicationContext,
-//                                "Sign in successful",
-//                                Toast.LENGTH_LONG
-//                            ).show()
-//
-//                            navController.navigate("profile")
-//                            viewModel.resetState()
-//                        }
-//                    }
-//
-//                    SignInScreen(
-//                        state = state,
-//                        onSignInClick = {
-//                            lifecycleScope.launch {
-//                                val signInIntentSender = googleAuthUiClient.signIn()
-//                                launcher.launch(
-//                                    IntentSenderRequest.Builder(
-//                                        signInIntentSender ?: return@launch
-//                                    ).build()
-//                                )
-//                            }
-//                        }
-//                    )
-//                }
-//                composable("profile") {
-//                    ProfileScreen(
-//                        userData = googleAuthUiClient.getSignedInUser(),
-//                        onSignOut = {
-//                            lifecycleScope.launch {
-//                                googleAuthUiClient.signOut()
-//                                Toast.makeText(
-//                                    applicationContext,
-//                                    "Signed out",
-//                                    Toast.LENGTH_LONG
-//                                ).show()
-//
-//                                navController.popBackStack()
-//                            }
-//                        }
-//                    )
-//                }
-//            }
-
-
-    @Composable
-    fun CallGoogleSignInAndroid(
-        navControllerCommon: NavHostController,
-        requestSendForGetUserData: MutableState<Boolean>,
-        prefs: DataStore<Preferences>
-    ) {
-        val viewModel = viewModel<SignInViewModel>()
-        val state by viewModel.userDetails.collectAsStateWithLifecycle()
-        LaunchedEffect(key1 = Unit) {
-            if (googleAuthUiClient.getSignedInUser() != null) {
-                navControllerCommon.navigate("app_content")
-            }
         }
-
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartIntentSenderForResult(),
-            onResult = { result ->
-                requestSendForGetUserData.value = true
-                if (result.resultCode == RESULT_OK) {
-                    lifecycleScope.launch {
-                        val signInResult = googleAuthUiClient.signInWithIntent(
-                            intent = result.data ?: return@launch
-                        )
-                        viewModel.onSignInResult(signInResult)
-                    }
-                }
-            }
-        )
-
-        LaunchedEffect(state) {
-            if (state is UserState.Success) {
-
-                saveFirebaseUser(prefs, (state as UserState.Success).user)
-
-                Toast.makeText(
-                    applicationContext,
-                    "FireBase Sign in Success",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                navControllerCommon.navigate("app_content")
-                viewModel.resetState()
-            }
-        }
-
-        SignInScreen(
-            state = state,
-            viewModel = viewModel,
-            navControllerCommon = navControllerCommon,
-            requestSendForGetUserData = requestSendForGetUserData,
-            onSignInClick = {
-                viewModel.makeStateLoading()
-                lifecycleScope.launch {
-                    val signInIntentSender = googleAuthUiClient.signIn()
-                    launcher.launch(
-                        IntentSenderRequest.Builder(
-                            signInIntentSender ?: return@launch
-                        ).build()
-                    )
-                }
-            }
-        )
     }
 
-    @Composable
-    fun CallProfileScreenInAndroid(navControllerCommon: NavHostController) {
-        val userData = googleAuthUiClient.getSignedInUser()
-        val onSignOut = {
-            lifecycleScope.launch {
-                googleAuthUiClient.signOut()
-                Toast.makeText(
-                    applicationContext,
-                    "Signed out",
-                    Toast.LENGTH_LONG
-                ).show()
-                navControllerCommon.navigate("welcome_page")
+
+        @Composable
+        fun CallGoogleSignInAndroid(
+            navControllerCommon: NavHostController,
+            requestSendForGetUserData: MutableState<Boolean>,
+            prefs: DataStore<Preferences>
+        ) {
+            val viewModel = viewModel<SignInViewModel>()
+            val state by viewModel.userDetails.collectAsStateWithLifecycle()
+            LaunchedEffect(key1 = Unit) {
+                if (googleAuthUiClient.getSignedInUser() != null) {
+                    navControllerCommon.navigate("app_content")
+                }
+            }
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartIntentSenderForResult(),
+                onResult = { result ->
+                    requestSendForGetUserData.value = true
+                    if (result.resultCode == RESULT_OK) {
+                        lifecycleScope.launch {
+                            val signInResult = googleAuthUiClient.signInWithIntent(
+                                intent = result.data ?: return@launch
+                            )
+                            viewModel.onSignInResult(signInResult)
+                        }
+                    }
+                }
+            )
+
+            LaunchedEffect(state) {
+                if (state is UserState.Success) {
+
+                    saveFirebaseUser(prefs, (state as UserState.Success).user)
+
+                    Toast.makeText(
+                        applicationContext,
+                        "FireBase Sign in Success",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    navControllerCommon.navigate("app_content")
+                    viewModel.resetState()
+                }
+            }
+
+            SignInScreen(
+                state = state,
+                viewModel = viewModel,
+                navControllerCommon = navControllerCommon,
+                requestSendForGetUserData = requestSendForGetUserData,
+                onSignInClick = {
+                    viewModel.makeStateLoading()
+                    lifecycleScope.launch {
+                        val signInIntentSender = googleAuthUiClient.signIn()
+                        launcher.launch(
+                            IntentSenderRequest.Builder(
+                                signInIntentSender ?: return@launch
+                            ).build()
+                        )
+                    }
+                }
+            )
+        }
+
+        @Composable
+        fun CallProfileScreenInAndroid(navControllerCommon: NavHostController) {
+            val userData = googleAuthUiClient.getSignedInUser()
+            val onSignOut = {
+                lifecycleScope.launch {
+                    googleAuthUiClient.signOut()
+                    Toast.makeText(
+                        applicationContext,
+                        "Signed out",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navControllerCommon.navigate("welcome_page")
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (userData?.profilePictureUrl != null) {
+                    AsyncImage(
+                        model = userData.profilePictureUrl,
+                        contentDescription = "Profile picture",
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                if (userData?.username != null) {
+                    Text(
+                        text = userData.username,
+                        textAlign = TextAlign.Center,
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                Button(
+                    onClick = {
+                        onSignOut()
+                    }
+                ) {
+                    Text(text = "Sign out")
+                }
             }
         }
+
+        @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing\n      in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and\n      handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+        override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
+        ) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            contactManager.handlePermissionResult(requestCode, grantResults)
+        }
+
+        @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            super.onActivityResult(requestCode, resultCode, data)
+            contactManager.handleActivityResult(requestCode, resultCode, data)
+        }
+
+
+        override fun onNewIntent(intent: Intent) {
+            super.onNewIntent(intent)
+            intent.let {
+//             TODO: Handle new intent (if app is already running)
+                val deepLinkNewsId = handleDeepLink(it)
+                // Update your newsId state
+            }
+        }
+
+        // Handle the deep link intent and extract the newsId
+        private fun handleDeepLink(intent: Intent?): String {
+            intent?.data?.let { uri ->
+                if (uri.pathSegments.isNotEmpty() && uri.pathSegments[0] == "news") {
+                    return uri.lastPathSegment ?: ""
+                }
+            }
+            return ""
+        }
+    }
+
+
+    @Composable
+    fun SignInScreen(
+        state: UserState,
+        viewModel: SignInViewModel,
+        navControllerCommon: NavHostController,
+        requestSendForGetUserData: MutableState<Boolean>,
+        onSignInClick: () -> Unit
+    ) {
+        val context = LocalContext.current
+        LaunchedEffect(key1 = state) {
+            if (state is UserState.Error) {
+                Toast.makeText(
+                    context,
+                    state.error,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(userData?.profilePictureUrl != null) {
-                AsyncImage(
-                    model = userData.profilePictureUrl,
-                    contentDescription = "Profile picture",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            if(userData?.username != null) {
-                Text(
-                    text = userData.username,
-                    textAlign = TextAlign.Center,
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            Button(
+            LottieAnimationView(LottieAnimationSpec("login_animation.json"))
+            Spacer(
+                modifier = Modifier.height(60.dp)
+            )
+            GoogleSignInButton(
                 onClick = {
-                    onSignOut()
+                    onSignInClick()
                 }
-            ) {
-                Text(text = "Sign out")
+            )
+            Spacer(
+                modifier = Modifier.height(35.dp)
+            )
+        }
+        if (requestSendForGetUserData.value) {
+            val userState by viewModel.userDetails.collectAsState()
+            when (userState) {
+                is UserState.Error -> {
+                    val error = (userState as UserState.Error).error
+                    println("ERROR_TAG$error")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                    ) {
+                        Text(
+                            text = "Error loading user: $error",
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                UserState.Loading -> {
+                    SignInProgressPopup()
+                }
+
+                is UserState.Success -> {
+                    navControllerCommon.navigate("app_content")
+                }
             }
         }
     }
-
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing\n      in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and\n      handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array< String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        contactManager.handlePermissionResult(requestCode, grantResults)
-    }
-
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        contactManager.handleActivityResult(requestCode, resultCode, data)
-    }
-
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        intent.let {
-//             TODO: Handle new intent (if app is already running)
-            val deepLinkNewsId = handleDeepLink(it)
-            // Update your newsId state
-        }
-    }
-
-    // Handle the deep link intent and extract the newsId
-    private fun handleDeepLink(intent: Intent?): String {
-        intent?.data?.let { uri ->
-            if (uri.pathSegments.isNotEmpty() && uri.pathSegments[0] == "news") {
-                return uri.lastPathSegment ?: ""
-            }
-        }
-        return ""
-    }
-}
-
 
 @Composable
-fun SignInScreen(
-    state: UserState,
-    viewModel: SignInViewModel,
-    navControllerCommon: NavHostController,
-    requestSendForGetUserData: MutableState<Boolean>,
-    onSignInClick: () -> Unit
-) {
-    val context = LocalContext.current
-    LaunchedEffect(key1 = state) {
-        if (state is UserState.Error) {
-            Toast.makeText(
-                context,
-                state.error,
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
+fun PhoneNumberScreen() {
+    var showPhoneInput by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LottieAnimationView(LottieAnimationSpec("login_animation.json"))
-        Spacer(
-            modifier = Modifier.height(60.dp)
-        )
-        GoogleSignInButton(
+    Box(
+        contentAlignment = Alignment.Center
+    ){
+        Button(
             onClick = {
-                onSignInClick()
+                showPhoneInput = true
             }
-        )
-        Spacer(
-            modifier = Modifier.height(35.dp)
-        )
-    }
-    if (requestSendForGetUserData.value) {
-        val userState by viewModel.userDetails.collectAsState()
-        when (userState) {
-            is UserState.Error -> {
-                val error = (userState as UserState.Error).error
-                println("ERROR_TAG$error")
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White)
-                ) {
-                    Text(
-                        text = "Error loading user: $error",
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
-            UserState.Loading -> {
-                SignInProgressPopup()
-            }
-            is UserState.Success -> {
-                navControllerCommon.navigate("app_content")
-            }
+        ) {
+            Text("True")
         }
     }
-}
 
+    // Bottom sheet overlay
+    PhoneNumberBottomSheet(
+        isVisible = showPhoneInput,
+        onDismiss = { showPhoneInput = false },
+        onPhoneNumberSubmit = { phoneNumber ->
+            // Handle the phone number
+            showPhoneInput = false
+        }
+    )
+}
 
 //Contact Handling
 
@@ -454,31 +409,3 @@ fun SignInScreen(
 //        }
 //    }
 //}
-
-
-@Composable
-fun YourScreen() {
-    var showPhoneInput by remember { mutableStateOf(false) }
-
-    Box(
-        contentAlignment = Alignment.Center
-    ){
-        Button(
-            onClick = {
-                showPhoneInput = true
-            }
-        ) {
-            Text("True")
-        }
-    }
-
-    // Bottom sheet overlay
-    PhoneNumberBottomSheet(
-        isVisible = showPhoneInput,
-        onDismiss = { showPhoneInput = false },
-        onPhoneNumberSubmit = { phoneNumber ->
-            // Handle the phone number
-            showPhoneInput = false
-        }
-    )
-}
