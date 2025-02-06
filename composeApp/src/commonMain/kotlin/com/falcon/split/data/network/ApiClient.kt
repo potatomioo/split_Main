@@ -3,7 +3,7 @@
 package com.falcon.split.data.network
 
 import com.falcon.split.data.network.models.TransactionHistory
-import com.falcon.split.data.network.models.UserModel
+import com.falcon.split.data.network.models.UserModelGoogleCloudBased
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.utils.NetworkError
@@ -104,7 +104,7 @@ class ApiClient(
 
 
 
-    suspend fun getUserDetailsFromGoogleAuthToken(googleToken: String): Result<UserModel, NetworkError> {
+    suspend fun getUserDetailsFromGoogleAuthToken(googleToken: String): Result<UserModelGoogleCloudBased, NetworkError> {
         val url = "https://mock-api-project.vercel.app/api/auth/getUserFromGoogleToken"
         val params = mapOf("googleToken" to googleToken)
         return makeApiCall(url = url, method = HttpMethod.Get, params = params)
