@@ -4,9 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -48,7 +51,10 @@ fun UpwardFlipHeaderImage(
                     transformOrigin = TransformOrigin(0.5f, 0f)
                     // Add perspective
                     cameraDistance = 8f * density
-                },
+                    translationY = -100f
+                }
+                .clip(RectangleShape) // Clip the content to the bounds
+                .padding(0.dp),
             contentScale = ContentScale.Crop
         )
     }
