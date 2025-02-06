@@ -14,6 +14,7 @@ fun MainViewController() = ComposeUIViewController {
         },
         prefs = remember {
             createDataStore()
-        }
+        },
+        onSignOut = onSignOut
     )
 }

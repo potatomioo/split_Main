@@ -2,6 +2,8 @@ package com.falcon.split.presentation.sign_in
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.falcon.split.SignInResult
+import com.falcon.split.UserModelGoogleFirebaseBased
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +20,7 @@ class SignInViewModel: ViewModel() {
             delay(2700) // TODO: Remove If Required || delay to fully animate lottie animation
             if (result.data != null) {
                 _userDetails.value = UserState.Success(
-                    UserData(
+                    UserModelGoogleFirebaseBased(
                         result.data.userId.toString(),
                         result.data.username,
                         result.data.profilePictureUrl
@@ -33,7 +35,7 @@ class SignInViewModel: ViewModel() {
     }
 
     fun resetState() {
-        _userDetails.value = UserState.Success(UserData())
+        _userDetails.value = UserState.Success(UserModelGoogleFirebaseBased())
     }
 
     fun makeStateLoading() {

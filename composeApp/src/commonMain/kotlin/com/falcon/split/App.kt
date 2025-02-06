@@ -81,6 +81,7 @@ import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.Font
@@ -98,8 +99,9 @@ fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
     contactManager: ContactManager? = null,
-    AndroidSignInComposable: (@Composable (navController: NavHostController) -> Unit)? = null,
-    AndroidProfileScreenComposable: (@Composable (navController: NavHostController) -> Unit)? = null
+    onSignOut: () -> Job,
+    AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
+    AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -161,7 +163,7 @@ fun App(
         }
     ) {
         var startDestination = runBlocking {
-            if (getUserAsUserModel(prefs) != null) "app_content" else "welcome_page"
+            if (getFirebaseUserAsUserModel(prefs) != null) "app_content" else "welcome_page"
         }
 //        startDestination = "payment_screen" // TODO: Remove Later
         NavHost(navController = navControllerMain, startDestination = startDestination) {
@@ -229,6 +231,7 @@ fun App(
                 ) {
                     scope.launch {
                         deleteUser(prefs)
+                        onSignOut()
                         navControllerMain.navigate("welcome_page")
                     }
                 }

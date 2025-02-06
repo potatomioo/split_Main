@@ -18,16 +18,28 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.falcon.split.data.network.models.UserModel
+import com.falcon.split.data.network.models.UserModelGoogleCloudBased
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+suspend fun saveFirebaseUser(prefs: DataStore<Preferences>, userModel: UserModelGoogleFirebaseBased) { // Firebase Based
+    val userJson = Json.encodeToString(userModel) // Serialize UserModel to JSON string
+    prefs.edit { prefs ->
+        val userKey = stringPreferencesKey("user_model_firebase")
+        prefs[userKey] = userJson
+    }
+}
 
+suspend fun getFirebaseUserAsUserModel(prefs: DataStore<Preferences>): UserModelGoogleFirebaseBased? { // Firebase Based
+    val userKey = stringPreferencesKey("user_model_firebase")
+    val prefs = prefs.data.first() // Get preferences synchronously using `first`
+    val userJson = prefs[userKey] ?: return null
+    return Json.decodeFromString(userJson) // Deserialize JSON string back to UserModel
+}
 
-suspend fun saveUser(prefs: DataStore<Preferences>, userModel: UserModel) {
+suspend fun saveUser(prefs: DataStore<Preferences>, userModel: UserModelGoogleCloudBased) { // Cloud Based
     val userJson = Json.encodeToString(userModel) // Serialize UserModel to JSON string
     prefs.edit { prefs ->
         val userKey = stringPreferencesKey("user_model")
@@ -35,7 +47,7 @@ suspend fun saveUser(prefs: DataStore<Preferences>, userModel: UserModel) {
     }
 }
 
-suspend fun getUserAsUserModel(prefs: DataStore<Preferences>): UserModel? {
+suspend fun getUserAsUserModel(prefs: DataStore<Preferences>): UserModelGoogleCloudBased? { // Cloud Based
     val userKey = stringPreferencesKey("user_model")
     val prefs = prefs.data.first() // Get preferences synchronously using `first`
     val userJson = prefs[userKey] ?: return null

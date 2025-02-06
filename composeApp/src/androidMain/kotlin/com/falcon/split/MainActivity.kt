@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +50,6 @@ import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.SignInViewModel
-import com.falcon.split.presentation.sign_in.UserData
 import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.OpenUpiApp
 import com.google.android.gms.auth.api.identity.Identity
@@ -73,19 +74,31 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().apply {
             // Perform Some Code During Splash Screen
         }
+        val onSignOut = {
+            lifecycleScope.launch {
+                googleAuthUiClient.signOut()
+                Toast.makeText(
+                    applicationContext,
+                    "Signed out",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
 
         setContent {
             val requestSendForGetUserData = remember { mutableStateOf(false) }
+            val prefs = remember {
+                createDataStore(context = this)
+            }
             App(
                 client = remember {
                     ApiClient(createHttpClient(OkHttp.create()))
                 },
-                prefs = remember {
-                    createDataStore(context = this)
-                },
+                prefs = prefs,
+                onSignOut = onSignOut,
                 contactManager = contactManager,
                 AndroidSignInComposable = { navController ->
-                    CallGoogleSignInAndroid(navController, requestSendForGetUserData)
+                    CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
                 },
                 AndroidProfileScreenComposable = { navController ->
                     CallProfileScreenInAndroid(navController)
@@ -98,7 +111,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun CallGoogleSignInAndroid(
         navControllerCommon: NavHostController,
-        requestSendForGetUserData: MutableState<Boolean>
+        requestSendForGetUserData: MutableState<Boolean>,
+        prefs: DataStore<Preferences>
     ) {
         val viewModel = viewModel<SignInViewModel>()
         val state by viewModel.userDetails.collectAsStateWithLifecycle()
@@ -125,9 +139,12 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(state) {
             if (state is UserState.Success) {
+
+                saveFirebaseUser(prefs, (state as UserState.Success).user)
+
                 Toast.makeText(
                     applicationContext,
-                    "Sign in successful",
+                    "FireBase Sign in Success",
                     Toast.LENGTH_LONG
                 ).show()
 
@@ -306,41 +323,6 @@ fun SignInScreen(
     }
 }
 
-@Composable
-fun ProfileScreen(
-    userData: UserData?,
-    onSignOut: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if(userData?.profilePictureUrl != null) {
-            AsyncImage(
-                model = userData.profilePictureUrl,
-                contentDescription = "Profile picture",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        if(userData?.username != null) {
-            Text(
-                text = userData.username,
-                textAlign = TextAlign.Center,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        Button(onClick = onSignOut) {
-            Text(text = "Sign out")
-        }
-    }
-}
 
 //Contact Handling
 

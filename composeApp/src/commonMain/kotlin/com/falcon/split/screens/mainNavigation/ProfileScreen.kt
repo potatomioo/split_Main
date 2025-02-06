@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -50,8 +49,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.falcon.split.ClipboardManager
-import com.falcon.split.data.network.models.UserModel
-import com.falcon.split.getUserAsUserModel
+import com.falcon.split.UserModelGoogleFirebaseBased
+import com.falcon.split.getFirebaseUserAsUserModel
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.copy_icon
@@ -71,7 +70,9 @@ fun ProfileScreen(
             TopAppBar(
                 title = { Text("Profile") },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, "Back")
                     }
                 }
@@ -87,15 +88,15 @@ fun ProfileScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // State to hold the fetched UserModel
-            var userModel by remember { mutableStateOf<UserModel?>(null) }
+            var userModel by remember { mutableStateOf<UserModelGoogleFirebaseBased?>(null) }
 
             // LaunchedEffect to fetch UserModel once when the composable is first composed
             LaunchedEffect(Unit) {
-                userModel = getUserAsUserModel(prefs)
+                userModel = getFirebaseUserAsUserModel(prefs)
             }
             // Check if the profile image is available, otherwise show a placeholder
             AsyncImage(
-                model = userModel?.profileImageUrl ?: Res.drawable.picture_preview, // Show placeholder if no image URL
+                model = userModel?.profilePictureUrl ?: Res.drawable.picture_preview, // Show placeholder if no image URL
                 contentDescription = "Profile picture",
                 modifier = Modifier
                     .size(150.dp)
@@ -116,10 +117,10 @@ fun ProfileScreen(
                     fontFamily = FontFamily(org.jetbrains.compose.resources.Font(Res.font.nunito_bold_1, weight = FontWeight.Normal, style = FontStyle.Normal)),
                 )
             }
-            TextWithBorder(headingValue = "Name", descriptionValue = userModel?.name?: "INVALID USER")
+            TextWithBorder(headingValue = "Name", descriptionValue = userModel?.username?: "INVALID USER")
             TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
             TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
-            TextWithBorderAndCopyIcon("User ID", userModel?.token ?: "INVALID USER ID")
+            TextWithBorderAndCopyIcon("User ID", userModel?.userId ?: "INVALID USER ID")
             Spacer(modifier = Modifier.height(16.dp))
             androidx.compose.material3.Button(
                 onClick = onSignOut,
