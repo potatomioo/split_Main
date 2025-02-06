@@ -20,9 +20,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.screens.mainNavigation.AddExpenseFAB
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.HomePic
@@ -85,7 +87,10 @@ fun GroupsScreen(
 //                                    .padding(0.dp),
 //                                contentScale = ContentScale.Crop
 //                            )
-                            UpwardFlipHeaderImage(lazyState)
+                            UpwardFlipHeaderImage(
+                                Res.drawable.GroupPic,
+                                lazyState
+                            )
 
                             Column(
                                 modifier = Modifier
@@ -329,42 +334,4 @@ fun GroupsScreenWithDummyData(
         onGroupClick = onGroupClick,
         navControllerMain = navControllerMain
     )
-}
-
-@Composable
-private fun UpwardFlipHeaderImage(
-    lazyListState: LazyListState
-) {
-    val imageHeight = 250.dp
-
-    // Get scroll offset and convert to rotation
-    val scrollOffset = if (lazyListState.firstVisibleItemIndex == 0) {
-        min(lazyListState.firstVisibleItemScrollOffset.toFloat(), 500f)
-    } else 500f
-
-    // Calculate rotation (0 to -90 degrees)
-    val rotationDegrees = (scrollOffset / 750f) * +90f
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(imageHeight)
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.GroupPic),
-            contentDescription = "Group header illustration",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(imageHeight)
-                .graphicsLayer {
-                    // Apply rotation transformation
-                    rotationX = rotationDegrees
-                    // Set pivot point to top edge
-                    transformOrigin = TransformOrigin(0.5f, 0f)
-                    // Add perspective
-                    cameraDistance = 8f * density
-                },
-            contentScale = ContentScale.Crop
-        )
-    }
 }
