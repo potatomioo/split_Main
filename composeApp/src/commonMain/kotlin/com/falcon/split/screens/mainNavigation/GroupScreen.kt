@@ -2,7 +2,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -10,6 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -24,6 +28,7 @@ import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.HomePic
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.group_icon_filled
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +39,9 @@ fun GroupsScreen(
     isLoading: Boolean = false,
     navControllerMain: NavHostController
 ) {
+
+    val lazyState = rememberLazyListState()
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -61,21 +69,24 @@ fun GroupsScreen(
                 )
             } else {
                 LazyColumn(
+                    state = lazyState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(0.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item{
                         Box(){
-                            Image(
-                                painter = painterResource(Res.drawable.GroupPic), // Replace with your image resource
-                                contentDescription = "Home illustration",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(250.dp)
-                                    .padding(0.dp),
-                                contentScale = ContentScale.Crop
-                            )
+//                            Image(
+//                                painter = painterResource(Res.drawable.GroupPic), // Replace with your image resource
+//                                contentDescription = "Home illustration",
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .height(250.dp)
+//                                    .padding(0.dp),
+//                                contentScale = ContentScale.Crop
+//                            )
+                            UpwardFlipHeaderImage(lazyState)
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -318,6 +329,42 @@ fun GroupsScreenWithDummyData(
         onGroupClick = onGroupClick,
         navControllerMain = navControllerMain
     )
+}
 
+@Composable
+private fun UpwardFlipHeaderImage(
+    lazyListState: LazyListState
+) {
+    val imageHeight = 250.dp
 
+    // Get scroll offset and convert to rotation
+    val scrollOffset = if (lazyListState.firstVisibleItemIndex == 0) {
+        min(lazyListState.firstVisibleItemScrollOffset.toFloat(), 500f)
+    } else 500f
+
+    // Calculate rotation (0 to -90 degrees)
+    val rotationDegrees = (scrollOffset / 750f) * +90f
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(imageHeight)
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.GroupPic),
+            contentDescription = "Group header illustration",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(imageHeight)
+                .graphicsLayer {
+                    // Apply rotation transformation
+                    rotationX = rotationDegrees
+                    // Set pivot point to top edge
+                    transformOrigin = TransformOrigin(0.5f, 0f)
+                    // Add perspective
+                    cameraDistance = 8f * density
+                },
+            contentScale = ContentScale.Crop
+        )
+    }
 }
