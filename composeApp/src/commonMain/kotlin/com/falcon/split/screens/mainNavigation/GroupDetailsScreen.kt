@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.falcon.split.ErrorRed
+import com.falcon.split.Presentation.ErrorRed
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.ExpenseSplit
 import com.falcon.split.data.network.models_app.Group

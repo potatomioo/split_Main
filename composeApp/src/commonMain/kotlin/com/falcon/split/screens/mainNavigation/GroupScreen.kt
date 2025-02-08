@@ -19,12 +19,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.falcon.split.App
+import com.falcon.split.Presentation.AppFontFamily
+import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.screens.mainNavigation.AddExpenseFAB
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.FontResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.HomePic
@@ -100,13 +104,12 @@ fun GroupsScreen(
                             ) {
                                 Text(
                                     text = "Number of Groups",
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = getAppTypography().bodyMedium,
                                     color = Color(0xFF64748B)
                                 )
                                 Text(
                                     text = "${groups.size}",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    fontWeight = FontWeight.SemiBold,
+                                    style = getAppTypography().bodyLarge,
                                     color = Color(0xFF1E293B)
                                 )
                             }
@@ -168,13 +171,13 @@ private fun GroupCard(
                     Column {
                         Text(
                             text = group.name,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = getAppTypography().titleMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "${group.members.size} members",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = getAppTypography().titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
