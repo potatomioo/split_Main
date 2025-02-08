@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.Presentation.ErrorRed
 import com.falcon.split.Presentation.ThemePurple
+import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.utils.EmailUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +29,10 @@ fun SettingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(
+                    "Settings",
+                    style = getAppTypography().titleLarge
+                ) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, "Back")
@@ -84,7 +88,7 @@ fun settingType(
     Text(
         title,
         fontSize = 12.sp,
-        fontWeight = FontWeight.SemiBold,
+        style = getAppTypography().titleSmall,
         color = ThemePurple,
         modifier = Modifier
             .padding(15.dp)
@@ -118,8 +122,7 @@ fun SettingOption(
             ) {
                 Text(
                     settingText,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    style = getAppTypography().titleMedium,
                     color =
                     if(settingText == "Delete Account"){
                         ErrorRed
@@ -130,8 +133,7 @@ fun SettingOption(
                 )
                 Text(
                     description,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Normal,
+                    style = getAppTypography().titleSmall,
                     color = Color.Gray
                 )
             }
@@ -158,12 +160,14 @@ fun DeleteAccountDialog(
                 Text(
                     "Delete Account",
                     color = Color.Black,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp
+                    style = getAppTypography().titleMedium
                 )
             },
             text = {
-                Text("Are you sure you want to delete your account? This action cannot be undone.")
+                Text(
+                    "Are you sure you want to delete your account? This action cannot be undone.",
+                    style = getAppTypography().titleSmall
+                    )
             },
             confirmButton = {
                 TextButton(
@@ -172,12 +176,20 @@ fun DeleteAccountDialog(
                         onDismiss()
                     }
                 ) {
-                    Text("Delete", color = ErrorRed)
+                    Text(
+                        "Delete",
+                        color = ErrorRed,
+                        style = getAppTypography().titleSmall
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = Color.Black)
+                    Text(
+                        "Cancel",
+                        color = Color.Black,
+                        style = getAppTypography().titleSmall
+                    )
                 }
             }
         )

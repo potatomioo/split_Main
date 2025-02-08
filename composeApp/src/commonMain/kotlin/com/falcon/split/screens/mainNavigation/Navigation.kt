@@ -66,6 +66,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
+import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.screens.mainNavigation.history.HistoryScreen
 import org.jetbrains.compose.resources.DrawableResource
@@ -111,10 +112,7 @@ fun NavHostMain(
                 Text(
                     text = getTitle(currentScreen),
                     fontSize = 23.sp,
-                    style = TextStyle(
-                        fontFamily = FontFamily(FONT_NUNITO_SEMIBOLD_1),
-                        fontSize = 24.sp,
-                    )
+                    style = getAppTypography().titleLarge
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
