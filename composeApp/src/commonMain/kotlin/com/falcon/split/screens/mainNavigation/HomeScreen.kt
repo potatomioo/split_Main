@@ -41,8 +41,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import split.composeapp.generated.resources.HomePic
-import split.composeapp.generated.resources.HomePic2
-import split.composeapp.generated.resources.check
 import split.composeapp.generated.resources.group_icon_outlined
 
 
