@@ -38,11 +38,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
+import com.falcon.split.Presentation.getAppTypography
 import split.composeapp.generated.resources.HomePic
-import split.composeapp.generated.resources.HomePic2
-import split.composeapp.generated.resources.check
 import split.composeapp.generated.resources.group_icon_outlined
 
 
@@ -73,31 +71,27 @@ fun HomeScreen(
                         contentDescription = "Home illustration",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(250.dp)
-                            .graphicsLayer {
-                                translationY = -100f
-                            }
+                            .height(190.dp)
                             .clip(RectangleShape) // Clip the content to the bounds
                             .padding(0.dp),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.FillWidth
                     )
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 15.dp, start = 16.dp, bottom = 4.dp),
+                            .padding(top = 2.dp, start = 15.dp, bottom = 0.dp),
                         horizontalAlignment = Alignment.Start
                     ) {
                         Text(
                             text = "Total Balance",
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = getAppTypography().titleMedium,
                             color = Color(0xFF64748B),
                             fontSize = 15.sp
                         )
                         Text(
                             text = "₹1000.00",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.SemiBold,
+                            style = getAppTypography().titleLarge,
                             color = Color(0xFF1E293B),
                             fontSize = 20.sp
                         )
@@ -106,8 +100,8 @@ fun HomeScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 0.dp, start = 2.dp, end = 20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                .padding(top = 0.dp, start = 0.dp, end = 20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
                             BalanceItem(
                                 amount = "₹475.00",
@@ -127,9 +121,8 @@ fun HomeScreen(
             item {
                 Text(
                     text = "Recent Groups",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(15.dp)
+                    style = getAppTypography().titleLarge,
+                    modifier = Modifier.padding(10.dp)
                 )
             }
             item {
@@ -155,18 +148,17 @@ private fun BalanceItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(2.dp)
+        modifier = Modifier.padding(top = 1.dp)
     ) {
         Text(
             text = amount,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
+            style = getAppTypography().bodyMedium,
             color = color,
             fontSize = 15.sp
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = getAppTypography().bodySmall,
             color = Color(0xFF64748B),
             fontSize = 10.sp
         )
@@ -205,8 +197,8 @@ fun ExpenseCard(
                 painter = painterResource(imageRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(48.dp)
-                    .padding(end = 12.dp),
+                    .size(30.dp)
+                    .padding(end = 5.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -215,18 +207,18 @@ fun ExpenseCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = getAppTypography().titleLarge,
                     color = Color(0xFF1E293B)
                 )
                 Text(
                     text = primaryText,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = getAppTypography().titleMedium,
                     color = if (isOwed) Color(0xFF22C55E) else Color(0xFFEF4444),
                     modifier = Modifier.padding(vertical = 2.dp)
                 )
                 Text(
                     text = secondaryText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = getAppTypography().titleMedium,
                     color = Color(0xFF64748B)
                 )
             }
@@ -302,7 +294,7 @@ fun AddExpenseFAB(
             )
             Text(
                 text = "Add expense",
-                style = MaterialTheme.typography.labelLarge
+                style = getAppTypography().titleLarge
             )
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.screens.mainNavigation.AddExpenseFAB
@@ -74,7 +76,7 @@ fun GroupsScreen(
                     state = lazyState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(0.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     item{
                         Box(){
@@ -92,20 +94,33 @@ fun GroupsScreen(
                                 lazyState
                             )
 
+//                            Card(
+//                                shape = RoundedCornerShape(5.dp),
+//                                colors = CardDefaults.cardColors(
+//                                    containerColor = Color.White
+//                                ),
+//                                elevation = CardDefaults.cardElevation(10.dp),
+//                                modifier = Modifier
+//                                    .padding(10.dp)
+//                                    .wrapContentSize()
+//                                    .padding(5.dp)
+//                            ) {}
+
+
                             Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .wrapContentSize()
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
                                     text = "Number of Groups",
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = getAppTypography().titleMedium,
                                     color = Color(0xFF64748B)
                                 )
                                 Text(
                                     text = "${groups.size}",
-                                    style = MaterialTheme.typography.headlineLarge,
+                                    style = getAppTypography().titleLarge,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF1E293B)
                                 )
@@ -135,12 +150,12 @@ private fun GroupCard(
     OutlinedCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth()
-            .padding(10.dp)
+            .padding(top = 0.dp, bottom = 10.dp, start = 10.dp, end = 10.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -168,13 +183,13 @@ private fun GroupCard(
                     Column {
                         Text(
                             text = group.name,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = getAppTypography().titleLarge,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "${group.members.size} members",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = getAppTypography().titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
