@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 //    alias(libs.plugins.google.playServices)
     alias(libs.plugins.firebase.crashlytics)
-//    alias(libs.plugins.kotlinCocoapods)
+    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     id("com.google.gms.google-services")
@@ -48,21 +48,23 @@ kotlin {
 //    ios {
 //        binaries {
 //            framework {
-//                baseName = "ComposeApp"
+//                baseName = "composeApp"
 //            }
 //        }
 //    }
 
-//    cocoapods {
-//        summary = "Description of the ComposeApp shared module"
-//        homepage = "https://homepage.link" // Replace with your module's homepage
-//        ios.deploymentTarget = "14.1"
-//        podfile = project.file("../iosApp/Podfile")
-//
-//        framework {
-//            baseName = "ComposeApp"
-//        }
-//    }
+    cocoapods {
+        summary = "Description of the ComposeApp shared module"
+        homepage = "https://homepage.link" // Replace with your module's homepage
+        version = "1.0.0"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+
+        framework {
+            baseName = "composeApp"  // Change this to lowercase to match
+        }
+    }
+
     sourceSets.commonMain {
         kotlin.srcDir("build/generated/ksp/metadata")
     }

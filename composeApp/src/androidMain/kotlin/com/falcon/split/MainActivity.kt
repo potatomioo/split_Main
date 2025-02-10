@@ -141,7 +141,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(state) {
                 if (state is UserState.Success) {
-
+                    requestSendForGetUserData.value = false
                     saveFirebaseUser(prefs, (state as UserState.Success).user)
 
                     Toast.makeText(
