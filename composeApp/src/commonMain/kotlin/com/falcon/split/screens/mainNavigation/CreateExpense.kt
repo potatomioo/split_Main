@@ -218,7 +218,7 @@ fun CreateExpense(
                         ) {
                             Text(name)
                             if (!amount.isNullOrEmpty()) {
-                                Text("₹${String.format("%.2f", amount.toDoubleOrNull()?.div(dummyUsers.size) ?: 0.0)}")
+                                Text("₹${(amount.toDoubleOrNull()?.div(dummyUsers.size) ?: 0.0).toInt()}")
                             }
                         }
                     }
@@ -414,7 +414,7 @@ fun CreateExpenseFromAGroup(
                         ) {
                             Text(name)
                             if (!amount.isNullOrEmpty()) {
-                                Text("₹${String.format("%.2f", amount.toDoubleOrNull()?.div(dummyUsers.size) ?: 0.0)}")
+                                Text("₹${(amount.toDoubleOrNull()?.div(dummyUsers.size) ?: 0.0).toString().take(5)}")
                             }
                         }
                     }

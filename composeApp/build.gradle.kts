@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 //    alias(libs.plugins.google.playServices)
     alias(libs.plugins.firebase.crashlytics)
-//    alias(libs.plugins.kotlinCocoapods)
+    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     id("com.google.gms.google-services")
@@ -24,11 +24,15 @@ kotlin {
         }
     }
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
-        binaries.all {
-            // Replace "YourFrameworkName" with your actual framework name
-            freeCompilerArgs += listOf("-output-name", "com.falcon.split.Split")
-            baseName = "com.falcon.split.Split"
-        }
+//        binaries.framework {
+//            baseName = "composeApp"
+//            isStatic = true
+//        }
+//        binaries.all {
+//            // Replace "YourFrameworkName" with your actual framework name
+//            freeCompilerArgs += listOf("-output-name", "com.falcon.split.Split")
+//            baseName = "com.falcon.split.Split"
+//        }
     }
 
 
@@ -48,21 +52,23 @@ kotlin {
 //    ios {
 //        binaries {
 //            framework {
-//                baseName = "ComposeApp"
+//                baseName = "composeApp"
 //            }
 //        }
 //    }
 
-//    cocoapods {
-//        summary = "Description of the ComposeApp shared module"
-//        homepage = "https://homepage.link" // Replace with your module's homepage
-//        ios.deploymentTarget = "14.1"
-//        podfile = project.file("../iosApp/Podfile")
-//
-//        framework {
-//            baseName = "ComposeApp"
-//        }
-//    }
+    cocoapods {
+        summary = "Description of the ComposeApp shared module"
+        homepage = "https://homepage.link" // Replace with your module's homepage
+        version = "1.0.0"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+
+        framework {
+            baseName = "composeApp"  // Change this to lowercase to match
+        }
+    }
+
     sourceSets.commonMain {
         kotlin.srcDir("build/generated/ksp/metadata")
     }
@@ -141,6 +147,8 @@ kotlin {
             implementation(libs.firebase.bom)
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.auth)
+
+//            implementation("org.jetbrains.compose.ui.tooling-preview.Preview:1.0.0-beta01")
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)

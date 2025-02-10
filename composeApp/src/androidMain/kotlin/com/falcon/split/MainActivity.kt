@@ -113,19 +113,46 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+    
+        @Composable
+        fun CallGoogleSignInAndroid(
+            navControllerCommon: NavHostController,
+            requestSendForGetUserData: MutableState<Boolean>,
+            prefs: DataStore<Preferences>
+        ) {
+            val viewModel = viewModel<SignInViewModel>()
+            val state by viewModel.userDetails.collectAsStateWithLifecycle()
+            LaunchedEffect(key1 = Unit) {
+                if (googleAuthUiClient.getSignedInUser() != null) {
+                    navControllerCommon.navigate("app_content")
+                }
+            }
 
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartIntentSenderForResult(),
+                onResult = { result ->
+                    requestSendForGetUserData.value = true
+                    if (result.resultCode == RESULT_OK) {
+                        lifecycleScope.launch {
+                            val signInResult = googleAuthUiClient.signInWithIntent(
+                                intent = result.data ?: return@launch
+                            )
+                            viewModel.onSignInResult(signInResult)
+                        }
+                    }
+                }
+            )
 
-    @Composable
-    fun CallGoogleSignInAndroid(
-        navControllerCommon: NavHostController,
-        requestSendForGetUserData: MutableState<Boolean>,
-        prefs: DataStore<Preferences>
-    ) {
-        val viewModel = viewModel<SignInViewModel>()
-        val phoneViewModel = viewModel<PhoneNumberViewModel>(
-            factory = PhoneNumberViewModelFactory(googleAuthUiClient)
-        )
-        val state by viewModel.userDetails.collectAsStateWithLifecycle()
+            LaunchedEffect(state) {
+                if (state is UserState.Success) {
+                    requestSendForGetUserData.value = false
+                    saveFirebaseUser(prefs, (state as UserState.Success).user)
+
+                    Toast.makeText(
+                        applicationContext,
+                        "FireBase Sign in Success",
+                        Toast.LENGTH_LONG
+                    ).show()
 
         LaunchedEffect(key1 = Unit) {
             if (googleAuthUiClient.getSignedInUser() != null) {
