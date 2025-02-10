@@ -24,11 +24,15 @@ kotlin {
         }
     }
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
-        binaries.all {
-            // Replace "YourFrameworkName" with your actual framework name
-            freeCompilerArgs += listOf("-output-name", "com.falcon.split.Split")
-            baseName = "com.falcon.split.Split"
-        }
+//        binaries.framework {
+//            baseName = "composeApp"
+//            isStatic = true
+//        }
+//        binaries.all {
+//            // Replace "YourFrameworkName" with your actual framework name
+//            freeCompilerArgs += listOf("-output-name", "com.falcon.split.Split")
+//            baseName = "com.falcon.split.Split"
+//        }
     }
 
 

@@ -99,7 +99,7 @@ fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
     contactManager: ContactManager? = null,
-    onSignOut: () -> Job,
+    onSignOut: (() -> Job)? = null,
     AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
     AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null
 ) {
@@ -234,7 +234,7 @@ fun App(
                 ) {
                     scope.launch {
                         deleteUser(prefs)
-                        onSignOut()
+                        onSignOut?.invoke()
                         navControllerMain.navigate("welcome_page")
                     }
                 }
