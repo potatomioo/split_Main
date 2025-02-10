@@ -1,5 +1,4 @@
 package com.falcon.split
-
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -62,7 +61,6 @@ import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.launch
-
 class MainActivity : ComponentActivity() {
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
@@ -71,7 +69,6 @@ class MainActivity : ComponentActivity() {
         )
     }
     private lateinit var contactManager: AndroidContactManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -91,7 +88,6 @@ class MainActivity : ComponentActivity() {
                 ).show()
             }
         }
-
         setContent {
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
@@ -113,46 +109,17 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-    
-        @Composable
-        fun CallGoogleSignInAndroid(
-            navControllerCommon: NavHostController,
-            requestSendForGetUserData: MutableState<Boolean>,
-            prefs: DataStore<Preferences>
-        ) {
-            val viewModel = viewModel<SignInViewModel>()
-            val state by viewModel.userDetails.collectAsStateWithLifecycle()
-            LaunchedEffect(key1 = Unit) {
-                if (googleAuthUiClient.getSignedInUser() != null) {
-                    navControllerCommon.navigate("app_content")
-                }
-            }
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartIntentSenderForResult(),
-                onResult = { result ->
-                    requestSendForGetUserData.value = true
-                    if (result.resultCode == RESULT_OK) {
-                        lifecycleScope.launch {
-                            val signInResult = googleAuthUiClient.signInWithIntent(
-                                intent = result.data ?: return@launch
-                            )
-                            viewModel.onSignInResult(signInResult)
-                        }
-                    }
-                }
-            )
-
-            LaunchedEffect(state) {
-                if (state is UserState.Success) {
-                    requestSendForGetUserData.value = false
-                    saveFirebaseUser(prefs, (state as UserState.Success).user)
-
-                    Toast.makeText(
-                        applicationContext,
-                        "FireBase Sign in Success",
-                        Toast.LENGTH_LONG
-                    ).show()
+    @Composable
+    fun CallGoogleSignInAndroid(
+        navControllerCommon: NavHostController,
+        requestSendForGetUserData: MutableState<Boolean>,
+        prefs: DataStore<Preferences>
+    ) {
+        val viewModel = viewModel<SignInViewModel>()
+        val phoneViewModel = viewModel<PhoneNumberViewModel>(
+            factory = PhoneNumberViewModelFactory(googleAuthUiClient)
+        )
+        val state by viewModel.userDetails.collectAsStateWithLifecycle()
 
         LaunchedEffect(key1 = Unit) {
             if (googleAuthUiClient.getSignedInUser() != null) {
@@ -208,92 +175,86 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-        @Composable
-        fun CallProfileScreenInAndroid(navControllerCommon: NavHostController) {
-            val userData = googleAuthUiClient.getSignedInUser()
-            val onSignOut = {
-                lifecycleScope.launch {
-                    googleAuthUiClient.signOut()
-                    Toast.makeText(
-                        applicationContext,
-                        "Signed out",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    navControllerCommon.navigate("welcome_page")
-                }
-            }
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (userData?.profilePictureUrl != null) {
-                    AsyncImage(
-                        model = userData.profilePictureUrl,
-                        contentDescription = "Profile picture",
-                        modifier = Modifier
-                            .size(150.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                if (userData?.username != null) {
-                    Text(
-                        text = userData.username,
-                        textAlign = TextAlign.Center,
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                Button(
-                    onClick = {
-                        onSignOut()
-                    }
-                ) {
-                    Text(text = "Sign out")
-                }
+    @Composable
+    fun CallProfileScreenInAndroid(navControllerCommon: NavHostController) {
+        val userData = googleAuthUiClient.getSignedInUser()
+        val onSignOut = {
+            lifecycleScope.launch {
+                googleAuthUiClient.signOut()
+                Toast.makeText(
+                    applicationContext,
+                    "Signed out",
+                    Toast.LENGTH_LONG
+                ).show()
+                navControllerCommon.navigate("welcome_page")
             }
         }
-
-        @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing\n      in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and\n      handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.")
-        override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            contactManager.handlePermissionResult(requestCode, grantResults)
-        }
-
-        @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            super.onActivityResult(requestCode, resultCode, data)
-            contactManager.handleActivityResult(requestCode, resultCode, data)
-        }
-
-
-        override fun onNewIntent(intent: Intent) {
-            super.onNewIntent(intent)
-            intent.let {
-//             TODO: Handle new intent (if app is already running)
-                val deepLinkNewsId = handleDeepLink(it)
-                // Update your newsId state
+            if (userData?.profilePictureUrl != null) {
+                AsyncImage(
+                    model = userData.profilePictureUrl,
+                    contentDescription = "Profile picture",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-        }
-
-        // Handle the deep link intent and extract the newsId
-        private fun handleDeepLink(intent: Intent?): String {
-            intent?.data?.let { uri ->
-                if (uri.pathSegments.isNotEmpty() && uri.pathSegments[0] == "news") {
-                    return uri.lastPathSegment ?: ""
+            if (userData?.username != null) {
+                Text(
+                    text = userData.username,
+                    textAlign = TextAlign.Center,
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Button(
+                onClick = {
+                    onSignOut()
                 }
+            ) {
+                Text(text = "Sign out")
             }
-            return ""
         }
     }
-
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing\n      in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and\n      handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        contactManager.handlePermissionResult(requestCode, grantResults)
+    }
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        contactManager.handleActivityResult(requestCode, resultCode, data)
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.let {
+//             TODO: Handle new intent (if app is already running)
+            val deepLinkNewsId = handleDeepLink(it)
+            // Update your newsId state
+        }
+    }
+    // Handle the deep link intent and extract the newsId
+    private fun handleDeepLink(intent: Intent?): String {
+        intent?.data?.let { uri ->
+            if (uri.pathSegments.isNotEmpty() && uri.pathSegments[0] == "news") {
+                return uri.lastPathSegment ?: ""
+            }
+        }
+        return ""
+    }
+}
 
 @Composable
 fun SignInScreen(
@@ -363,21 +324,18 @@ fun SignInScreen(
         isVisible = showPhoneDialog,
         onDismiss = { phoneViewModel.hidePhoneNumberDialog() },
         onPhoneNumberSubmit = { phoneNumber ->
-            phoneViewModel.submitPhoneNumber(
-                phoneNumber = phoneNumber,
-                onComplete = { success ->
-                    if (success) {
-                        phoneViewModel.hidePhoneNumberDialog()
-                        navControllerCommon.navigate("app_content")
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Failed to save phone number. Please try again.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+            phoneViewModel.submitPhoneNumber(phoneNumber) { success ->
+                if (success) {
+                    phoneViewModel.hidePhoneNumberDialog()
+                    navControllerCommon.navigate("app_content")
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Failed to save phone number. Please try again.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-            )
+            }
         }
     )
 
@@ -400,7 +358,6 @@ fun SignInScreen(
 @Composable
 fun PhoneNumberScreen() {
     var showPhoneInput by remember { mutableStateOf(false) }
-
     Box(
         contentAlignment = Alignment.Center
     ){
@@ -412,7 +369,6 @@ fun PhoneNumberScreen() {
             Text("True")
         }
     }
-
     // Bottom sheet overlay
     PhoneNumberBottomSheet(
         isVisible = showPhoneInput,
@@ -423,9 +379,7 @@ fun PhoneNumberScreen() {
         }
     )
 }
-
 //Contact Handling
-
 //class MainActivity : ComponentActivity() {
 //    private lateinit var contactManager: AndroidContactManager
 //
