@@ -220,6 +220,6 @@ room {
 }
 
 dependencies {
-    //implementation(libs.androidx.material3.jvmstubs)
+    implementation(libs.firebase.firestore.ktx)//implementation(libs.androidx.material3.jvmstubs)
     ksp(libs.room.compiler)
 }
