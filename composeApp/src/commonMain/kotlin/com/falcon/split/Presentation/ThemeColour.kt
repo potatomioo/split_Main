@@ -1,4 +1,4 @@
-package com.falcon.split
+package com.falcon.split.Presentation
 
 import androidx.compose.ui.graphics.Color
 
