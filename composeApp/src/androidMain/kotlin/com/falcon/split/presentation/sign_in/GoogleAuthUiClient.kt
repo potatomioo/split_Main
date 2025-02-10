@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentSender
 import com.falcon.split.SignInResult
 import com.falcon.split.UserModelGoogleFirebaseBased
+import com.falcon.split.data.FirestoreManager
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -16,7 +17,8 @@ import kotlinx.coroutines.tasks.await
 
 class GoogleAuthUiClient(
     private val context: Context,
-    private val oneTapClient: SignInClient
+    private val oneTapClient: SignInClient,
+    private val firestoreManager: FirestoreManager = FirestoreManager()
 ) {
     private val auth = Firebase.auth
 
@@ -37,14 +39,16 @@ class GoogleAuthUiClient(
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
         val googleIdToken = credential.googleIdToken
         val googleCredentials = GoogleAuthProvider.getCredential(googleIdToken, null)
+
         return try {
-            val user = auth.signInWithCredential(googleCredentials).await().user
+            val firebaseUser = auth.signInWithCredential(googleCredentials).await().user
             SignInResult(
-                data = user?.run {
+                data = firebaseUser?.run {
                     UserModelGoogleFirebaseBased(
-                        userId = uid,
+                        userId = uid,  // Use Firebase UID
                         username = displayName,
-                        profilePictureUrl = photoUrl?.toString()
+                        profilePictureUrl = photoUrl?.toString(),
+                        email = email
                     )
                 },
                 errorMessage = null
@@ -71,9 +75,10 @@ class GoogleAuthUiClient(
 
     fun getSignedInUser(): UserModelGoogleFirebaseBased? = auth.currentUser?.run {
         UserModelGoogleFirebaseBased(
-            userId = uid,
+            userId = uid,  // Use Firebase UID
             username = displayName,
-            profilePictureUrl = photoUrl?.toString()
+            profilePictureUrl = photoUrl?.toString(),
+            email = email
         )
     }
 
@@ -88,5 +93,11 @@ class GoogleAuthUiClient(
             )
             .setAutoSelectEnabled(true)
             .build()
+    }
+    suspend fun updateUserWithPhoneNumber(phoneNumber: String): Result<Unit> {
+        val currentUser = getSignedInUser() ?: return Result.failure(
+            IllegalStateException("No signed in user found")
+        )
+        return firestoreManager.createOrUpdateUser(currentUser, phoneNumber)
     }
 }

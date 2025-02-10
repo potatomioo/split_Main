@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,15 +47,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
+import com.falcon.split.presentation.sign_in.PhoneNumberViewModel
+import com.falcon.split.presentation.sign_in.PhoneNumberViewModelFactory
 import com.falcon.split.presentation.sign_in.SignInViewModel
-import com.falcon.split.screens.PhoneNumberBottomSheet
 import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.OpenUpiApp
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.launch
@@ -70,6 +74,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         contactManager = AndroidContactManager(this)
         ClipboardManager.init(applicationContext)
         OpenUpiApp.init(applicationContext)
@@ -110,69 +115,71 @@ class MainActivity : ComponentActivity() {
     }
 
 
-        @Composable
-        fun CallGoogleSignInAndroid(
-            navControllerCommon: NavHostController,
-            requestSendForGetUserData: MutableState<Boolean>,
-            prefs: DataStore<Preferences>
-        ) {
-            val viewModel = viewModel<SignInViewModel>()
-            val state by viewModel.userDetails.collectAsStateWithLifecycle()
-            LaunchedEffect(key1 = Unit) {
-                if (googleAuthUiClient.getSignedInUser() != null) {
-                    navControllerCommon.navigate("app_content")
-                }
+    @Composable
+    fun CallGoogleSignInAndroid(
+        navControllerCommon: NavHostController,
+        requestSendForGetUserData: MutableState<Boolean>,
+        prefs: DataStore<Preferences>
+    ) {
+        val viewModel = viewModel<SignInViewModel>()
+        val phoneViewModel = viewModel<PhoneNumberViewModel>(
+            factory = PhoneNumberViewModelFactory(googleAuthUiClient)
+        )
+        val state by viewModel.userDetails.collectAsStateWithLifecycle()
+
+        LaunchedEffect(key1 = Unit) {
+            if (googleAuthUiClient.getSignedInUser() != null) {
+                phoneViewModel.showPhoneNumberDialog()
             }
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartIntentSenderForResult(),
-                onResult = { result ->
-                    requestSendForGetUserData.value = true
-                    if (result.resultCode == RESULT_OK) {
-                        lifecycleScope.launch {
-                            val signInResult = googleAuthUiClient.signInWithIntent(
-                                intent = result.data ?: return@launch
-                            )
-                            viewModel.onSignInResult(signInResult)
-                        }
-                    }
-                }
-            )
-
-            LaunchedEffect(state) {
-                if (state is UserState.Success) {
-
-                    saveFirebaseUser(prefs, (state as UserState.Success).user)
-
-                    Toast.makeText(
-                        applicationContext,
-                        "FireBase Sign in Success",
-                        Toast.LENGTH_LONG
-                    ).show()
-
-                    navControllerCommon.navigate("app_content")
-                    viewModel.resetState()
-                }
-            }
-
-            SignInScreen(
-                state = state,
-                viewModel = viewModel,
-                navControllerCommon = navControllerCommon,
-                requestSendForGetUserData = requestSendForGetUserData,
-                onSignInClick = {
-                    viewModel.makeStateLoading()
-                    lifecycleScope.launch {
-                        val signInIntentSender = googleAuthUiClient.signIn()
-                        launcher.launch(
-                            IntentSenderRequest.Builder(
-                                signInIntentSender ?: return@launch
-                            ).build()
-                        )
-                    }
-                }
-            )
         }
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),
+            onResult = { result ->
+                requestSendForGetUserData.value = true
+                if (result.resultCode == RESULT_OK) {
+                    lifecycleScope.launch {
+                        val signInResult = googleAuthUiClient.signInWithIntent(
+                            intent = result.data ?: return@launch
+                        )
+                        viewModel.onSignInResult(signInResult)
+                    }
+                }
+            }
+        )
+
+        LaunchedEffect(state) {
+            if (state is UserState.Success) {
+                saveFirebaseUser(prefs, (state as UserState.Success).user)
+                phoneViewModel.showPhoneNumberDialog()
+                Toast.makeText(
+                    applicationContext,
+                    "FireBase Sign in Success",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        SignInScreen(
+            state = state,
+            viewModel = viewModel,
+            phoneViewModel = phoneViewModel,
+            navControllerCommon = navControllerCommon,
+            requestSendForGetUserData = requestSendForGetUserData,
+            onSignInClick = {
+                viewModel.makeStateLoading()
+                lifecycleScope.launch {
+                    val signInIntentSender = googleAuthUiClient.signIn()
+                    launcher.launch(
+                        IntentSenderRequest.Builder(
+                            signInIntentSender ?: return@launch
+                        ).build()
+                    )
+                }
+            },
+            googleAuthUiClient = googleAuthUiClient
+        )
+    }
 
         @Composable
         fun CallProfileScreenInAndroid(navControllerCommon: NavHostController) {
@@ -261,71 +268,107 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    @Composable
-    fun SignInScreen(
-        state: UserState,
-        viewModel: SignInViewModel,
-        navControllerCommon: NavHostController,
-        requestSendForGetUserData: MutableState<Boolean>,
-        onSignInClick: () -> Unit
+@Composable
+fun SignInScreen(
+    state: UserState,
+    viewModel: SignInViewModel,
+    phoneViewModel: PhoneNumberViewModel,
+    navControllerCommon: NavHostController,
+    requestSendForGetUserData: MutableState<Boolean>,
+    onSignInClick: () -> Unit,
+    googleAuthUiClient: GoogleAuthUiClient
+) {
+    val showPhoneDialog by phoneViewModel.showPhoneDialog.collectAsState()
+    val isLoading by phoneViewModel.isLoading.collectAsState()
+    val error by phoneViewModel.error.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = state) {
+        if (state is UserState.Error) {
+            Toast.makeText(
+                context,
+                state.error,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val context = LocalContext.current
-        LaunchedEffect(key1 = state) {
-            if (state is UserState.Error) {
-                Toast.makeText(
-                    context,
-                    state.error,
-                    Toast.LENGTH_LONG
-                ).show()
+        LottieAnimationView(LottieAnimationSpec("login_animation.json"))
+        Spacer(modifier = Modifier.height(60.dp))
+        GoogleSignInButton(
+            onClick = onSignInClick
+        )
+        Spacer(modifier = Modifier.height(35.dp))
+    }
+
+    if (requestSendForGetUserData.value) {
+        val userState by viewModel.userDetails.collectAsState()
+        when (userState) {
+            is UserState.Error -> {
+                val error = (userState as UserState.Error).error
+                println("ERROR_TAG$error")
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
+                    Text(
+                        text = "Error loading user: $error",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
-        }
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            LottieAnimationView(LottieAnimationSpec("login_animation.json"))
-            Spacer(
-                modifier = Modifier.height(60.dp)
-            )
-            GoogleSignInButton(
-                onClick = {
-                    onSignInClick()
-                }
-            )
-            Spacer(
-                modifier = Modifier.height(35.dp)
-            )
-        }
-        if (requestSendForGetUserData.value) {
-            val userState by viewModel.userDetails.collectAsState()
-            when (userState) {
-                is UserState.Error -> {
-                    val error = (userState as UserState.Error).error
-                    println("ERROR_TAG$error")
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White)
-                    ) {
-                        Text(
-                            text = "Error loading user: $error",
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                }
-
-                UserState.Loading -> {
-                    SignInProgressPopup()
-                }
-
-                is UserState.Success -> {
-                    navControllerCommon.navigate("app_content")
-                }
+            UserState.Loading -> {
+                SignInProgressPopup()
+            }
+            is UserState.Success -> {
+                // Phone dialog will be shown via LaunchedEffect in CallGoogleSignInAndroid
             }
         }
     }
+
+    PhoneNumberBottomSheet(
+        isVisible = showPhoneDialog,
+        onDismiss = { phoneViewModel.hidePhoneNumberDialog() },
+        onPhoneNumberSubmit = { phoneNumber ->
+            phoneViewModel.submitPhoneNumber(
+                phoneNumber = phoneNumber,
+                onComplete = { success ->
+                    if (success) {
+                        phoneViewModel.hidePhoneNumberDialog()
+                        navControllerCommon.navigate("app_content")
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Failed to save phone number. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            )
+        }
+    )
+
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+
+    error?.let { errorMessage ->
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+    }
+}
 
 @Composable
 fun PhoneNumberScreen() {

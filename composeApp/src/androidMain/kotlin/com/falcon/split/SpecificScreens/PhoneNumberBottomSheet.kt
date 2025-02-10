@@ -1,4 +1,4 @@
-package com.falcon.split.screens
+package com.falcon.split.SpecificScreens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
