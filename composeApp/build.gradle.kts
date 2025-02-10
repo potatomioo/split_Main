@@ -143,6 +143,8 @@ kotlin {
             implementation(libs.firebase.bom)
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.auth)
+
+//            implementation("org.jetbrains.compose.ui.tooling-preview.Preview:1.0.0-beta01")
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
