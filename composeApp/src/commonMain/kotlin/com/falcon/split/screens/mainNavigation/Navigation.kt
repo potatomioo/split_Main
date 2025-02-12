@@ -80,9 +80,156 @@ import split.composeapp.generated.resources.home_icon_filled
 import split.composeapp.generated.resources.home_icon_outlined
 import split.composeapp.generated.resources.nunito_semibold_1
 import split.composeapp.generated.resources.refresh
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun NavHostMain(
+    client: ApiClient,
+    navControllerBottomNav: NavHostController = rememberNavController(),
+    onNavigate: (rootName: String) -> Unit,
+    prefs: DataStore<Preferences>,
+    openUserOptionsMenu: MutableState<Boolean>,
+    snackBarHostState: SnackbarHostState,
+    navControllerMain: NavHostController
+) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { 3 }
+    )
+    var selectedItemIndex by rememberSaveable {
+        mutableStateOf(0)
+    }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(pagerState.currentPage) {
+        selectedItemIndex = pagerState.currentPage
+    }
+
+    val screens = listOf(
+        BottomBarScreen.Home,
+        BottomBarScreen.Reels,
+        BottomBarScreen.Profile
+    )
+
+    val newsViewModel: MainViewModel = viewModel(
+        factory = MainViewModelFactory(client, prefs)
+    )
+
+    Scaffold(
+        topBar = {
+            val title = getTitle(pagerState.currentPage)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White)
+                    .padding(start = 12.dp, top = 12.dp)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 23.sp,
+                    style = getAppTypography().titleLarge
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = {
+                        openUserOptionsMenu.value = true
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Settings",
+                            modifier = Modifier.rotate(90F)
+                        )
+                    }
+                }
+            }
+        },
+        bottomBar = {
+            AppBottomNavigationBar(
+                show = true,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    screens.forEach { item ->
+                        AppBottomNavigationBarItem(
+                            selectedIcon = item.selectedIcon,
+                            unSelectedIcon = item.unSelectedIcon,
+                            label = item.title,
+                            onClick = {
+                                selectedItemIndex = item.index
+                                scope.launch {
+                                    pagerState.animateScrollToPage(item.index)
+                                }
+                            },
+                            selected = mutableStateOf(selectedItemIndex == item.index),
+                            hasUpdate = item.hasUpdate,
+                            badgeCount = item.badgeCount
+                        )
+                    }
+                }
+            }
+        }
+    ) { innerPadding ->
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) { page ->
+            when (page) {
+                0 -> HomeScreen(
+                    onNavigate,
+                    prefs,
+                    snackBarHostState,
+                    navControllerBottomNav,
+                    newsViewModel,
+                    navControllerMain
+                )
+                1 -> HistoryScreen(
+                    onNavigate,
+                    prefs,
+                    newsViewModel,
+                    snackBarHostState,
+                    navControllerMain
+                )
+                2 -> GroupsScreenWithDummyData(
+                    onCreateGroupClick = {
+                        navControllerMain.navigate("create_group")
+                    },
+                    onGroupClick = { group ->
+                        navControllerMain.navigate("group_details/${group.groupId}")
+                    },
+                    navControllerMain = navControllerMain
+                )
+            }
+        }
+    }
+}
+
+fun getTitle(currentPage: Int): String {
+    return when (currentPage) {
+        0 -> "Home"
+        1 -> "History"
+        2 -> "Groups"
+        else -> ""
+    }
+}
+
+
+
+@Deprecated("In Favour of NavHostMain")
+@Composable
+fun NavHostMain2(
     client: ApiClient,
     navControllerBottomNav: NavHostController = rememberNavController(),
     onNavigate: (rootName: String) -> Unit,
@@ -98,7 +245,6 @@ fun NavHostMain(
     )
     Scaffold(
         topBar = {
-            val title = getTitle(currentScreen)
             val FONT_NUNITO_SEMIBOLD_1  = org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal, style = FontStyle.Normal)
 
             Row(
