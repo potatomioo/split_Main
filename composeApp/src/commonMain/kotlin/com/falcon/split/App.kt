@@ -60,18 +60,20 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.falcon.split.Presentation.group.CreateGroupViewModel
 import com.falcon.split.contact.ContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
-import com.falcon.split.screens.WelcomePage
-import com.falcon.split.screens.mainNavigation.CreateExpense
-import com.falcon.split.screens.mainNavigation.CreateExpenseFromAGroup
-import com.falcon.split.screens.mainNavigation.CreateGroupScreen
-import com.falcon.split.screens.mainNavigation.GroupDetailsScreen
-import com.falcon.split.screens.mainNavigation.NavHostMain
+import com.falcon.split.Presentation.screens.WelcomePage
+import com.falcon.split.Presentation.screens.mainNavigation.CreateExpense
+import com.falcon.split.Presentation.screens.mainNavigation.CreateGroupScreen
+import com.falcon.split.Presentation.screens.mainNavigation.GroupDetailsScreen
+import com.falcon.split.Presentation.screens.mainNavigation.NavHostMain
+import com.falcon.split.Presentation.screens.mainNavigation.ProfileScreen
+import com.falcon.split.Presentation.screens.mainNavigation.navigateTo
+import com.falcon.split.data.Repository.ExpenseRepository
+import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.screens.mainNavigation.PaymentScreen
-import com.falcon.split.screens.mainNavigation.ProfileScreen
-import com.falcon.split.screens.mainNavigation.navigateTo
 import com.falcon.split.utils.rememberEmailUtils
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
@@ -81,7 +83,6 @@ import dev.icerock.moko.permissions.PermissionState
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.Font
@@ -99,9 +100,11 @@ fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
     contactManager: ContactManager? = null,
-    onSignOut: (() -> Job)? = null,
+    onSignOut: (() -> Unit),
     AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
-    AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null
+    AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
+    groupRepository: GroupRepository,
+    expenseRepository: ExpenseRepository
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -207,25 +210,50 @@ fun App(
                 }
             }
             composable("create_group") {
+                val viewModel = remember { CreateGroupViewModel(groupRepository) }
                 CreateGroupScreen(
-                    onGroupCreated = { group ->
-                        // Handle the new group
-                        // Navigate back
+                    onGroupCreated = { groupId ->
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "Group created successfully",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                        // Just navigate back to the previous screen instead of popping
+                        navControllerMain.navigate("app_content") {
+                            popUpTo("app_content") { inclusive = false }
+                        }
                     },
                     onNavigateBack = {
-                        // Navigate back
                         navControllerMain.popBackStack()
                     },
-                    contactManager = contactManager!!
+                    contactManager = contactManager!!,
+                    viewModel = viewModel
                 )
             }
             composable("create_expense") {
-                CreateExpense(navControllerMain, { expense ->
-
-                }, {})
+                CreateExpense(
+                    navControllerMain = navControllerMain,
+                    onExpenseAdded = { /* Handle if needed */ },
+                    onNavigateBack = { navControllerMain.popBackStack() },
+                    groupRepository = groupRepository,
+                    expenseRepository = expenseRepository,
+                    preSelectedGroupId = null
+                )
             }
-            composable("create_expense_in_a_group") {
-                CreateExpenseFromAGroup(navControllerMain, {} ) {}
+            composable(
+                "create_expense_in_a_group/{groupId}",
+                arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getString("groupId")
+                CreateExpense(
+                    navControllerMain = navControllerMain,
+                    onExpenseAdded = { /* Handle if needed */ },
+                    onNavigateBack = { navControllerMain.popBackStack() },
+                    groupRepository = groupRepository,
+                    expenseRepository = expenseRepository,
+                    preSelectedGroupId = groupId
+                )
             }
             composable("profile") {
                 ProfileScreen(
@@ -262,7 +290,9 @@ fun App(
                     onAddExpense = { groupId ->
                         navControllerMain.navigate("add_expense/$groupId")
                     },
-                    navControllerMain = navControllerMain
+                    navControllerMain = navControllerMain,
+                    groupRepository = groupRepository,
+                    expenseRepository = expenseRepository  // You'll need to provide this too
                 )
             }
         }
