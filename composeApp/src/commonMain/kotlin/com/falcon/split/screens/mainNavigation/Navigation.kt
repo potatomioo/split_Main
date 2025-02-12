@@ -136,7 +136,7 @@ fun NavHostMain(
     ) { innerPadding ->
         NavHost(
             navController = navControllerBottomNav,
-            startDestination = BottomBarScreen.Reels.route,
+            startDestination = BottomBarScreen.Home.route,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
