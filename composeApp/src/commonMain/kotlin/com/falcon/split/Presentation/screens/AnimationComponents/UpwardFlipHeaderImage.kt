@@ -1,4 +1,4 @@
-package com.falcon.split.screens.AnimationComponents
+package com.falcon.split.Presentation.screens.AnimationComponents
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

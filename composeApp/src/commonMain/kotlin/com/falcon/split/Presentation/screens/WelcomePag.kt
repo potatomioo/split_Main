@@ -1,4 +1,4 @@
-package com.falcon.split.screens
+package com.falcon.split.Presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

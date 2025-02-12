@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation
+package com.falcon.split.Presentation.screens.mainNavigation
 
 
 import androidx.compose.foundation.clickable

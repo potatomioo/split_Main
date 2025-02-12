@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation.history
+package com.falcon.split.Presentation.screens.mainNavigation.history
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
