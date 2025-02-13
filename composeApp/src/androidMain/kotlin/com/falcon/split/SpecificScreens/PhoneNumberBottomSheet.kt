@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,9 @@ fun PhoneNumberBottomSheet(
     onPhoneNumberSubmit: (String) -> Unit
 ) {
     if (isVisible) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+        var phoneNumber by remember { mutableStateOf("") }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -34,7 +38,6 @@ fun PhoneNumberBottomSheet(
                 ) { onDismiss() },
             contentAlignment = Alignment.BottomCenter
         ) {
-            // Content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -61,18 +64,21 @@ fun PhoneNumberBottomSheet(
                 Text(
                     text = "Enter Phone Number",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF8fcb39)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                var phoneNumber by remember { mutableStateOf("") }
 
                 OutlinedTextField(
                     value = phoneNumber,
                     onValueChange = {
                         if (it.length <= 10 && it.all { char -> char.isDigit() }) {
                             phoneNumber = it
+                            if (it.length == 10) {
+                                keyboardController?.hide()
+                                onPhoneNumberSubmit(it)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -86,31 +92,6 @@ fun PhoneNumberBottomSheet(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        if (phoneNumber.length == 10) {
-                            onPhoneNumberSubmit(phoneNumber)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    enabled = phoneNumber.length == 10,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF8fcb39),
-                        disabledContainerColor = Color(0xFF5DC095).copy(alpha = 0.6f)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Done",
-                        color = Color.White,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
