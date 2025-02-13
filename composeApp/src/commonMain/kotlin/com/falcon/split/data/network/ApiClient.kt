@@ -2,6 +2,7 @@
 
 package com.falcon.split.data.network
 
+import com.falcon.split.contact.Contact
 import com.falcon.split.data.network.models.TransactionHistory
 import com.falcon.split.data.network.models.UserModelGoogleCloudBased
 import com.falcon.split.data.network.models_app.Expense

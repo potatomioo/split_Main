@@ -3,10 +3,10 @@ package com.falcon.split.contact
 interface ContactManager {
     fun hasPermission(): Boolean
     fun requestPermission(onResult: (Boolean) -> Unit)
-    fun pickContact(onContactPicked: (ContactInfo?) -> Unit)
+    fun pickContact(onContactPicked: (Contact?) -> Unit)
 }
 
-data class ContactInfo(
-    val name: String,
-    val phoneNumber: String
+data class Contact(
+    val contactName: String,
+    val contactNumber: String
 )

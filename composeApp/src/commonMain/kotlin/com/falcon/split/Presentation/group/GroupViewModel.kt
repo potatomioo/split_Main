@@ -2,6 +2,7 @@ package com.falcon.split.Presentation.group
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.falcon.split.contact.Contact
 import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.domain.useCase.group.CreateGroupUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class GroupViewModel(
         }
     }
 
-    fun createGroup(name: String, members: List<String>) {
+    fun createGroup(name: String, members: List<Contact>) {
         viewModelScope.launch {
             try {
                 groupRepository.createGroup(name, members)

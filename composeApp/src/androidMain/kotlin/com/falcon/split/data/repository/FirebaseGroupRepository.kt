@@ -1,5 +1,6 @@
 package com.falcon.split.data.repository
 
+import com.falcon.split.contact.Contact
 import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.data.network.models_app.GroupMember
@@ -14,22 +15,22 @@ import kotlinx.coroutines.tasks.await
 class FirebaseGroupRepository : GroupRepository {
     private val db = FirebaseFirestore.getInstance()
 
-    override suspend fun createGroup(name: String, members: List<String>): Result<Group> {
+    override suspend fun createGroup(name: String, members: List<Contact>): Result<Group> {
         return try {
             val currentUser = FirebaseAuth.getInstance().currentUser
                 ?: return Result.failure(Exception("User not logged in"))
 
-            val groupMembers = members.map { phoneNumber ->
+            val groupMembers = members.map { contact ->
                 // Get user info from phoneNumbers collection if exists
                 val userDoc = db.collection("phoneNumbers")
-                    .document(phoneNumber)
+                    .document(contact.contactNumber)
                     .get()
                     .await()
 
                 GroupMember(
                     userId = userDoc.getString("userId"),
-                    phoneNumber = phoneNumber,
-                    name = null,
+                    phoneNumber = contact.contactNumber,
+                    name = contact.contactName,
                     balance = 0.0  // Default balance for new member
                 )
             }

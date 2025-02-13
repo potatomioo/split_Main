@@ -188,13 +188,13 @@ fun CreateGroupScreen(
                                             )
                                             Column {
                                                 Text(
-                                                    text = contact.name,
+                                                    text = contact.contactName,
                                                     style = MaterialTheme.typography.bodyLarge,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
                                                 Text(
-                                                    text = contact.phoneNumber,
+                                                    text = contact.contactNumber,
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
