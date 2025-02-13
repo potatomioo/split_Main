@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation.history
+package com.falcon.split.Presentation.screens.mainNavigation.history
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
+import com.falcon.split.Presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.HistoryPic

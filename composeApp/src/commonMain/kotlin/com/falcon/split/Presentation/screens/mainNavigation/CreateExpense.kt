@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation
+package com.falcon.split.Presentation.screens.mainNavigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.falcon.split.data.Repository.ExpenseRepository
+import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.data.network.models_app.ExpenseSplit
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
@@ -29,7 +31,10 @@ import split.composeapp.generated.resources.group_icon_outlined
 fun CreateExpense(
     navControllerMain: NavHostController,
     onExpenseAdded: (Expense) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    groupRepository: GroupRepository,
+    expenseRepository: ExpenseRepository,
+    preSelectedGroupId: String? = null
 ) {
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
@@ -127,15 +132,15 @@ fun CreateExpense(
             // Group Selection
 
 
-            ExposedDropdownMenuBox(
-                expanded = showGroupDropdown,
-                onExpandedChange = { showGroupDropdown = it }
-            ) {
-                OutlinedTextField(
+                ExposedDropdownMenuBox(
+                    expanded = showGroupDropdown,
+                    onExpandedChange = { showGroupDropdown = it }
+                ) {
+                    OutlinedTextField(
                     value = dummyGroups.find { it.second == selectedGroup }?.first ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Select Group") },
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Select Group") },
                     leadingIcon = {
                         Image(
                             painter = painterResource(Res.drawable.group_icon_outlined),
@@ -145,77 +150,77 @@ fun CreateExpense(
                                 .padding(horizontal = 12.dp),
                             contentScale = ContentScale.Fit
                         ) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGroupDropdown) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-                ExposedDropdownMenu(
-                    expanded = showGroupDropdown,
-                    onDismissRequest = { showGroupDropdown = false }
-                ) {
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGroupDropdown) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = showGroupDropdown,
+                        onDismissRequest = { showGroupDropdown = false }
+                    ) {
                     dummyGroups.forEach { (name, id) ->
-                        DropdownMenuItem(
+                            DropdownMenuItem(
                             text = { Text(name) },
-                            onClick = {
+                                onClick = {
                                 selectedGroup = id
-                                showGroupDropdown = false
-                            }
-                        )
+                                    showGroupDropdown = false
+                                }
+                            )
+                        }
                     }
                 }
-            }
             // Paid By Selection
-            ExposedDropdownMenuBox(
-                expanded = showPayerDropdown,
-                onExpandedChange = { showPayerDropdown = it }
-            ) {
-                OutlinedTextField(
-                    value = dummyUsers.find { it.second == selectedPayer }?.first ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Paid By") },
-                    leadingIcon = { Icon(Icons.Default.Person, null) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showPayerDropdown) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
                     expanded = showPayerDropdown,
-                    onDismissRequest = { showPayerDropdown = false }
+                    onExpandedChange = { showPayerDropdown = it }
                 ) {
+                    OutlinedTextField(
+                    value = dummyUsers.find { it.second == selectedPayer }?.first ?: "",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Paid By") },
+                        leadingIcon = { Icon(Icons.Default.Person, null) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showPayerDropdown) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = showPayerDropdown,
+                        onDismissRequest = { showPayerDropdown = false }
+                    ) {
                     dummyUsers.forEach { (name, id) ->
-                        DropdownMenuItem(
+                            DropdownMenuItem(
                             text = { Text(name) },
-                            onClick = {
+                                onClick = {
                                 selectedPayer = id
-                                showPayerDropdown = false
-                            }
-                        )
+                                    showPayerDropdown = false
+                                }
+                            )
                     }
                 }
             }
 
             // Split Options Card
-            OutlinedCard(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                OutlinedCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        "Split Equally Between",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            "Split Equally Between",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     dummyUsers.forEach { (name, _) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
                             Text(name)
                             if (!amount.isNullOrEmpty()) {
                                 Text("₹${(amount.toDoubleOrNull()?.div(dummyUsers.size) ?: 0.0).toInt()}")
@@ -238,14 +243,15 @@ fun CreateExpense(
                             description = description,
                             amount = expenseAmount,
                             paidByUserId = selectedPayer!!,
-                            createdAt = Clock.System.now(),
-                            splitBetween = dummyUsers.map { (_, userId) ->
-                                ExpenseSplit(
+                            splits = dummyUsers.map { (_, userId) ->
+                        ExpenseSplit(
                                     userId = userId,
-                                    amount = splitAmount
-                                )
-                            }
+                                    amount = splitAmount,
+                            settled = false,
+                            phoneNumber = ""
                         )
+                            }
+                    )
                         onExpenseAdded(expense)
                     }
                 },
@@ -253,8 +259,8 @@ fun CreateExpense(
                 enabled = amount.isNotEmpty() && description.isNotEmpty() &&
                         selectedGroup != null && selectedPayer != null
             ) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = 8.dp))
-                Text("Add Expense")
+                    Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = 8.dp))
+                    Text("Add Expense")
             }
         }
     }
@@ -434,11 +440,13 @@ fun CreateExpenseFromAGroup(
                             description = description,
                             amount = expenseAmount,
                             paidByUserId = selectedPayer!!,
-                            createdAt = Clock.System.now(),
-                            splitBetween = dummyUsers.map { (_, userId) ->
+//                            createdAt = Clock.System.now(),
+                            splits = dummyUsers.map { (_, userId) ->
                                 ExpenseSplit(
                                     userId = userId,
-                                    amount = splitAmount
+                                    amount = splitAmount,
+                                    settled = false,
+                                    phoneNumber = ""
                                 )
                             }
                         )

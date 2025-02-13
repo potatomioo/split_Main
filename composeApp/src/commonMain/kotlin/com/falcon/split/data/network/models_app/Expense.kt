@@ -11,13 +11,14 @@ data class Expense(
     val description: String = "",
     val amount: Double = 0.0,
     val paidByUserId: String = "",  // userId of person who paid
-    val paidByUserName: String = "",  // userName of person who paid
-    val createdAt: Instant = Clock.System.now(),
-    val splitBetween: List<ExpenseSplit> = listOf()
+    val paidByUserName: String? = "",  // userName of person who paid
+    val splits: List<ExpenseSplit>?,
 )
 
 @Serializable
 data class ExpenseSplit(
-    val userId: String = "",  // Who needs to pay
-    val amount: Double = 0.0  // How much they owe
+    val userId: String,
+    val amount: Double,
+    val settled: Boolean,
+    val phoneNumber: String,
 )

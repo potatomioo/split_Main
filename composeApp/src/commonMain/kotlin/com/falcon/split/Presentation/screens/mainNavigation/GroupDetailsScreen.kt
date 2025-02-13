@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation
+package com.falcon.split.Presentation.screens.mainNavigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,9 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.Presentation.ErrorRed
+import com.falcon.split.data.Repository.ExpenseRepository
+import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.data.network.models_app.Expense
-import com.falcon.split.data.network.models_app.ExpenseSplit
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.data.network.models_app.GroupMember
 import kotlinx.datetime.Clock
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,16 +29,20 @@ fun GroupDetailsScreen(
     groupId: String,
     onNavigateBack: () -> Unit,
     onAddExpense: (String) -> Unit,
-    navControllerMain: NavHostController
+    navControllerMain: NavHostController,
+    groupRepository: GroupRepository,
+    expenseRepository: ExpenseRepository
 ) {
     // Dummy data for the group
     val group = remember {
         Group(
-            groupId = groupId,
+            id = groupId,
             name = "Weekend Trip to Goa",
-            members = listOf("user1", "user2", "user3", "user4"),
+            members = emptyList(),
             createdBy = "user1",
-            createdAt = Clock.System.now()
+            createdAt = Clock.System.now().toEpochMilliseconds(),
+            updatedAt = null,
+            totalAmount = null
         )
     }
 
@@ -59,41 +65,8 @@ fun GroupDetailsScreen(
                 description = "Hotel Booking",
                 amount = 12000.0,
                 paidByUserId = "user1",
-                createdAt = Clock.System.now(),
-                splitBetween = listOf(
-                    ExpenseSplit("user1", 3000.0),
-                    ExpenseSplit("user2", 3000.0),
-                    ExpenseSplit("user3", 3000.0),
-                    ExpenseSplit("user4", 3000.0)
-                )
-            ),
-            Expense(
-                expenseId = "2",
-                groupId = groupId,
-                description = "Dinner",
-                amount = 4000.0,
-                paidByUserId = "user2",
-                createdAt = Clock.System.now(),
-                splitBetween = listOf(
-                    ExpenseSplit("user1", 1000.0),
-                    ExpenseSplit("user2", 1000.0),
-                    ExpenseSplit("user3", 1000.0),
-                    ExpenseSplit("user4", 1000.0)
-                )
-            ),
-            Expense(
-                expenseId = "3",
-                groupId = groupId,
-                description = "Taxi",
-                amount = 1600.0,
-                paidByUserId = "user3",
-                createdAt = Clock.System.now(),
-                splitBetween = listOf(
-                    ExpenseSplit("user1", 400.0),
-                    ExpenseSplit("user2", 400.0),
-                    ExpenseSplit("user3", 400.0),
-                    ExpenseSplit("user4", 400.0)
-                )
+//                createdAt = Clock.System.now(),
+                splits = emptyList()
             )
         )
     }
@@ -137,32 +110,32 @@ fun GroupDetailsScreen(
             )
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                GroupSummaryCard(
-                    totalAmount = expenses.sumOf { it.amount },
-                    expenseCount = expenses.size,
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        GroupSummaryCard(
+                            totalAmount = expenses.sumOf { it.amount },
+                            expenseCount = expenses.size,
                     memberCount = group.members.size
-                )
-            }
+                        )
+                    }
 
-            item {
-                MembersCard(
+                    item {
+                        MembersCard(
                     members = group.members,
                     memberNames = memberNames
-                )
-            }
+                        )
+                    }
 
-            items(expenses) { expense ->
-                ExpenseCard(
-                    expense = expense,
+                    items(expenses) { expense ->
+                        ExpenseCard(
+                            expense = expense,
                     paidByName = memberNames[expense.paidByUserId] ?: "Unknown"
-                )
+            )
             }
         }
     }
@@ -207,7 +180,7 @@ private fun GroupSummaryCard(
 
 @Composable
 private fun MembersCard(
-    members: List<String>,
+    members: List<GroupMember>,
     memberNames: Map<String, String>,
     modifier: Modifier = Modifier
 ) {
@@ -237,7 +210,7 @@ private fun MembersCard(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(memberNames[memberId] ?: "Unknown")
+//                    Text(memberNames[memberId] ?: "Unknown")
                 }
             }
         }

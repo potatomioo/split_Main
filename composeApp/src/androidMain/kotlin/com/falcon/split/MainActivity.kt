@@ -50,6 +50,8 @@ import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
+import com.falcon.split.data.repository.FirebaseExpenseRepository
+import com.falcon.split.data.repository.FirebaseGroupRepository
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModel
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModelFactory
@@ -61,6 +63,7 @@ import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.launch
+
 class MainActivity : ComponentActivity() {
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
@@ -69,6 +72,9 @@ class MainActivity : ComponentActivity() {
         )
     }
     private lateinit var contactManager: AndroidContactManager
+    private val groupRepository by lazy { FirebaseGroupRepository() }
+    private val expenseRepository by lazy { FirebaseExpenseRepository() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -78,7 +84,9 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().apply {
             // Perform Some Code During Splash Screen
         }
-        val onSignOut = {
+
+        // Explicitly type the function as () -> Unit
+        val onSignOutFunction: () -> Unit = {
             lifecycleScope.launch {
                 googleAuthUiClient.signOut()
                 Toast.makeText(
@@ -88,24 +96,32 @@ class MainActivity : ComponentActivity() {
                 ).show()
             }
         }
+
         setContent {
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
-                createDataStore(context = this)
+                createDataStore(context = this@MainActivity)
             }
+
             App(
                 client = remember {
                     ApiClient(createHttpClient(OkHttp.create()))
                 },
                 prefs = prefs,
-                onSignOut = onSignOut,
+                onSignOut = onSignOutFunction,  // Use the explicitly typed function
                 contactManager = contactManager,
-                AndroidSignInComposable = { navController ->
-                    CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
+                AndroidSignInComposable = remember {
+                    @Composable { navController ->
+                        CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
+                    }
                 },
-                AndroidProfileScreenComposable = { navController ->
-                    CallProfileScreenInAndroid(navController)
-                }
+                AndroidProfileScreenComposable = remember {
+                    @Composable { navController ->
+                        CallProfileScreenInAndroid(navController)
+                    }
+                },
+                groupRepository = groupRepository,
+                expenseRepository = expenseRepository
             )
         }
     }

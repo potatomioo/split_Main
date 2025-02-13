@@ -7,9 +7,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Group(
-    val groupId: String = "",
-    val name: String = "",
-    val members: List<String> = listOf(),  // List of userIds who are in this group
-    val createdBy: String = "",  // userId of who made the group
-    val createdAt: Instant = Clock.System.now()
-)
+    val id: String = "",
+    val name: String,
+    val createdBy: String,
+    val members: List<GroupMember>,
+    val createdAt: Long? = null,
+    val updatedAt: Long? = null,
+    val totalAmount: Double? = 0.0 ,
+    )

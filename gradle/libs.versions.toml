@@ -54,6 +54,7 @@ pagingCommonJvm = "3.3.2"
 pagingCommonAndroid = "3.3.2"
 material3Jvmstubs = "1.4.0-alpha04"
 firebaseFirestoreKtx = "25.1.2"
+composeMaterialCore = "1.4.0"
 
 [libraries]
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Android" }
@@ -124,6 +125,7 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-material3-jvmstubs = { group = "androidx.compose.material3", name = "material3-jvmstubs", version.ref = "material3Jvmstubs" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+androidx-compose-material-core = { group = "androidx.wear.compose", name = "compose-material-core", version.ref = "composeMaterialCore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

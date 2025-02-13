@@ -1,4 +1,4 @@
-package com.falcon.split.screens.mainNavigation
+package com.falcon.split.Presentation.screens.mainNavigation
 
 import GroupsScreenWithDummyData
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -68,7 +68,7 @@ import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
 import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.data.network.ApiClient
-import com.falcon.split.screens.mainNavigation.history.HistoryScreen
+import com.falcon.split.Presentation.screens.mainNavigation.history.HistoryScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -325,8 +325,7 @@ fun NavHostMain2(
                         navControllerMain.navigate("create_group")
                     },
                     onGroupClick = { group ->
-                        navControllerMain.navigate("group_details/${group.groupId}")
-                    },
+                        navControllerMain.navigate("group_details/{$group.groupId}")                    },
                     navControllerMain = navControllerMain
                 )
             }

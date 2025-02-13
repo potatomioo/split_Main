@@ -1,0 +1,10 @@
+package com.falcon.split.Presentation.group
+
+import com.falcon.split.data.network.models_app.Group
+
+sealed class GroupState {
+    data object Loading : GroupState()
+    data class Success(val groups: List<Group>) : GroupState()
+    data class GroupDetailSuccess(val group: Group) : GroupState()
+    data class Error(val message: String) : GroupState()
+}
