@@ -27,7 +27,7 @@ class AndroidContactManager(
         )
     }
 
-    override fun pickContact(onContactPicked: (ContactInfo?) -> Unit) {
+    override fun pickContact(onContactPicked: (Contact?) -> Unit) {
         if (!hasPermission()) {
             onContactPicked(null)
             return
@@ -61,7 +61,7 @@ class AndroidContactManager(
     }
 
     @SuppressLint("Range")
-    private fun getContactDetails(uri: android.net.Uri): ContactInfo? {
+    private fun getContactDetails(uri: android.net.Uri): Contact? {
         var contactName = ""
         var contactNumber = ""
 
@@ -100,7 +100,7 @@ class AndroidContactManager(
         }
 
         return if (contactName.isNotEmpty() && contactNumber.isNotEmpty()) {
-            ContactInfo(contactName, getFormattedPhoneNumber(contactNumber))
+            Contact(contactName, getFormattedPhoneNumber(contactNumber))
         } else null
     }
 
@@ -116,6 +116,6 @@ class AndroidContactManager(
         const val PERMISSION_REQUEST_CODE = 123
         const val CONTACT_PICK_CODE = 124
         private var permissionCallback: ((Boolean) -> Unit)? = null
-        private var contactPickedCallback: ((ContactInfo?) -> Unit)? = null
+        private var contactPickedCallback: ((Contact?) -> Unit)? = null
     }
 }

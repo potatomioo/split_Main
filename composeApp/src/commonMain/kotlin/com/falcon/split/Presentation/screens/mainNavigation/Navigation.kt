@@ -207,7 +207,7 @@ fun NavHostMain(
                         navControllerMain.navigate("create_group")
                     },
                     onGroupClick = { group ->
-                        navControllerMain.navigate("group_details/${group.groupId}")
+                        navControllerMain.navigate("group_details/${group.id}")
                     },
                     navControllerMain = navControllerMain
                 )

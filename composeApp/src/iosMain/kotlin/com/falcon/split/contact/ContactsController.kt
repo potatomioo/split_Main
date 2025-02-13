@@ -1,10 +1,7 @@
 // shared/src/iosMain/kotlin/com/falcon/split/contact/IosContactManager.kt
 package com.falcon.split.contact
 
-import platform.Contacts.*
-import platform.ContactsUI.*
 import platform.UIKit.*
-import platform.Foundation.*
 
 class IosContactManager(
     private val viewController: UIViewController
@@ -22,7 +19,7 @@ class IosContactManager(
 //        }
     }
 
-    override fun pickContact(onContactPicked: (ContactInfo?) -> Unit) {
+    override fun pickContact(onContactPicked: (Contact?) -> Unit) {
 //        if (!hasPermission()) {
 //            onContactPicked(null)
 //            return
