@@ -21,9 +21,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.falcon.split.Presentation.getAppTypography
+import com.falcon.split.Presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.data.network.models_app.Group
-import com.falcon.split.screens.AnimationComponents.UpwardFlipHeaderImage
-import com.falcon.split.screens.mainNavigation.AddExpenseFAB
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.DrawableResource
@@ -260,74 +259,18 @@ fun GroupsScreenWithDummyData(
     val dummyGroups = remember {
         listOf(
             Group(
-                groupId = "1",
+                id = "1",
                 name = "Weekend Trip to Goa",
-                members = listOf("user1", "user2", "user3", "user4"),
+                members = emptyList(),
                 createdBy = "user1",
-                createdAt = Clock.System.now()
+                createdAt = null
             ),
             Group(
-                groupId = "2",
+                id = "2",
                 name = "House Expenses",
-                members = listOf("user1", "user2"),
+                members = emptyList(),
                 createdBy = "user2",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "3",
-                name = "Movie Night",
-                members = listOf("user1", "user2", "user3", "user5"),
-                createdBy = "user1",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "4",
-                name = "Office Lunch Group",
-                members = listOf("user1", "user4", "user5", "user6", "user7"),
-                createdBy = "user4",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "5",
-                name = "Flatmates",
-                members = listOf("user1", "user2", "user3"),
-                createdBy = "user3",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "1",
-                name = "Weekend Trip to Goa",
-                members = listOf("user1", "user2", "user3", "user4"),
-                createdBy = "user1",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "2",
-                name = "House Expenses",
-                members = listOf("user1", "user2"),
-                createdBy = "user2",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "3",
-                name = "Movie Night",
-                members = listOf("user1", "user2", "user3", "user5"),
-                createdBy = "user1",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "4",
-                name = "Office Lunch Group",
-                members = listOf("user1", "user4", "user5", "user6", "user7"),
-                createdBy = "user4",
-                createdAt = Clock.System.now()
-            ),
-            Group(
-                groupId = "5",
-                name = "Flatmates",
-                members = listOf("user1", "user2", "user3"),
-                createdBy = "user3",
-                createdAt = Clock.System.now()
+                createdAt = null
             )
         )
     }
