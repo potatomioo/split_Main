@@ -8,7 +8,7 @@
   "authors": "",
   "license": "",
   "summary": "Description of the ComposeApp shared module",
-  "vendored_frameworks": "build/cocoapods/framework/composeApp.framework",
+  "vendored_frameworks": "build/cocoapods/framework/ComposeApp.framework",
   "libraries": "c++",
   "platforms": {
     "ios": "14.1"
@@ -18,7 +18,7 @@
   },
   "pod_target_xcconfig": {
     "KOTLIN_PROJECT_PATH": ":composeApp",
-    "PRODUCT_MODULE_NAME": "composeApp"
+    "PRODUCT_MODULE_NAME": "ComposeApp"
   },
   "script_phases": [
     {

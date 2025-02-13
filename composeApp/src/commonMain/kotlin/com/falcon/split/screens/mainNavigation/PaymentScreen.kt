@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,7 +22,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +39,15 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import split.composeapp.generated.resources.Res
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import org.jetbrains.compose.resources.DrawableResource
+import split.composeapp.generated.resources.google_pay
+import split.composeapp.generated.resources.paytm
+import split.composeapp.generated.resources.phonepe_icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,15 +116,15 @@ fun PaymentScreen(
                     modifier = Modifier
                         .padding(top = 8.dp, start = 15.dp)
                 )
-                UpiMethod(appName = "Paytm", snackBarHostState = snackBarHostState) {
+                UpiMethod(appName = "Paytm", snackBarHostState = snackBarHostState, drawable = Res.drawable.paytm) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
                     OpenUpiApp.openPaytm()
                 }
-                UpiMethod(appName = "GooglePe", snackBarHostState = snackBarHostState) {
+                UpiMethod(appName = "G-Pay", snackBarHostState = snackBarHostState, drawable = Res.drawable.google_pay) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
                     OpenUpiApp.openGooglePay()
                 }
-                UpiMethod(appName = "PhonePe", snackBarHostState = snackBarHostState) {
+                UpiMethod(appName = "PhonePe", snackBarHostState = snackBarHostState, drawable = Res.drawable.phonepe_icon) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
                     OpenUpiApp.openPhonePe()
                 }
@@ -130,6 +137,7 @@ fun PaymentScreen(
 fun UpiMethod(
     appName: String,
     snackBarHostState: SnackbarHostState,
+    drawable: DrawableResource,
     openPaymentApp: () -> Unit
 ) {
     var isCancelled by remember { mutableStateOf(false) }
@@ -173,22 +181,34 @@ fun UpiMethod(
                 .fillMaxWidth()
                 .padding(15.dp)
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
+            Card(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .width(90.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 4.dp
+                )
             ) {
-                Text(
-                    appName,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
-                Text(
-                    "Use this payment method",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.Gray
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(drawable),
+                        contentDescription = "GPay Icon",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(bottom = 8.dp)
+                    )
+
+                    Text(
+                        text = appName,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

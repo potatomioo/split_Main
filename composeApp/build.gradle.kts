@@ -65,7 +65,10 @@ kotlin {
         podfile = project.file("../iosApp/Podfile")
 
         framework {
-            baseName = "composeApp"  // Change this to lowercase to match
+            baseName = "ComposeApp"  // Change this to lowercase to match
+            isStatic = true
+            export(libs.decompose)
+            export(libs.moko.permissions)
         }
     }
 
@@ -137,8 +140,8 @@ kotlin {
 
             // Back Handling
             implementation(libs.foundation)
-            implementation(libs.decompose)
-            implementation(libs.decompose.extension)
+            api(libs.decompose)
+            api(libs.decompose.extension)
             implementation(libs.paging.common)
             implementation(libs.paging.common.compose)
 
