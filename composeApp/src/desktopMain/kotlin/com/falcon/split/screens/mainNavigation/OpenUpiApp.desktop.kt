@@ -9,4 +9,7 @@ actual object Intents {
 
     actual fun openPhonePe() {
     }
+
+    actual fun inviteFriends() {
+    }
 }
