@@ -47,8 +47,10 @@ class FirebaseGroupRepository : GroupRepository {
 
             val currentUserPhoneNumber = getPhoneNumberFromId(currentUser.uid)
             val currentTime = System.currentTimeMillis()
+            val groupRef = db.collection("groups").document()
+
             val group = Group(
-                id = "",  // Will be replaced with Firestore document ID
+                id = groupRef.id,
                 name = name,
                 createdBy = currentUser.uid,
                 members = groupMembers + GroupMember(
@@ -62,10 +64,9 @@ class FirebaseGroupRepository : GroupRepository {
                 updatedAt = null
             )
 
-            val groupRef = db.collection("groups").document()
             groupRef.set(group).await()
 
-            Result.success(group.copy(id = groupRef.id))
+            Result.success(group)
         } catch (e: Exception) {
             Result.failure(e)
         }
