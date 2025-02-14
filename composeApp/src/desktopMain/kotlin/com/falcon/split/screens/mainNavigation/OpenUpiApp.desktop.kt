@@ -1,6 +1,6 @@
 package com.falcon.split.screens.mainNavigation
 
-actual object OpenUpiApp {
+actual object Intents {
     actual fun openPaytm() {
     }
 

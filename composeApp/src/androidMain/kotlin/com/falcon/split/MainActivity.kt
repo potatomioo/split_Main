@@ -57,7 +57,7 @@ import com.falcon.split.presentation.sign_in.PhoneNumberViewModel
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModelFactory
 import com.falcon.split.presentation.sign_in.SignInViewModel
 import com.falcon.split.presentation.sign_in.UserState
-import com.falcon.split.screens.mainNavigation.OpenUpiApp
+import com.falcon.split.screens.mainNavigation.Intents
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
@@ -80,7 +80,8 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         contactManager = AndroidContactManager(this)
         ClipboardManager.init(applicationContext)
-        OpenUpiApp.init(applicationContext)
+        Intents.init(applicationContext)
+
         installSplashScreen().apply {
             // Perform Some Code During Splash Screen
         }

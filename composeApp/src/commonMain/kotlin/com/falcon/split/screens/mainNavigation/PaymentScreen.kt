@@ -118,15 +118,15 @@ fun PaymentScreen(
                 )
                 UpiMethod(appName = "Paytm", snackBarHostState = snackBarHostState, drawable = Res.drawable.paytm) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
-                    OpenUpiApp.openPaytm()
+                    Intents.openPaytm()
                 }
                 UpiMethod(appName = "G-Pay", snackBarHostState = snackBarHostState, drawable = Res.drawable.google_pay) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
-                    OpenUpiApp.openGooglePay()
+                    Intents.openGooglePay()
                 }
                 UpiMethod(appName = "PhonePe", snackBarHostState = snackBarHostState, drawable = Res.drawable.phonepe_icon) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
-                    OpenUpiApp.openPhonePe()
+                    Intents.openPhonePe()
                 }
             }
         }
