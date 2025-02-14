@@ -15,6 +15,15 @@ import kotlinx.coroutines.tasks.await
 class FirebaseGroupRepository : GroupRepository {
     private val db = FirebaseFirestore.getInstance()
 
+    override suspend fun getPhoneNumberFromId(userId: String): String? {
+        val querySnapshot = db.collection("phoneNumbers")
+            .whereEqualTo("userId", userId)
+            .get()
+            .await()
+
+        return querySnapshot.documents.firstOrNull()?.getString("phoneNumber")
+    }
+
     override suspend fun createGroup(name: String, members: List<Contact>): Result<Group> {
         return try {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -27,6 +36,7 @@ class FirebaseGroupRepository : GroupRepository {
                     .get()
                     .await()
 
+
                 GroupMember(
                     userId = userDoc.getString("userId"),
                     phoneNumber = contact.contactNumber,
@@ -35,6 +45,7 @@ class FirebaseGroupRepository : GroupRepository {
                 )
             }
 
+            val currentUserPhoneNumber = getPhoneNumberFromId(currentUser.uid)
             val currentTime = System.currentTimeMillis()
             val group = Group(
                 id = "",  // Will be replaced with Firestore document ID
@@ -42,7 +53,7 @@ class FirebaseGroupRepository : GroupRepository {
                 createdBy = currentUser.uid,
                 members = groupMembers + GroupMember(
                     userId = currentUser.uid,
-                    phoneNumber = currentUser.phoneNumber ?: "",
+                    phoneNumber = currentUserPhoneNumber.toString(),
                     name = currentUser.displayName,
                     balance = 0.0
                 ),
