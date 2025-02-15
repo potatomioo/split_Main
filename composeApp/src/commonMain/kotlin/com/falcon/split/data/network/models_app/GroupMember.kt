@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GroupMember (
-    val userId: String?,
-    val phoneNumber: String,
-    val name: String?,
+    val userId: String? = null,
+    val phoneNumber: String = "",
+    val name: String? =  null,
     val balance: Double = 0.0
 )
