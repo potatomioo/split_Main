@@ -11,19 +11,39 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class GroupViewModel(
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
 ) : ViewModel() {
     private val _groupState = MutableStateFlow<GroupState>(GroupState.Loading)
     val groupState = _groupState.asStateFlow()
 
-    fun loadGroups(userId: String) {
+    init {
+        loadGroups()
+    }
+
+    fun loadGroups() {
         viewModelScope.launch {
             try {
-                groupRepository.getGroupsByUser(userId)
+                println("ViewModel: Starting to load groups...")
+                _groupState.value = GroupState.Loading
+
+                groupRepository.getCurrentUserGroups()
                     .collect { groups ->
-                        _groupState.value = GroupState.Success(groups)
+                        println("ViewModel: Collected groups, size: ${groups.size}")
+                        groups.forEach { group ->
+                            println("ViewModel: Group details - Name: ${group.name}, CreatedBy: ${group.createdBy}")
+                        }
+
+                        _groupState.value = if (groups.isEmpty()) {
+                            println("ViewModel: No groups found")
+                            GroupState.Empty
+                        } else {
+                            println("ViewModel: Found ${groups.size} groups")
+                            GroupState.Success(groups)
+                        }
                     }
             } catch (e: Exception) {
+                println("ViewModel Error: ${e.message}")
+                e.printStackTrace() // Print full stack trace
                 _groupState.value = GroupState.Error(e.message ?: "Unknown error")
             }
         }
@@ -69,5 +89,9 @@ class GroupViewModel(
                 _groupState.value = GroupState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+
+    fun retryLoading() {
+        loadGroups()
     }
 }

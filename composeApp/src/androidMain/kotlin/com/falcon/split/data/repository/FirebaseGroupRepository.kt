@@ -14,6 +14,7 @@ import kotlinx.coroutines.tasks.await
 
 class FirebaseGroupRepository : GroupRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override suspend fun getPhoneNumberFromId(userId: String): String? {
         val querySnapshot = db.collection("phoneNumbers")
@@ -87,8 +88,49 @@ class FirebaseGroupRepository : GroupRepository {
 
                 trySend(groups)
             }
-
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun getCurrentUserGroups(): Flow<List<Group>> = callbackFlow {
+        val currentUser = auth.currentUser ?: throw Exception("No user logged in")
+        println("Current User ID: ${currentUser.uid}") // Debug log
+
+        try {
+            val listener = db.collection("groups")
+                .whereEqualTo("createdBy", currentUser.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        println("Firestore Error: ${error.message}") // Debug log
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    println("Snapshot exists: ${snapshot != null}") // Debug log
+                    println("Number of documents: ${snapshot?.documents?.size}") // Debug log
+
+                    val groups = snapshot?.documents?.mapNotNull { doc ->
+                        try {
+                            doc.toObject(Group::class.java)?.let { group ->
+                                println("Found group: ${group.name} with createdBy: ${group.createdBy}") // Debug log
+                                group.copy(id = doc.id)
+                            }
+                        } catch (e: Exception) {
+                            println("Error parsing group document: ${e.message}")
+                            null
+                        }
+                    } ?: emptyList()
+
+                    println("Final groups list size: ${groups.size}") // Debug log
+                    trySend(groups)
+                }
+
+            awaitClose {
+                listener.remove()
+            }
+        } catch (e: Exception) {
+            println("Repository error: ${e.message}")
+            close(e)
+        }
     }
 
     override suspend fun addMembersToGroup(groupId: String, memberPhoneNumbers: List<String>): Result<Unit> {
