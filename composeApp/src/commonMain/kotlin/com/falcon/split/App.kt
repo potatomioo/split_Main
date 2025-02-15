@@ -61,6 +61,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.falcon.split.Presentation.group.CreateGroupViewModel
+import com.falcon.split.Presentation.group.GroupViewModel
 import com.falcon.split.contact.ContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.models.UserState
@@ -117,8 +118,6 @@ fun App(
     val viewModel = viewModel {
         PermissionsViewModel(controller)
     }
-
-
 
     when(viewModel.notificationPermissionState) {
         PermissionState.Granted -> {
@@ -192,6 +191,7 @@ fun App(
             }
             composable("app_content") {
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
+                val groupViewModel = remember { GroupViewModel(groupRepository) }
                 NavHostMain(
                     client = client,
                     onNavigate = { routeName ->
@@ -200,7 +200,8 @@ fun App(
                     prefs = prefs,
                     openUserOptionsMenu = openUserOptionsMenu,
                     snackBarHostState = snackBarHostState,
-                    navControllerMain = navControllerMain
+                    navControllerMain = navControllerMain,
+                    viewModel = groupViewModel
                 )
                 if (openUserOptionsMenu.value) {
                     OptionMenuPopup(
