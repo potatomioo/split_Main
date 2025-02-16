@@ -60,6 +60,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.falcon.split.Presentation.expense.CreateExpenseViewModel
 import com.falcon.split.Presentation.group.CreateGroupViewModel
 import com.falcon.split.Presentation.group.GroupViewModel
 import com.falcon.split.contact.ContactManager
@@ -211,7 +212,7 @@ fun App(
                 }
             }
             composable("create_group") {
-                val viewModel = remember { CreateGroupViewModel(groupRepository) }
+                val createGroupViewModel = remember { CreateGroupViewModel(groupRepository) }
                 CreateGroupScreen(
                     onGroupCreated = { groupId ->
                         scope.launch {
@@ -229,31 +230,26 @@ fun App(
                         navControllerMain.popBackStack()
                     },
                     contactManager = contactManager!!,
-                    viewModel = viewModel
+                    viewModel = createGroupViewModel
                 )
             }
             composable("create_expense") {
+                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository,expenseRepository) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
-                    onExpenseAdded = { /* Handle if needed */ },
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository,
-                    preSelectedGroupId = null
+                    viewModel = createExpenseViewModel
                 )
             }
             composable(
                 "create_expense_in_a_group/{groupId}",
                 arguments = listOf(navArgument("groupId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val groupId = backStackEntry.arguments?.getString("groupId")
+            ) {
+                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository,expenseRepository) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
-                    onExpenseAdded = { /* Handle if needed */ },
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository,
-                    preSelectedGroupId = groupId
+                    viewModel = createExpenseViewModel
                 )
             }
             composable("profile") {
