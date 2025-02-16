@@ -3,6 +3,8 @@ package com.falcon.split.data.repository
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.domain.logics.expense.ExpenseCalculator
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
@@ -12,28 +14,64 @@ import kotlinx.coroutines.tasks.await
 
 class FirebaseExpenseRepository : ExpenseRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val expenseCalculator = ExpenseCalculator()
 
-    override suspend fun addExpense(groupId: String, expense: Expense): Result<Unit> {
+    override suspend fun addExpense(
+        groupId: String,
+        description: String,
+        amount: Double,
+    ): Result<Unit> {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+            ?: return Result.failure(Exception("User not logged in"))
+
+        val paidByUserId: String = currentUser.uid
+        val paidByUserName: String = currentUser.displayName ?: "Unknown"
+
         return try {
             db.runTransaction { transaction ->
-                val expenseRef = db.collection("expenses").document()
+                // 1. Get the group to access its members
                 val groupRef = db.collection("groups").document(groupId)
+                val group = transaction.get(groupRef).toObject(Group::class.java)
+                    ?: throw Exception("Group not found")
 
-                // Add expense
-                transaction.set(expenseRef, expense)
+                // 2. Calculate splits
+                val splits = expenseCalculator.calculateEqualSplits(
+                    totalAmount = amount,
+                    paidByUserId = paidByUserId,
+                    groupMembers = group.members
+                )
 
-                // Update group member balances
-                val group = transaction.get(groupRef).toObject(Group::class.java)!!
+                // 3. Create the expense document
+                val expenseRef = db.collection("expenses").document()
+                val expense = Expense(
+                    expenseId = expenseRef.id,
+                    groupId = groupId,
+                    description = description,
+                    amount = amount,
+                    paidByUserId = paidByUserId,
+                    paidByUserName = paidByUserName,
+                    splits = splits
+                )
+
+                // 4. Update member balances in the group
                 val updatedMembers = group.members.map { member ->
-                    val split = expense.splits?.find { it.userId == member.userId }
+                    val split = splits.find { it.userId == member.userId }
                     if (split != null) {
-                        val paidAmount = if (member.userId == expense.paidByUserId) expense.amount else 0.0
+                        val paidAmount = if (member.userId == paidByUserId) amount else 0.0
                         val owedAmount = split.amount
-                        member.copy(balance = member.balance + paidAmount - owedAmount)
+                        member.copy(
+                            balance = (member.balance ?: 0.0) + paidAmount - owedAmount
+                        )
                     } else member
                 }
 
+                // 5. Perform the transaction
+                transaction.set(expenseRef, expense)
                 transaction.update(groupRef, "members", updatedMembers)
+
+                // 6. Update group's total amount
+                val currentTotal = group.totalAmount ?: 0.0
+                transaction.update(groupRef, "totalAmount", currentTotal + amount)
             }.await()
 
             Result.success(Unit)
