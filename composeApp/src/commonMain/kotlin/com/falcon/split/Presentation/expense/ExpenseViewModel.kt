@@ -40,18 +40,18 @@ class ExpenseViewModel(
         }
     }
 
-    fun addExpense(groupId: String, expense: Expense) {
-        viewModelScope.launch {
-            try {
-                expenseRepository.addExpense(groupId, expense)
-                    .onFailure { error ->
-                        _expenseState.value = ExpenseState.Error(error.message ?: "Failed to add expense")
-                    }
-            } catch (e: Exception) {
-                _expenseState.value = ExpenseState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
+//    fun addExpense(groupId: String, expense: Expense) {
+//        viewModelScope.launch {
+//            try {
+//                expenseRepository.addExpense(groupId, expense)
+//                    .onFailure { error ->
+//                        _expenseState.value = ExpenseState.Error(error.message ?: "Failed to add expense")
+//                    }
+//            } catch (e: Exception) {
+//                _expenseState.value = ExpenseState.Error(e.message ?: "Unknown error")
+//            }
+//        }
+//    }
 
     fun settleExpense(expenseId: String, userId: String) {
         viewModelScope.launch {
