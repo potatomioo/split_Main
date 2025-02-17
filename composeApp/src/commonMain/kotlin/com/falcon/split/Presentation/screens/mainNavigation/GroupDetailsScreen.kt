@@ -2,7 +2,6 @@ package com.falcon.split.Presentation.screens.mainNavigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -11,73 +10,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.falcon.split.Presentation.ErrorRed
+import com.falcon.split.Presentation.group.GroupState
+import com.falcon.split.Presentation.group.GroupViewModel
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.data.network.models_app.Expense
-import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.data.network.models_app.GroupMember
-import kotlinx.datetime.Clock
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupDetailsScreen(
     groupId: String,
+    viewModel: GroupViewModel,
     onNavigateBack: () -> Unit,
     onAddExpense: (String) -> Unit,
-    navControllerMain: NavHostController,
-    groupRepository: GroupRepository,
-    expenseRepository: ExpenseRepository
+    navControllerMain: NavHostController
 ) {
-    // Dummy data for the group
-    val group = remember {
-        Group(
-            id = groupId,
-            name = "Weekend Trip to Goa",
-            members = emptyList(),
-            createdBy = "user1",
-            createdAt = Clock.System.now().toEpochMilliseconds(),
-            updatedAt = null,
-            totalAmount = null
-        )
-    }
-
-    // Dummy data for members
-    val memberNames = remember {
-        mapOf(
-            "user1" to "John Doe",
-            "user2" to "Jane Smith",
-            "user3" to "Mike Johnson",
-            "user4" to "Sarah Wilson"
-        )
-    }
-
-    // Dummy expenses
-    val expenses = remember {
-        listOf(
-            Expense(
-                expenseId = "1",
-                groupId = groupId,
-                description = "Hotel Booking",
-                amount = 12000.0,
-                paidByUserId = "user1",
-//                createdAt = Clock.System.now(),
-                splits = emptyList()
-            )
-        )
-    }
-
-    //ShowOptionsMenu State
     var showOptionsMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(groupId) {
+        viewModel.loadGroupDetails(groupId)
+    }
+
+    val groupState by viewModel.groupState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(group.name) },
+                title = {
+                    when (groupState) {
+                        is GroupState.GroupDetailSuccess -> Text((groupState as GroupState.GroupDetailSuccess).group.name)
+                        else -> Text("Loading...")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, "Back")
@@ -87,29 +55,49 @@ fun GroupDetailsScreen(
                     IconButton(onClick = { showOptionsMenu = true }) {
                         Icon(Icons.Default.MoreVert, "More options")
                     }
-                    GroupOptionsMenu(
-                        showMenu = showOptionsMenu,
-                        onDismiss = { showOptionsMenu = false },
-                        onDeleteClick = {
-                            // Handle delete group
-                        },
-                        onRemoveMemberClick = {
-                            // Handle remove member
-                        }
-                    )
                 }
             )
         },
         floatingActionButton = {
-            AddExpenseFAB(
+            FloatingActionButton(
                 onClick = {
-                    navControllerMain.navigate("create_expense_in_a_group")
-                },
-                modifier = Modifier
-                    .padding(end = 16.dp, bottom = 16.dp)  // Adds spacing from screen edges
-            )
+                    navControllerMain.navigate("create_expense/$groupId")
+                }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Expense")
+            }
         }
     ) { padding ->
+        when (groupState) {
+            is GroupState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is GroupState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text((groupState as GroupState.Error).message)
+                        Button(onClick = { viewModel.loadGroupDetails(groupId) }) {
+                            Text("Retry")
+                        }
+                    }
+                }
+            }
+
+            is GroupState.GroupDetailSuccess -> {
+                val group = (groupState as GroupState.GroupDetailSuccess).group
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -118,24 +106,135 @@ fun GroupDetailsScreen(
                 ) {
                     item {
                         GroupSummaryCard(
-                            totalAmount = expenses.sumOf { it.amount },
-                            expenseCount = expenses.size,
-                    memberCount = group.members.size
+                            totalAmount = group.totalAmount ?: 0.0,
+//                            expenseCount = group.expenses?.size ?: 0,
+                            expenseCount = 2,
+                            memberCount = group.members.size,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
 
                     item {
-                        MembersCard(
-                    members = group.members,
-                    memberNames = memberNames
+                        MemberBalancesCard(
+                            members = group.members,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
 
-                    items(expenses) { expense ->
-                        ExpenseCard(
-                            expense = expense,
-                    paidByName = memberNames[expense.paidByUserId] ?: "Unknown"
-            )
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Text(
+                                    "Recent Expenses",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                if (group.totalAmount == 0.0) {
+                                    Text(
+                                        "No expenses yet",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+//                    items(group.expenses ?: emptyList()) { expense ->
+//                        ExpenseListItem(
+//                            expense = expense,
+//                            paidByMember = group.members.find { it.userId == expense.paidByUserId },
+//                            modifier = Modifier.padding(horizontal = 16.dp)
+//                        )
+//                    }
+                }
+
+                // Options Menu
+                DropdownMenu(
+                    expanded = showOptionsMenu,
+                    onDismissRequest = { showOptionsMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Share Group") },
+                        onClick = {
+                            showOptionsMenu = false
+                            // Implement share functionality
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Share, "Share Group")
+                        }
+                    )
+
+//                    if (group.createdByUserId == FirebaseAuth.getInstance().currentUser?.uid) {
+//                        DropdownMenuItem(
+//                            text = { Text("Delete Group", color = MaterialTheme.colorScheme.error) },
+//                            onClick = {
+//                                showOptionsMenu = false
+//                                showDeleteDialog = true
+//                            },
+//                            leadingIcon = {
+//                                Icon(
+//                                    Icons.Default.Delete,
+//                                    "Delete Group",
+//                                    tint = MaterialTheme.colorScheme.error
+//                                )
+//                            }
+//                        )
+//                    }
+                }
+
+                // Delete Confirmation Dialog
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text("Delete Group") },
+                        text = { Text("Are you sure you want to delete this group? This action cannot be undone.") },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showDeleteDialog = false
+//                                    viewModel.deleteGroup(groupId)
+                                    onNavigateBack()
+                                }
+                            ) {
+                                Text("Delete", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
+            }
+
+            GroupState.Empty -> {
+                // Handle empty state
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No group data available")
+                }
+            }
+
+            is GroupState.Success -> {
+                // Handle general success state if needed
+                // If this state isn't used, you might want to remove it from your GroupState sealed class
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Group loaded successfully")
+                }
             }
         }
     }
@@ -148,11 +247,7 @@ private fun GroupSummaryCard(
     memberCount: Int,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -161,7 +256,7 @@ private fun GroupSummaryCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                "₹${((totalAmount * 100).toInt() / 100.0)}",
+                "₹${totalAmount}",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -179,38 +274,50 @@ private fun GroupSummaryCard(
 }
 
 @Composable
-private fun MembersCard(
+private fun MemberBalancesCard(
     members: List<GroupMember>,
-    memberNames: Map<String, String>,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    ) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                "Members",
+                "Member Balances",
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            members.forEach { memberId ->
+
+            members.forEach { member ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(member.name.toString())
+                    }
+
+                    val balance = member.balance ?: 0.0
+                    Text(
+                        "₹${balance}",
+                        color = when {
+                            balance > 0 -> Color(0xFF4CAF50)  // Green
+                            balance < 0 -> Color(0xFFF44336)  // Red
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
+                        fontWeight = FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-//                    Text(memberNames[memberId] ?: "Unknown")
                 }
             }
         }
@@ -218,15 +325,14 @@ private fun MembersCard(
 }
 
 @Composable
-private fun ExpenseCard(
+private fun ExpenseListItem(
     expense: Expense,
-    paidByName: String,
+    paidByMember: GroupMember?,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+        modifier = modifier.fillMaxWidth(),
+        onClick = { /* Navigate to expense details */ }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -235,101 +341,48 @@ private fun ExpenseCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Column {
+                    Text(
+                        expense.description,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Paid by ${paidByMember?.name ?: "Unknown"}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
-                    expense.description,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    "₹${((expense.amount * 100).toInt() / 100.0)}",
+                    "₹${expense.amount}",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                "Paid by $paidByName",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
 
+            if (expense.splits?.isNotEmpty() == true) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Divider()
+                Spacer(modifier = Modifier.height(8.dp))
 
-
-
-@Composable
-fun GroupOptionsMenu(
-    showMenu: Boolean,
-    onDismiss: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onRemoveMemberClick: () -> Unit
-) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
-    DropdownMenu(
-        expanded = showMenu,
-        onDismissRequest = onDismiss,
-        offset = DpOffset(-10.dp,1.dp)
-    ) {
-        DropdownMenuItem(
-            text = { Text("Remove Member") },
-            onClick = {
-                onDismiss()
-                onRemoveMemberClick()
-            },
-            leadingIcon = {
-                Icon(Icons.Default.Person, "Remove Member")
-            }
-        )
-
-        DropdownMenuItem(
-            text = { Text("Delete Group", color = ErrorRed) },
-            onClick = {
-                onDismiss()
-                showDeleteDialog = true
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Delete,
-                    "Delete Group",
-                    tint = ErrorRed
-                )
-            }
-        )
-    }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = {
-                Text(
-                    "Delete Group",
-                    color = Color.Black,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp
-                )
-            },
-            text = {
-                Text("Are you sure you want to delete this group?")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteClick()
+                expense.splits.forEach { split ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            split.phoneNumber ?: "Unknown",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "₹${split.amount}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
-                ) {
-                    Text("Delete", color = ErrorRed)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) {
-                    Text("Cancel", color = Color.Black)
                 }
             }
-        )
+        }
     }
 }
