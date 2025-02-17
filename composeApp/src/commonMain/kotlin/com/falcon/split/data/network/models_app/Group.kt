@@ -8,10 +8,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Group(
     val id: String = "",
-    val name: String,
-    val createdBy: String,
-    val members: List<GroupMember>,
+    val name: String = "",
+    val createdBy: String = "",
+    val members: List<GroupMember> = emptyList(),
     val createdAt: Long? = null,
     val updatedAt: Long? = null,
-    val totalAmount: Double? = 0.0 ,
+    val totalAmount: Double? = 0.0,
     )

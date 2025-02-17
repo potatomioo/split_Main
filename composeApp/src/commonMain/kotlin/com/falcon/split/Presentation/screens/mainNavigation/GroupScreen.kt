@@ -17,32 +17,32 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.falcon.split.Presentation.getAppTypography
+import com.falcon.split.Presentation.group.GroupState
+import com.falcon.split.Presentation.group.GroupViewModel
 import com.falcon.split.Presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.data.network.models_app.Group
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
-import split.composeapp.generated.resources.HomePic
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.group_icon_filled
-import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
     onCreateGroupClick: () -> Unit,
     onGroupClick: (Group) -> Unit,
-    groups: List<Group>,
-    isLoading: Boolean = false,
-    navControllerMain: NavHostController
+    navControllerMain: NavHostController,
+    viewModel: GroupViewModel = viewModel()
 ) {
-
+    val groupsState by viewModel.groupState.collectAsState()
+    println("Screen: Current state is: ${groupsState::class.simpleName}")
     val lazyState = rememberLazyListState()
 
     Scaffold(
@@ -51,7 +51,7 @@ fun GroupsScreen(
                 onClick = { navControllerMain.navigate("create_group") },
                 containerColor = Color(0xFF8fcb39)
             ) {
-                Icon(Icons.Default.Add, "Add Expense")
+                Icon(Icons.Default.Add, "Create Group")
             }
         }
     ) { padding ->
@@ -61,80 +61,120 @@ fun GroupsScreen(
                 .background(Color.White)
                 .padding(padding)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (groups.isEmpty()) {
-                EmptyGroupsView(
-                    onCreateGroupClick = onCreateGroupClick,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                LazyColumn(
-                    state = lazyState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(0.dp),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    item{
-                        Box(){
-//                            Image(
-//                                painter = painterResource(Res.drawable.GroupPic), // Replace with your image resource
-//                                contentDescription = "Home illustration",
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .height(250.dp)
-//                                    .padding(0.dp),
-//                                contentScale = ContentScale.Crop
-//                            )
-                            UpwardFlipHeaderImage(
-                                Res.drawable.GroupPic,
-                                lazyState
-                            )
-
-//                            Card(
-//                                shape = RoundedCornerShape(5.dp),
-//                                colors = CardDefaults.cardColors(
-//                                    containerColor = Color.White
-//                                ),
-//                                elevation = CardDefaults.cardElevation(10.dp),
-//                                modifier = Modifier
-//                                    .padding(10.dp)
-//                                    .wrapContentSize()
-//                                    .padding(5.dp)
-//                            ) {}
-
-
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    text = "Number of Groups",
-                                    style = getAppTypography().titleMedium,
-                                    color = Color(0xFF64748B)
-                                )
-                                Text(
-                                    text = "${groups.size}",
-                                    style = getAppTypography().titleLarge,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF1E293B)
-                                )
-                            }
-
-                        }
-                    }
-                    items(groups) { group ->
-                        GroupCard(
-                            group = group,
-                            onClick = { onGroupClick(group) }
-                        )
-                    }
+            when (groupsState) {
+                is GroupState.Loading -> {
+                    println("Screen: Showing loading state")
+                    LoadingIndicator()
+                }
+                is GroupState.Empty -> {
+                    println("Screen: Showing empty state")
+                    EmptyGroupsView(
+                        onCreateGroupClick = onCreateGroupClick,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                is GroupState.Error -> {
+                    ErrorView(
+                        error = (groupsState as GroupState.Error).message,
+                        onRetry = { viewModel.retryLoading() }
+                    )
+                }
+                is GroupState.Success -> {
+                    val groups = (groupsState as GroupState.Success).groups
+                    println("Screen: Showing success state with ${groups.size} groups")
+                    GroupList(
+                        groups = groups,
+                        lazyState = lazyState,
+                        onGroupClick = onGroupClick
+                    )
+                }
+                is GroupState.GroupDetailSuccess -> {
+                    // This state is handled in a different screen
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LoadingIndicator() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ErrorView(
+    error: String,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = error,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRetry) {
+            Text("Retry")
+        }
+    }
+}
+
+@Composable
+private fun GroupList(
+    groups: List<Group>,
+    lazyState: LazyListState,
+    onGroupClick: (Group) -> Unit
+) {
+    LazyColumn(
+        state = lazyState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        item {
+            Box {
+                UpwardFlipHeaderImage(
+                    Res.drawable.GroupPic,
+                    lazyState
+                )
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Number of Groups",
+                        style = getAppTypography().titleMedium,
+                        color = Color(0xFF64748B)
+                    )
+                    Text(
+                        text = "${groups.size}",
+                        style = getAppTypography().titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF1E293B)
+                    )
+                }
+            }
+        }
+
+        items(groups) { group ->
+            GroupCard(
+                group = group,
+                onClick = { onGroupClick(group) }
+            )
         }
     }
 }
@@ -247,49 +287,4 @@ private fun EmptyGroupsView(
             Text("Create Group")
         }
     }
-}
-
-@Composable
-fun GroupsScreenWithDummyData(
-    onCreateGroupClick: () -> Unit,
-    onGroupClick: (Group) -> Unit,
-    navControllerMain: NavHostController
-) {
-    // Dummy groups data
-    val dummyGroups = remember {
-        listOf(
-            Group(
-                id = "1",
-                name = "Weekend Trip to Goa",
-                members = emptyList(),
-                createdBy = "user1",
-                createdAt = null
-            ),
-            Group(
-                id = "2",
-                name = "House Expenses",
-                members = emptyList(),
-                createdBy = "user2",
-                createdAt = null
-            )
-        )
-    }
-
-    // Using dummy loading state
-    var isLoading by remember { mutableStateOf(false) }
-
-    // Simulate loading when screen first appears
-    LaunchedEffect(Unit) {
-        isLoading = true
-        delay(1000) // Simulate network delay
-        isLoading = false
-    }
-
-    GroupsScreen(
-        groups = dummyGroups,
-        isLoading = isLoading,
-        onCreateGroupClick = onCreateGroupClick,
-        onGroupClick = onGroupClick,
-        navControllerMain = navControllerMain
-    )
 }

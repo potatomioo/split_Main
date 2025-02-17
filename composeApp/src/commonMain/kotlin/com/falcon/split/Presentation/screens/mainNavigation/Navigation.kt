@@ -1,6 +1,6 @@
 package com.falcon.split.Presentation.screens.mainNavigation
 
-import GroupsScreenWithDummyData
+import GroupsScreen
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -85,6 +85,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import com.falcon.split.Presentation.group.GroupState
+import com.falcon.split.Presentation.group.GroupViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,7 +98,8 @@ fun NavHostMain(
     prefs: DataStore<Preferences>,
     openUserOptionsMenu: MutableState<Boolean>,
     snackBarHostState: SnackbarHostState,
-    navControllerMain: NavHostController
+    navControllerMain: NavHostController,
+    viewModel: GroupViewModel
 ) {
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -119,6 +122,7 @@ fun NavHostMain(
     val newsViewModel: MainViewModel = viewModel(
         factory = MainViewModelFactory(client, prefs)
     )
+
 
     Scaffold(
         topBar = {
@@ -202,14 +206,15 @@ fun NavHostMain(
                     snackBarHostState,
                     navControllerMain
                 )
-                2 -> GroupsScreenWithDummyData(
+                2 -> GroupsScreen(
                     onCreateGroupClick = {
                         navControllerMain.navigate("create_group")
                     },
                     onGroupClick = { group ->
                         navControllerMain.navigate("group_details/${group.id}")
                     },
-                    navControllerMain = navControllerMain
+                    navControllerMain = navControllerMain,
+                    viewModel
                 )
             }
         }
@@ -222,136 +227,6 @@ fun getTitle(currentPage: Int): String {
         1 -> "History"
         2 -> "Groups"
         else -> ""
-    }
-}
-
-
-
-@Deprecated("In Favour of NavHostMain")
-@Composable
-fun NavHostMain2(
-    client: ApiClient,
-    navControllerBottomNav: NavHostController = rememberNavController(),
-    onNavigate: (rootName: String) -> Unit,
-    prefs: DataStore<Preferences>,
-    openUserOptionsMenu: MutableState<Boolean>,
-    snackBarHostState: SnackbarHostState,
-    navControllerMain: NavHostController
-) {
-    val backStackEntry by navControllerBottomNav.currentBackStackEntryAsState()
-    val currentScreen = backStackEntry?.destination
-    val newsViewModel: MainViewModel = viewModel(
-        factory = MainViewModelFactory(client, prefs)
-    )
-    Scaffold(
-        topBar = {
-            val FONT_NUNITO_SEMIBOLD_1  = org.jetbrains.compose.resources.Font(Res.font.nunito_semibold_1, weight = FontWeight.Normal, style = FontStyle.Normal)
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color.White)
-                    .padding(start = 12.dp, top = 12.dp)
-            ) {
-                Text(
-                    text = getTitle(currentScreen),
-                    fontSize = 23.sp,
-                    style = getAppTypography().titleLarge
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = {
-                        openUserOptionsMenu.value = true
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Settings",
-                            modifier = Modifier
-                                .rotate(90F)
-                        )
-                    }
-                }
-            }
-        },
-        bottomBar = {
-            BottomNavigationBar(navControllerBottomNav)
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navControllerBottomNav,
-            startDestination = BottomBarScreen.Home.route,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500)
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500)
-                )
-            },
-            popEnterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500)
-                )
-            },
-            popExitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500)
-                )
-            }
-        ) {
-
-
-            composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(onNavigate, prefs, snackBarHostState, navControllerBottomNav, newsViewModel, navControllerMain)
-            }
-            composable(route = BottomBarScreen.Reels.route) {
-                HistoryScreen(onNavigate, prefs, newsViewModel, snackBarHostState, navControllerMain)
-            }
-            composable(route = BottomBarScreen.Profile.route) {
-                GroupsScreenWithDummyData(
-                    onCreateGroupClick = {
-                        navControllerMain.navigate("create_group")
-                    },
-                    onGroupClick = { group ->
-                        navControllerMain.navigate("group_details/{$group.groupId}")                    },
-                    navControllerMain = navControllerMain
-                )
-            }
-        }
-    }
-}
-
-
-
-fun getTitle(currentScreen: NavDestination?): String {
-    return when (currentScreen?.route) {
-        BottomBarScreen.Home.route -> {
-            "Home"
-        }
-
-        BottomBarScreen.Reels.route -> {
-            "History"
-        }
-
-        BottomBarScreen.Profile.route -> {
-            "Groups"
-        }
-
-        else -> {
-            ""
-        }
     }
 }
 

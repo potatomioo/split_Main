@@ -14,6 +14,16 @@ import kotlinx.coroutines.tasks.await
 
 class FirebaseGroupRepository : GroupRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
+    override suspend fun getPhoneNumberFromId(userId: String): String? {
+        val querySnapshot = db.collection("phoneNumbers")
+            .whereEqualTo("userId", userId)
+            .get()
+            .await()
+
+        return querySnapshot.documents.firstOrNull()?.getString("phoneNumber")
+    }
 
     override suspend fun createGroup(name: String, members: List<Contact>): Result<Group> {
         return try {
@@ -27,6 +37,7 @@ class FirebaseGroupRepository : GroupRepository {
                     .get()
                     .await()
 
+
                 GroupMember(
                     userId = userDoc.getString("userId"),
                     phoneNumber = contact.contactNumber,
@@ -35,14 +46,17 @@ class FirebaseGroupRepository : GroupRepository {
                 )
             }
 
+            val currentUserPhoneNumber = getPhoneNumberFromId(currentUser.uid)
             val currentTime = System.currentTimeMillis()
+            val groupRef = db.collection("groups").document()
+
             val group = Group(
-                id = "",  // Will be replaced with Firestore document ID
+                id = groupRef.id,
                 name = name,
                 createdBy = currentUser.uid,
                 members = groupMembers + GroupMember(
                     userId = currentUser.uid,
-                    phoneNumber = currentUser.phoneNumber ?: "",
+                    phoneNumber = currentUserPhoneNumber.toString(),
                     name = currentUser.displayName,
                     balance = 0.0
                 ),
@@ -51,10 +65,9 @@ class FirebaseGroupRepository : GroupRepository {
                 updatedAt = null
             )
 
-            val groupRef = db.collection("groups").document()
             groupRef.set(group).await()
 
-            Result.success(group.copy(id = groupRef.id))
+            Result.success(group)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -75,8 +88,49 @@ class FirebaseGroupRepository : GroupRepository {
 
                 trySend(groups)
             }
-
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun getCurrentUserGroups(): Flow<List<Group>> = callbackFlow {
+        val currentUser = auth.currentUser ?: throw Exception("No user logged in")
+        println("Current User ID: ${currentUser.uid}") // Debug log
+
+        try {
+            val listener = db.collection("groups")
+                .whereEqualTo("createdBy", currentUser.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        println("Firestore Error: ${error.message}") // Debug log
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    println("Snapshot exists: ${snapshot != null}") // Debug log
+                    println("Number of documents: ${snapshot?.documents?.size}") // Debug log
+
+                    val groups = snapshot?.documents?.mapNotNull { doc ->
+                        try {
+                            doc.toObject(Group::class.java)?.let { group ->
+                                println("Found group: ${group.name} with createdBy: ${group.createdBy}") // Debug log
+                                group.copy(id = doc.id)
+                            }
+                        } catch (e: Exception) {
+                            println("Error parsing group document: ${e.message}")
+                            null
+                        }
+                    } ?: emptyList()
+
+                    println("Final groups list size: ${groups.size}") // Debug log
+                    trySend(groups)
+                }
+
+            awaitClose {
+                listener.remove()
+            }
+        } catch (e: Exception) {
+            println("Repository error: ${e.message}")
+            close(e)
+        }
     }
 
     override suspend fun addMembersToGroup(groupId: String, memberPhoneNumbers: List<String>): Result<Unit> {
