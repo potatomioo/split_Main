@@ -49,20 +49,6 @@ class GroupViewModel(
         }
     }
 
-    fun createGroup(name: String, members: List<Contact>) {
-        viewModelScope.launch {
-            try {
-                groupRepository.createGroup(name, members)
-                    .onSuccess { /* Handle success */ }
-                    .onFailure { error ->
-                        _groupState.value = GroupState.Error(error.message ?: "Failed to create group")
-                    }
-            } catch (e: Exception) {
-                _groupState.value = GroupState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
-
     fun addMembersToGroup(groupId: String, newMembers: List<String>) {
         viewModelScope.launch {
             try {

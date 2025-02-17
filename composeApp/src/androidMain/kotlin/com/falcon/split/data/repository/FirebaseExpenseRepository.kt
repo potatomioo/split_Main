@@ -54,15 +54,28 @@ class FirebaseExpenseRepository : ExpenseRepository {
                 )
 
                 // 4. Update member balances in the group
+                val equalSplitAmount = amount / group.members.size
                 val updatedMembers = group.members.map { member ->
-                    val split = splits.find { it.userId == member.userId }
-                    if (split != null) {
-                        val paidAmount = if (member.userId == paidByUserId) amount else 0.0
-                        val owedAmount = split.amount
-                        member.copy(
-                            balance = (member.balance ?: 0.0) + paidAmount - owedAmount
-                        )
-                    } else member
+                    when (member.userId) {
+                        // For the person who paid
+                        paidByUserId -> {
+                            val currentBalance = member.balance ?: 0.0
+                            // They paid full amount but owe their share
+                            // amount = what they paid
+                            // -equalSplitAmount = what they owe
+                            member.copy(
+                                balance = currentBalance + (amount - equalSplitAmount)
+                            )
+                        }
+                        // For everyone else
+                        else -> {
+                            val currentBalance = member.balance ?: 0.0
+                            // They owe their share
+                            member.copy(
+                                balance = currentBalance - equalSplitAmount
+                            )
+                        }
+                    }
                 }
 
                 // 5. Perform the transaction
