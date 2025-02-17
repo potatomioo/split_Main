@@ -280,6 +280,7 @@ fun App(
                 arguments = listOf(navArgument("groupId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
+                val groupViewModel = remember { GroupViewModel(groupRepository!!) }
                 GroupDetailsScreen(
                     groupId = groupId,
                     onNavigateBack = { navControllerMain.popBackStack() },
@@ -287,8 +288,7 @@ fun App(
                         navControllerMain.navigate("add_expense/$groupId")
                     },
                     navControllerMain = navControllerMain,
-                    groupRepository = groupRepository!!,
-                    expenseRepository = expenseRepository!!  // You'll need to provide this too
+                    viewModel = groupViewModel
                 )
             }
         }
