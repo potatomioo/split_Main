@@ -191,7 +191,7 @@ fun App(
             }
             composable("app_content") {
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
-                val groupViewModel = remember { GroupViewModel(groupRepository) }
+                val groupViewModel = remember { GroupViewModel(groupRepository!!) }
                 NavHostMain(
                     client = client,
                     onNavigate = { routeName ->
@@ -233,7 +233,7 @@ fun App(
                 )
             }
             composable("create_expense") {
-                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository,expenseRepository) }
+                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository!!,expenseRepository!!) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
                     onNavigateBack = { navControllerMain.popBackStack() },
@@ -244,7 +244,7 @@ fun App(
                 "create_expense_in_a_group/{groupId}",
                 arguments = listOf(navArgument("groupId") { type = NavType.StringType })
             ) {
-                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository,expenseRepository) }
+                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository!!,expenseRepository!!) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
                     onNavigateBack = { navControllerMain.popBackStack() },
