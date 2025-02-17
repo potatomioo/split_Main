@@ -93,18 +93,17 @@ import split.composeapp.generated.resources.nunito_regular_1
 import split.composeapp.generated.resources.profile_icon
 import split.composeapp.generated.resources.settings_icon
 
-
 @Composable
 @Preview
 fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
     contactManager: ContactManager? = null,
-    onSignOut: (() -> Unit),
+    onSignOut: (() -> Unit)? = null,
     AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
     AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
-    groupRepository: GroupRepository,
-    expenseRepository: ExpenseRepository
+    groupRepository: GroupRepository? = null,
+    expenseRepository: ExpenseRepository? = null
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -210,7 +209,9 @@ fun App(
                 }
             }
             composable("create_group") {
-                val viewModel = remember { CreateGroupViewModel(groupRepository) }
+                val viewModel = remember {
+                    CreateGroupViewModel(groupRepository!!)
+                }
                 CreateGroupScreen(
                     onGroupCreated = { groupId ->
                         scope.launch {
@@ -228,7 +229,7 @@ fun App(
                         navControllerMain.popBackStack()
                     },
                     contactManager = contactManager!!,
-                    viewModel = viewModel
+                    viewModel = viewModel!!
                 )
             }
             composable("create_expense") {
@@ -236,8 +237,8 @@ fun App(
                     navControllerMain = navControllerMain,
                     onExpenseAdded = { /* Handle if needed */ },
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository,
+                    groupRepository = groupRepository!!,
+                    expenseRepository = expenseRepository!!,
                     preSelectedGroupId = null
                 )
             }
@@ -250,8 +251,8 @@ fun App(
                     navControllerMain = navControllerMain,
                     onExpenseAdded = { /* Handle if needed */ },
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository,
+                    groupRepository = groupRepository!!,
+                    expenseRepository = expenseRepository!!,
                     preSelectedGroupId = groupId
                 )
             }
@@ -291,8 +292,8 @@ fun App(
                         navControllerMain.navigate("add_expense/$groupId")
                     },
                     navControllerMain = navControllerMain,
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository  // You'll need to provide this too
+                    groupRepository = groupRepository!!,
+                    expenseRepository = expenseRepository!!  // You'll need to provide this too
                 )
             }
         }

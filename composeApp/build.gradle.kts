@@ -101,6 +101,10 @@ kotlin {
             implementation(libs.play.services.auth)
         }
         commonMain.dependencies {
+
+            implementation(libs.firebase.firestore)
+            implementation(libs.firebase.common)
+
             implementation(compose.runtime)
 
             implementation(compose.foundation)
@@ -148,7 +152,6 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             implementation(libs.firebase.bom)
-            implementation(libs.firebase.firestore)
             implementation(libs.firebase.auth)
 
 //            implementation("org.jetbrains.compose.ui.tooling-preview.Preview:1.0.0-beta01")

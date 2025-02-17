@@ -17,6 +17,7 @@ decomposeVersion = "2.1.0-compose-experimental"
 firebase-bom = "33.7.0"
 firebase-crashlytics-plugin = "3.0.2"
 firebaseAuthKtx = "23.1.0"
+firebaseCommon = "2.1.0"
 firebaseFirestore = "1.8.0"
 foundation = "1.7.0"
 google-play-services = "4.4.2"
@@ -73,6 +74,7 @@ decompose-extension = { module = "com.arkivanov.decompose:extensions-compose-jet
 
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseFirestore" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebaseCommon" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestore" }
 foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "foundation" }
 kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauthGoogle" }
