@@ -5,4 +5,9 @@ target 'iosApp' do
   platform :ios, '14.1'
   pod 'composeApp', :path => '../composeApp'
 #   pod 'shared', :path => '../shared'
+  # Firebase pods
+  pod 'Firebase/Core'
+  pod 'Firebase/Firestore'
+  # Add Google SignIn
+  pod 'GoogleSignIn'
 end
