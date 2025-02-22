@@ -14,4 +14,5 @@ data class Group(
     val createdAt: Long? = null,
     val updatedAt: Long? = null,
     val totalAmount: Double? = 0.0,
+    val expenses : List<String> = emptyList()
     )

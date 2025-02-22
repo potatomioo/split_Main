@@ -93,42 +93,45 @@ class FirebaseGroupRepository : GroupRepository {
 
     override suspend fun getCurrentUserGroups(): Flow<List<Group>> = callbackFlow {
         val currentUser = auth.currentUser ?: throw Exception("No user logged in")
-        println("Current User ID: ${currentUser.uid}") // Debug log
+        println("DEBUG: Current User ID - ${currentUser.uid}")  // Debug log
 
         try {
+            // Query all groups and filter client-side for debugging
             val listener = db.collection("groups")
-                .whereEqualTo("createdBy", currentUser.uid)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        println("Firestore Error: ${error.message}") // Debug log
+                        println("DEBUG: Firestore Error - ${error.message}")
                         close(error)
                         return@addSnapshotListener
                     }
 
-                    println("Snapshot exists: ${snapshot != null}") // Debug log
-                    println("Number of documents: ${snapshot?.documents?.size}") // Debug log
+                    snapshot?.documents?.forEach { doc ->
+                        // Debug print each document
+                        println("DEBUG: Document ID - ${doc.id}")
+                        println("DEBUG: Document Data - ${doc.data}")
+                    }
 
                     val groups = snapshot?.documents?.mapNotNull { doc ->
-                        try {
-                            doc.toObject(Group::class.java)?.let { group ->
-                                println("Found group: ${group.name} with createdBy: ${group.createdBy}") // Debug log
+                        doc.toObject(Group::class.java)?.let { group ->
+                            // Debug print members
+                            println("DEBUG: Group ${group.id} members - ${group.members}")
+
+                            // Check if user is a member
+                            if (group.members.any { member ->
+                                    member.userId == currentUser.uid
+                                }) {
                                 group.copy(id = doc.id)
-                            }
-                        } catch (e: Exception) {
-                            println("Error parsing group document: ${e.message}")
-                            null
+                            } else null
                         }
                     } ?: emptyList()
 
-                    println("Final groups list size: ${groups.size}") // Debug log
+                    println("DEBUG: Final groups count - ${groups.size}")
                     trySend(groups)
                 }
 
-            awaitClose {
-                listener.remove()
-            }
+            awaitClose { listener.remove() }
         } catch (e: Exception) {
-            println("Repository error: ${e.message}")
+            println("DEBUG: Repository error - ${e.message}")
             close(e)
         }
     }
