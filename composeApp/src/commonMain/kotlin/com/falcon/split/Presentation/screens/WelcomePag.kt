@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.LottieAnimationSpec
 import com.falcon.split.LottieAnimationView
+import com.falcon.split.Presentation.screens.mainNavigation.Routes
 import kotlinx.coroutines.launch
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.nunito_bold_1
@@ -60,7 +61,7 @@ private fun FabWelcomePage(navController: NavHostController) {
     FloatingActionButton(
         onClick = {
             scope.launch {
-                navController.navigate("signin") // TODO: CHANGE IT
+                navController.navigate(Routes.SIGN_IN.name) // TODO: CHANGE IT
             }
         },
         containerColor = Color.Black,

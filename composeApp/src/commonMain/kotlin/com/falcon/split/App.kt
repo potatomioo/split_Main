@@ -72,6 +72,7 @@ import com.falcon.split.Presentation.screens.mainNavigation.CreateGroupScreen
 import com.falcon.split.Presentation.screens.mainNavigation.GroupDetailsScreen
 import com.falcon.split.Presentation.screens.mainNavigation.NavHostMain
 import com.falcon.split.Presentation.screens.mainNavigation.ProfileScreen
+import com.falcon.split.Presentation.screens.mainNavigation.Routes
 import com.falcon.split.Presentation.screens.mainNavigation.navigateTo
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
@@ -162,17 +163,18 @@ fun App(
     val newsViewModel: MainViewModel = viewModel(
         factory = MainViewModelFactory(client, prefs)
     )
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
         }
     ) {
         var startDestination = runBlocking {
-            if (getFirebaseUserAsUserModel(prefs) != null) "app_content" else "welcome_page"
+            if (getFirebaseUserAsUserModel(prefs) != null) Routes.APP_CONTENT.name else Routes.WELCOME_PAGE.name
         }
-//        startDestination = "payment_screen" // TODO: Remove Later
+//        startDestination = "Route.APP_CONTENT.ThemeChangeScreen" // TODO: Remove Later
         NavHost(navController = navControllerMain, startDestination = startDestination) {
-            composable("payment_screen") {
+            composable(Routes.PAYMENT_SCREEN.name) {
                 PaymentScreen(
                     paymentAmount = 1000,
                     personName = "John Doe",
@@ -182,14 +184,14 @@ fun App(
                     navControllerMain.popBackStack()
                 }
             }
-            composable("welcome_page") {
+            composable(Routes.WELCOME_PAGE.name) {
                 WelcomePage(navControllerMain)
             }
-            composable("signin") {
+            composable(Routes.SIGN_IN.name) {
                 AndroidSignInComposable?.invoke(navControllerMain) // Firebase Based Google Sign-In Android Specific Only
 //                GoogleCloudBasedGoogleSignInForKMM(prefs, navControllerMain, authReady, newsViewModel, scope) // Google Cloud Based Google Sign In For KMM, Works In KMM but need to setup separate server for JWT Token Conversion As Google Auth Id Provided By It is Temporary.
             }
-            composable("app_content") {
+            composable(Routes.APP_CONTENT.name) {
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
                 val groupViewModel = remember { GroupViewModel(groupRepository!!) }
                 NavHostMain(
@@ -210,7 +212,7 @@ fun App(
                     )
                 }
             }
-            composable("create_group") {
+            composable(Routes.CREATE_GROUP.name) {
                 val createGroupViewModel = remember { CreateGroupViewModel(groupRepository!!) }
                 CreateGroupScreen(
                     onGroupCreated = { groupId ->
@@ -221,8 +223,8 @@ fun App(
                             )
                         }
                         // Just navigate back to the previous screen instead of popping
-                        navControllerMain.navigate("app_content") {
-                            popUpTo("app_content") { inclusive = false }
+                        navControllerMain.navigate(Routes.APP_CONTENT.name) {
+                            popUpTo(Routes.APP_CONTENT.name) { inclusive = false }
                         }
                     },
                     onNavigateBack = {
@@ -232,7 +234,7 @@ fun App(
                     viewModel = createGroupViewModel!!
                 )
             }
-            composable("create_expense") {
+            composable(Routes.CREATE_EXPENSE.name) {
                 val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository!!,expenseRepository!!) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
@@ -251,7 +253,7 @@ fun App(
                     viewModel = createExpenseViewModel
                 )
             }
-            composable("profile") {
+            composable(Routes.PROFILE.name) {
                 ProfileScreen(
                     navControllerMain,
                     prefs
@@ -259,11 +261,11 @@ fun App(
                     scope.launch {
                         deleteUser(prefs)
                         onSignOut?.invoke()
-                        navControllerMain.navigate("welcome_page")
+                        navControllerMain.navigate(Routes.WELCOME_PAGE.name)
                     }
                 }
             }
-            composable("settings"){
+            composable(Routes.SETTINGS.name){
                 val emailUtils = rememberEmailUtils()
                 SettingScreen(
                     navControllerMain,
@@ -271,7 +273,7 @@ fun App(
                     emailUtils = emailUtils,
                 )
             }
-            composable("ThemeChangeScreen"){
+            composable(Routes.THEME_CHANGE_SCREEN.name){
                 var HowIsTheme = remember{ mutableStateOf(false) }
                 ThemeChangeSwitcher(isDarkMode = false,{},{})
             }
@@ -308,7 +310,7 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
     LaunchedEffect(Unit) {
         val user = getUserAsUserModel(prefs)
         if (user != null) {
-            navControllerMain.navigate("app_content")
+            navControllerMain.navigate(Routes.APP_CONTENT.name)
         }
     }
     val requestSendForGetUserData = remember { mutableStateOf(false) }
@@ -368,7 +370,7 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
                 val user = (userState as UserState.Success).user
                 scope.launch {
                     saveUser(prefs, user)
-                    navControllerMain.navigate("app_content")
+                    navControllerMain.navigate(Routes.APP_CONTENT.name)
                 }
             }
         }
@@ -402,7 +404,7 @@ fun OptionMenuPopup(
                         modifier = Modifier
                             .clickable {
                                 openUserOptionsMenu.value = false
-                                navController.navigate("profile")
+                                navController.navigate(Routes.PROFILE.name)
                             }
                             .padding(vertical = 16.dp, horizontal = 24.dp)
                     ) {
@@ -425,7 +427,7 @@ fun OptionMenuPopup(
                         modifier = Modifier
                             .clickable {
                                 openUserOptionsMenu.value = false
-                                navController.navigate("settings")
+                                navController.navigate(Routes.SETTINGS.name)
                             }
                             .padding(vertical = 16.dp, horizontal = 24.dp)
                     ) {
