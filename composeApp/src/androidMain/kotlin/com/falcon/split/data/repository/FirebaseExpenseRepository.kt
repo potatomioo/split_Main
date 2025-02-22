@@ -78,13 +78,17 @@ class FirebaseExpenseRepository : ExpenseRepository {
                     }
                 }
 
-                // 5. Perform the transaction
-                transaction.set(expenseRef, expense)
-                transaction.update(groupRef, "members", updatedMembers)
+                // 5. Get current expenses list and update with new expense ID
+                val currentExpenses = group.expenses.toMutableList() ?: mutableListOf()
+                currentExpenses.add(expenseRef.id)
 
-                // 6. Update group's total amount
-                val currentTotal = group.totalAmount ?: 0.0
-                transaction.update(groupRef, "totalAmount", currentTotal + amount)
+                // 6. Perform all updates in the transaction
+                transaction.set(expenseRef, expense)
+                transaction.update(groupRef, mapOf(
+                    "members" to updatedMembers,
+                    "expenses" to currentExpenses,
+                    "totalAmount" to (group.totalAmount ?: 0.0) + amount
+                ))
             }.await()
 
             Result.success(Unit)
