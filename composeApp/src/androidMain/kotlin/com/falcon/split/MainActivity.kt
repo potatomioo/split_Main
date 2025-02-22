@@ -46,6 +46,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.falcon.split.Presentation.screens.mainNavigation.Routes
 import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
 import com.falcon.split.data.network.ApiClient
@@ -99,32 +100,34 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            var darkTheme by remember { mutableStateOf(false) }
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
                 createDataStore(context = this@MainActivity)
             }
-
-            App(
-                client = remember {
-                    ApiClient(createHttpClient(OkHttp.create()))
-                },
-                prefs = prefs,
-                onSignOut = onSignOutFunction,  // Use the explicitly typed function
-                contactManager = contactManager,
-                AndroidSignInComposable = remember {
-                    @Composable { navController ->
-                        CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
-                    }
-                },
-                AndroidProfileScreenComposable = remember {
-                    @Composable { navController ->
-                        CallProfileScreenInAndroid(navController)
-                    }
-                },
-                groupRepository = groupRepository,
-                expenseRepository = expenseRepository
-            )
-        }
+//            SplitTheme(darkTheme = darkTheme) {
+                App(
+                    client = remember {
+                        ApiClient(createHttpClient(OkHttp.create()))
+                    },
+                    prefs = prefs,
+                    onSignOut = onSignOutFunction,  // Use the explicitly typed function
+                    contactManager = contactManager,
+                    AndroidSignInComposable = remember {
+                        @Composable { navController ->
+                            CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
+                        }
+                    },
+                    AndroidProfileScreenComposable = remember {
+                        @Composable { navController ->
+                            CallProfileScreenInAndroid(navController)
+                        }
+                    },
+                    groupRepository = groupRepository,
+                    expenseRepository = expenseRepository
+                )
+            }
+//        }
     }
     @Composable
     fun CallGoogleSignInAndroid(
@@ -203,7 +206,7 @@ class MainActivity : ComponentActivity() {
                     "Signed out",
                     Toast.LENGTH_LONG
                 ).show()
-                navControllerCommon.navigate("welcome_page")
+                navControllerCommon.navigate(Routes.WELCOME_PAGE.name)
             }
         }
         Column(
@@ -344,7 +347,7 @@ fun SignInScreen(
             phoneViewModel.submitPhoneNumber(phoneNumber) { success ->
                 if (success) {
                     phoneViewModel.hidePhoneNumberDialog()
-                    navControllerCommon.navigate("app_content")
+                    navControllerCommon.navigate(Routes.APP_CONTENT.name)
                 } else {
                     Toast.makeText(
                         context,
