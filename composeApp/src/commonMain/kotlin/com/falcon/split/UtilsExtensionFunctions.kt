@@ -20,9 +20,21 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.falcon.split.data.network.models.UserModelGoogleCloudBased
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+
+suspend fun isDarkThemeEnabled(prefs: DataStore<Preferences>): Boolean {
+    val darkThemeKey = booleanPreferencesKey("is_dark_theme_enabled")
+    val prefs = prefs.data.first()
+    return prefs[darkThemeKey] ?: false
+}
+
+suspend fun toggleDarkTheme(prefs: DataStore<Preferences>) {
+    val darkThemeKey = booleanPreferencesKey("is_dark_theme_enabled")
+    prefs.edit { prefs ->
+        prefs[darkThemeKey] = !(prefs[darkThemeKey] ?: false)
+    }
+}
 
 suspend fun saveFirebaseUser(prefs: DataStore<Preferences>, userModel: UserModelGoogleFirebaseBased) { // Firebase Based
     val userJson = Json.encodeToString(userModel) // Serialize UserModel to JSON string

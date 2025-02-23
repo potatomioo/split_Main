@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.falcon.split.Presentation.SplitTheme
 import com.falcon.split.Presentation.screens.mainNavigation.Routes
 import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
@@ -64,6 +66,7 @@ import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     private val googleAuthUiClient by lazy {
@@ -98,14 +101,36 @@ class MainActivity : ComponentActivity() {
                 ).show()
             }
         }
+        try {
 
+        }
+        catch (e: Exception) {
+            println("ERROR_TAG: $e")
+            // GEMINI API CALL FOR ("FIX FOR: $e")
+            // LOG THAT
+            // throw e
+        }
         setContent {
-            var darkTheme by remember { mutableStateOf(false) }
+            /*
+                // TODO
+                One edge case can come that when theme is toggled since the darkTheme parameter in SplitTheme is NOT
+                updating live (it's NOT a State), so maybe create a MutableState here and pass it to SplitTheme and also
+                change it in onThemeUpdated parameter.
+             */
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
                 createDataStore(context = this@MainActivity)
             }
-//            SplitTheme(darkTheme = darkTheme) {
+            val scope = rememberCoroutineScope()
+            SplitTheme(
+                darkTheme = runBlocking {
+                    isDarkThemeEnabled(prefs)
+                }, onThemeUpdated = {
+                    scope.launch {
+                        toggleDarkTheme(prefs)
+                    }
+                }
+            ) {
                 App(
                     client = remember {
                         ApiClient(createHttpClient(OkHttp.create()))
@@ -127,7 +152,7 @@ class MainActivity : ComponentActivity() {
                     expenseRepository = expenseRepository
                 )
             }
-//        }
+        }
     }
     @Composable
     fun CallGoogleSignInAndroid(

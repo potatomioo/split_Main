@@ -23,29 +23,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.Presentation.ErrorRed
 import com.falcon.split.Presentation.ThemePurple
+import com.falcon.split.Presentation.ThemeSwitcher
 import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.Presentation.screens.mainNavigation.Routes
+import com.falcon.split.isDarkThemeEnabled
+import com.falcon.split.toggleDarkTheme
 import com.falcon.split.utils.EmailUtils
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     navController: NavHostController,
-    onNavigateBack:() -> Unit,
+    onNavigateBack: () -> Unit,
     emailUtils: EmailUtils,
+    prefs: DataStore<Preferences>,
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
-
+    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -67,7 +76,20 @@ fun SettingScreen(
                 .padding(padding)
         ) {
             items(1){
-                settingType("General")
+                // TODO: FIX THIS ThemeSwitcher
+                ThemeSwitcher(
+                    size = 50.dp,
+                    padding = 5.dp,
+                    onClick = {
+                        scope.launch {
+                            toggleDarkTheme(prefs)
+                        }
+                    },
+                    darkTheme = runBlocking {
+                        isDarkThemeEnabled(prefs)
+                    }
+                )
+                SettingType("General")
                 SettingOption(
                     "Contact Us",
                     "Contact our team",
@@ -86,7 +108,7 @@ fun SettingScreen(
                     "Delete your account",
                     {showDeleteDialog = true}
                 )
-                settingType("Developer")
+                SettingType("Developer")
                 SettingOption("Resource Used","Resources used for app",{})
                 SettingOption("Bug Report","Report bugs here",{})
                 SettingOption("Terms & Condition","Terms and Condition for using",{})
@@ -102,7 +124,7 @@ fun SettingScreen(
 }
 
 @Composable
-fun settingType(
+fun SettingType(
     title : String
 ) {
     Text(

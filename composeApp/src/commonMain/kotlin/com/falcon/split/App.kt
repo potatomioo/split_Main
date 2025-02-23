@@ -172,7 +172,7 @@ fun App(
         var startDestination = runBlocking {
             if (getFirebaseUserAsUserModel(prefs) != null) Routes.APP_CONTENT.name else Routes.WELCOME_PAGE.name
         }
-//        startDestination = "Route.APP_CONTENT.ThemeChangeScreen" // TODO: Remove Later
+//        startDestination = Routes.SETTINGS.name // TODO: Remove Later
         NavHost(navController = navControllerMain, startDestination = startDestination) {
             composable(Routes.PAYMENT_SCREEN.name) {
                 PaymentScreen(
@@ -268,9 +268,10 @@ fun App(
             composable(Routes.SETTINGS.name){
                 val emailUtils = rememberEmailUtils()
                 SettingScreen(
-                    navControllerMain,
+                    navController = navControllerMain,
                     onNavigateBack = {navControllerMain.popBackStack()},
                     emailUtils = emailUtils,
+                    prefs = prefs
                 )
             }
             composable(Routes.THEME_CHANGE_SCREEN.name){
