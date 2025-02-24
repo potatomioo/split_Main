@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,11 +39,9 @@ import com.falcon.split.Presentation.ThemePurple
 import com.falcon.split.Presentation.ThemeSwitcher
 import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.Presentation.screens.mainNavigation.Routes
-import com.falcon.split.isDarkThemeEnabled
 import com.falcon.split.toggleDarkTheme
 import com.falcon.split.utils.EmailUtils
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +50,7 @@ fun SettingScreen(
     onNavigateBack: () -> Unit,
     emailUtils: EmailUtils,
     prefs: DataStore<Preferences>,
+    darkTheme: MutableState<Boolean>,
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -82,12 +82,11 @@ fun SettingScreen(
                     padding = 5.dp,
                     onClick = {
                         scope.launch {
+                            darkTheme.value = !darkTheme.value
                             toggleDarkTheme(prefs)
                         }
                     },
-                    darkTheme = runBlocking {
-                        isDarkThemeEnabled(prefs)
-                    }
+                    darkTheme = darkTheme.value
                 )
                 SettingType("General")
                 SettingOption(

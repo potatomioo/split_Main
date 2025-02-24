@@ -15,6 +15,7 @@ fun MainViewController() = ComposeUIViewController {
         prefs = remember {
             createDataStore()
         },
-        onSignOut = null
+        onSignOut = null,
+        darkTheme = null
     )
 }

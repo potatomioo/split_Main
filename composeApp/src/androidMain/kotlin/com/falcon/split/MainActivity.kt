@@ -111,15 +111,16 @@ class MainActivity : ComponentActivity() {
             // throw e
         }
         setContent {
-            /*
-                // TODO
-                One edge case can come that when theme is toggled since the darkTheme parameter in SplitTheme is NOT
-                updating live (it's NOT a State), so maybe create a MutableState here and pass it to SplitTheme and also
-                change it in onThemeUpdated parameter.
-             */
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
                 createDataStore(context = this@MainActivity)
+            }
+            val darkTheme = remember {
+                mutableStateOf(
+                    runBlocking {
+                        isDarkThemeEnabled(prefs)
+                    }
+                )
             }
             val scope = rememberCoroutineScope()
             SplitTheme(
@@ -127,6 +128,7 @@ class MainActivity : ComponentActivity() {
                     isDarkThemeEnabled(prefs)
                 }, onThemeUpdated = {
                     scope.launch {
+                        darkTheme.value = !darkTheme.value
                         toggleDarkTheme(prefs)
                     }
                 }
@@ -149,7 +151,8 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     groupRepository = groupRepository,
-                    expenseRepository = expenseRepository
+                    expenseRepository = expenseRepository,
+                    darkTheme = darkTheme
                 )
             }
         }

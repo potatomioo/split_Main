@@ -106,7 +106,8 @@ fun App(
     AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
     AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
     groupRepository: GroupRepository? = null,
-    expenseRepository: ExpenseRepository? = null
+    expenseRepository: ExpenseRepository? = null,
+    darkTheme: MutableState<Boolean>?
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -271,7 +272,8 @@ fun App(
                     navController = navControllerMain,
                     onNavigateBack = {navControllerMain.popBackStack()},
                     emailUtils = emailUtils,
-                    prefs = prefs
+                    prefs = prefs,
+                    darkTheme = darkTheme!!
                 )
             }
             composable(Routes.THEME_CHANGE_SCREEN.name){
