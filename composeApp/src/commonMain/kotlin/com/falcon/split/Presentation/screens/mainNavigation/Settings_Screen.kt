@@ -54,7 +54,6 @@ fun SettingScreen(
 ) {
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,17 +75,10 @@ fun SettingScreen(
                 .padding(padding)
         ) {
             items(1){
-                // TODO: FIX THIS ThemeSwitcher
-                ThemeSwitcher(
-                    size = 50.dp,
-                    padding = 5.dp,
-                    onClick = {
-                        scope.launch {
-                            darkTheme.value = !darkTheme.value
-                            toggleDarkTheme(prefs)
-                        }
-                    },
-                    darkTheme = darkTheme.value
+                // TODO: FIX THIS ThemeOption
+                ThemeOption(
+                    prefs = prefs,
+                    darkTheme = darkTheme
                 )
                 SettingType("General")
                 SettingOption(
@@ -137,8 +129,58 @@ fun SettingType(
 }
 
 @Composable
+fun ThemeOption(
+    modifier: Modifier = Modifier,
+    prefs: DataStore<Preferences>,
+    darkTheme: MutableState<Boolean>,
+) {
+    val scope = rememberCoroutineScope()
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        )
+    ){
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .fillMaxWidth()
+                .padding(15.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    "Theme",
+                    style = getAppTypography().titleMedium,
+                    color = Color.Black
+
+                )
+                Text(
+                    "Toggle Theme",
+                    style = getAppTypography().titleSmall,
+                    color = Color.Gray
+                )
+            }
+            ThemeSwitcher(
+                size = 50.dp,
+                padding = 5.dp,
+                onClick = {
+                    scope.launch {
+                        darkTheme.value = !darkTheme.value
+                        toggleDarkTheme(prefs)
+                    }
+                },
+                darkTheme = darkTheme.value
+            )
+        }
+    }
+}
+
+@Composable
 fun SettingOption(
-//    modifier: Modifier = Modifier,
     settingText : String,
     description : String,
     onClick:()->Unit

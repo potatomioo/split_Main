@@ -124,9 +124,7 @@ class MainActivity : ComponentActivity() {
             }
             val scope = rememberCoroutineScope()
             SplitTheme(
-                darkTheme = runBlocking {
-                    isDarkThemeEnabled(prefs)
-                }, onThemeUpdated = {
+                darkTheme = darkTheme.value, onThemeUpdated = {
                     scope.launch {
                         darkTheme.value = !darkTheme.value
                         toggleDarkTheme(prefs)

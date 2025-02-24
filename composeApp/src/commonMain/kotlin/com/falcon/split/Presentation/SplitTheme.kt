@@ -16,23 +16,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+val ThemeGrey = Color(0xFFfff6f6)
+val ThemePurple = Color(0xFF520c61)
+val SuccessGreen = Color(0xFF22C55E)
+val ErrorRed = Color(0xFFEF4444)
 
 @Composable
 fun getAppTypography(): Typography {
@@ -82,7 +94,37 @@ fun SplitTheme(
     onThemeUpdated: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    content()
+    val colors = if (darkTheme) {
+        darkColorScheme(
+            primary = Color(0xFFBB86FC),
+            secondary = Color(0xFF03DAC5),
+            tertiary = Color(0xFF3700B3)
+        )
+    } else {
+        lightColorScheme(
+            primary = Color(0xFF6200EE),
+            secondary = Color(0xFF03DAC5),
+            tertiary = Color(0xFF3700B3)
+        )
+    }
+    val typography = Typography(
+        bodyMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp
+        )
+    )
+    val shapes = Shapes(
+        small = RoundedCornerShape(4.dp),
+        medium = RoundedCornerShape(4.dp),
+        large = RoundedCornerShape(0.dp)
+    )
+    MaterialTheme(
+        colorScheme = colors,
+        typography = typography,
+        shapes = shapes,
+        content = content
+    )
 }
 
 @Composable
@@ -131,26 +173,34 @@ fun ThemeSwitcher(
                 modifier = Modifier.size(size),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    modifier = Modifier.size(iconSize),
-                    imageVector = Icons.Default.KeyboardArrowRight,
-//                    imageVector = Icons.Default.Nightlight,// TODO: FIX THIS ICON OR USE DEEPTANSHU ONE
-                    contentDescription = "Theme Icon",
-                    tint = if (darkTheme) MaterialTheme.colorScheme.secondaryContainer
-                    else MaterialTheme.colorScheme.primary
+//                Icon(
+//                    modifier = Modifier.size(iconSize),
+//                    imageVector = Icons.Default.KeyboardArrowRight,
+////                    imageVector = Icons.Default.Nightlight,// TODO: FIX THIS ICON OR USE DEEPTANSHU ONE
+//                    contentDescription = "Theme Icon",
+//                    tint = if (darkTheme) MaterialTheme.colorScheme.secondaryContainer
+//                    else MaterialTheme.colorScheme.primary
+//                )
+                Text(
+                    text = "🌙",
+                    fontSize = 20.sp
                 )
             }
             Box(
                 modifier = Modifier.size(size),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    modifier = Modifier.size(iconSize),
-                    imageVector = Icons.Default.KeyboardArrowLeft,
-//                    imageVector = Icons.Default.LightMode,// TODO: FIX THIS ICON OR USE DEEPTANSHU ONE
-                    contentDescription = "Theme Icon",
-                    tint = if (darkTheme) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.secondaryContainer
+//                Icon(
+//                    modifier = Modifier.size(iconSize),
+//                    imageVector = Icons.Default.KeyboardArrowLeft,
+////                    imageVector = Icons.Default.LightMode,// TODO: FIX THIS ICON OR USE DEEPTANSHU ONE
+//                    contentDescription = "Theme Icon",
+//                    tint = if (darkTheme) MaterialTheme.colorScheme.primary
+//                    else MaterialTheme.colorScheme.secondaryContainer
+//                )
+                Text(
+                    text = "☀️",
+                    fontSize = 20.sp
                 )
             }
         }
