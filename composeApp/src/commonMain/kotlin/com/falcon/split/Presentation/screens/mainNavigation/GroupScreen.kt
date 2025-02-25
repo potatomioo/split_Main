@@ -1,5 +1,6 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.Presentation.group.GroupState
 import com.falcon.split.Presentation.group.GroupViewModel
@@ -41,6 +43,8 @@ fun GroupsScreen(
     navControllerMain: NavHostController,
     viewModel: GroupViewModel = viewModel()
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
     val groupsState by viewModel.groupState.collectAsState()
     println("Screen: Current state is: ${groupsState::class.simpleName}")
     val lazyState = rememberLazyListState()
@@ -51,14 +55,15 @@ fun GroupsScreen(
                 onClick = { navControllerMain.navigate("create_group") },
                 containerColor = Color(0xFF8fcb39)
             ) {
-                Icon(Icons.Default.Add, "Create Group")
+                Icon(Icons.Default.Add, "Create Group", tint = Color.White)
             }
-        }
+        },
+        containerColor = colors.backgroundPrimary
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(colors.backgroundPrimary)
                 .padding(padding)
         ) {
             when (groupsState) {
@@ -98,11 +103,15 @@ fun GroupsScreen(
 
 @Composable
 private fun LoadingIndicator() {
+    val colors = LocalSplitColors.current
+
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.backgroundPrimary),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = colors.primary)
     }
 }
 
@@ -111,22 +120,31 @@ private fun ErrorView(
     error: String,
     onRetry: () -> Unit
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(colors.backgroundPrimary)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = error,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge,
+            color = colors.error,
+            style = getAppTypography(isDarkTheme).bodyLarge,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRetry) {
-            Text("Retry")
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.primary
+            )
+        ) {
+            Text("Retry", color = Color.White)
         }
     }
 }
@@ -137,9 +155,14 @@ private fun GroupList(
     lazyState: LazyListState,
     onGroupClick: (Group) -> Unit
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     LazyColumn(
         state = lazyState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.backgroundPrimary),
         contentPadding = PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
@@ -157,14 +180,14 @@ private fun GroupList(
                 ) {
                     Text(
                         text = "Number of Groups",
-                        style = getAppTypography().titleMedium,
-                        color = Color(0xFF64748B)
+                        style = getAppTypography(isDarkTheme).titleMedium,
+                        color = colors.textSecondary
                     )
                     Text(
                         text = "${groups.size}",
-                        style = getAppTypography().titleLarge,
+                        style = getAppTypography(isDarkTheme).titleLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1E293B)
+                        color = colors.textPrimary
                     )
                 }
             }
@@ -186,10 +209,18 @@ private fun GroupCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     OutlinedCard(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth()
-            .padding(top = 0.dp, bottom = 10.dp, start = 10.dp, end = 10.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 0.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = colors.cardBackground,
+            contentColor = colors.textPrimary
+        )
     ) {
         Column(
             modifier = Modifier
@@ -206,7 +237,7 @@ private fun GroupCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = colors.primary.copy(alpha = 0.2f),
                         shape = MaterialTheme.shapes.small
                     ) {
                         Image(
@@ -222,14 +253,15 @@ private fun GroupCard(
                     Column {
                         Text(
                             text = group.name,
-                            style = getAppTypography().titleLarge,
+                            style = getAppTypography(isDarkTheme).titleLarge,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            color = colors.textPrimary
                         )
                         Text(
                             text = "${group.members.size} members",
-                            style = getAppTypography().titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = getAppTypography(isDarkTheme).titleSmall,
+                            color = colors.textSecondary
                         )
                     }
                 }
@@ -238,7 +270,7 @@ private fun GroupCard(
                     Icon(
                         Icons.Default.KeyboardArrowRight,
                         contentDescription = "View Group",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = colors.textSecondary
                     )
                 }
             }
@@ -251,40 +283,72 @@ private fun EmptyGroupsView(
     onCreateGroupClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     Column(
-        modifier = modifier.padding(24.dp),
+        modifier = modifier
+            .padding(24.dp)
+            .background(colors.backgroundPrimary),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(Res.drawable.group_icon_filled),
-            contentDescription = null,
-            modifier = Modifier
-                .size(48.dp)
-                .padding(horizontal = 12.dp),
-            contentScale = ContentScale.Fit
-        )
+        // Group icon with background for better visibility in dark theme
+        Surface(
+            color = colors.primary.copy(alpha = 0.2f),
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.size(70.dp)
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.group_icon_filled),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(12.dp)
+                    .size(48.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             "No Groups Yet",
-            style = MaterialTheme.typography.titleLarge
+            style = getAppTypography(isDarkTheme).titleLarge.copy(
+                fontSize = MaterialTheme.typography.titleLarge.fontSize
+            ),
+            color = colors.textPrimary
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
             "Create a group to start splitting expenses with friends",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = getAppTypography(isDarkTheme).bodyMedium,
+            color = colors.textSecondary,
+            textAlign = TextAlign.Center
         )
+
         Spacer(modifier = Modifier.height(24.dp))
-        FilledTonalButton(
-            onClick = onCreateGroupClick
+
+        Button(
+            onClick = onCreateGroupClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isDarkTheme)
+                    colors.primary
+                else
+                    Color(0xFFDAD1EC)
+            )
         ) {
             Icon(
                 Icons.Default.Add,
                 contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = 8.dp),
+                tint = if (isDarkTheme) Color.White else Color.Black
             )
-            Text("Create Group")
+            Text(
+                "Create Group",
+                color = if (isDarkTheme) Color.White else Color.Black
+            )
         }
     }
 }

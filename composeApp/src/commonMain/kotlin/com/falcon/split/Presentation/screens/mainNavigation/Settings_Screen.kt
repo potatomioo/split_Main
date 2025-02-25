@@ -1,3 +1,5 @@
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,8 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -34,7 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
+import com.falcon.split.Presentation.DarkErrorRed
+import com.falcon.split.Presentation.DarkPrimary
 import com.falcon.split.Presentation.ErrorRed
+import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.ThemePurple
 import com.falcon.split.Presentation.ThemeSwitcher
 import com.falcon.split.Presentation.getAppTypography
@@ -52,35 +58,51 @@ fun SettingScreen(
     prefs: DataStore<Preferences>,
     darkTheme: MutableState<Boolean>,
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     //For delete Account
     var showDeleteDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(
-                    "Settings",
-                    style = getAppTypography().titleLarge
-                ) },
+                title = {
+                    Text(
+                        "Settings",
+                        style = getAppTypography(isDarkTheme).titleLarge,
+                        color = colors.textPrimary
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            "Back",
+                            tint = colors.textPrimary
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colors.backgroundSecondary,
+                    titleContentColor = colors.textPrimary
+                )
             )
-        }
+        },
+        containerColor = colors.backgroundPrimary
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(colors.backgroundPrimary)
         ) {
             items(1){
-                // TODO: FIX THIS ThemeOption
+                SettingType("General")
                 ThemeOption(
                     prefs = prefs,
                     darkTheme = darkTheme
                 )
-                SettingType("General")
                 SettingOption(
                     "Contact Us",
                     "Contact our team",
@@ -97,13 +119,14 @@ fun SettingScreen(
                 SettingOption(
                     "Delete Account",
                     "Delete your account",
-                    {showDeleteDialog = true}
+                    {showDeleteDialog = true},
+                    isDeleteOption = true
                 )
                 SettingType("Developer")
                 SettingOption("Resource Used","Resources used for app",{})
                 SettingOption("Bug Report","Report bugs here",{})
                 SettingOption("Terms & Condition","Terms and Condition for using",{})
-                SettingOption("Privacy Poicy","All the privacy policies",{})
+                SettingOption("Privacy Policy","All the privacy policies",{})
             }
         }
         DeleteAccountDialog(
@@ -116,13 +139,16 @@ fun SettingScreen(
 
 @Composable
 fun SettingType(
-    title : String
+    title: String
 ) {
+    val colors = LocalSplitColors.current
+    val accentColor = if (isSystemInDarkTheme()) DarkPrimary else ThemePurple
+
     Text(
         title,
         fontSize = 12.sp,
         style = getAppTypography().titleSmall,
-        color = ThemePurple,
+        color = accentColor,
         modifier = Modifier
             .padding(15.dp)
     )
@@ -134,11 +160,15 @@ fun ThemeOption(
     prefs: DataStore<Preferences>,
     darkTheme: MutableState<Boolean>,
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
-        )
+        ),
+        modifier = Modifier.background(colors.backgroundPrimary)
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -154,14 +184,13 @@ fun ThemeOption(
             ) {
                 Text(
                     "Theme",
-                    style = getAppTypography().titleMedium,
-                    color = Color.Black
-
+                    style = getAppTypography(isDarkTheme).titleMedium,
+                    color = colors.textPrimary
                 )
                 Text(
                     "Toggle Theme",
-                    style = getAppTypography().titleSmall,
-                    color = Color.Gray
+                    style = getAppTypography(isDarkTheme).titleSmall,
+                    color = colors.textSecondary
                 )
             }
             ThemeSwitcher(
@@ -181,15 +210,26 @@ fun ThemeOption(
 
 @Composable
 fun SettingOption(
-    settingText : String,
-    description : String,
-    onClick:()->Unit
+    settingText: String,
+    description: String,
+    onClick: () -> Unit,
+    isDeleteOption: Boolean = false
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
+    // Determine text color for the main setting text
+    val textColor = when {
+        isDeleteOption -> if (isDarkTheme) DarkErrorRed else ErrorRed
+        else -> colors.textPrimary
+    }
+
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
-        )
+        ),
+        modifier = Modifier.background(colors.backgroundPrimary)
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -205,30 +245,24 @@ fun SettingOption(
             ) {
                 Text(
                     settingText,
-                    style = getAppTypography().titleMedium,
-                    color =
-                    if(settingText == "Delete Account"){
-                        ErrorRed
-                    }
-                    else{
-                        Color.Black
-                    }
+                    style = getAppTypography(isDarkTheme).titleMedium,
+                    color = textColor
                 )
                 Text(
                     description,
-                    style = getAppTypography().titleSmall,
-                    color = Color.Gray
+                    style = getAppTypography(isDarkTheme).titleSmall,
+                    color = colors.textSecondary
                 )
             }
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Open",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
+                tint = colors.textSecondary
             )
         }
     }
 }
-
 
 @Composable
 fun DeleteAccountDialog(
@@ -236,21 +270,27 @@ fun DeleteAccountDialog(
     onDismiss: () -> Unit,
     onConfirmDelete: () -> Unit
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+    val deleteColor = if (isDarkTheme) DarkErrorRed else ErrorRed
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
+            containerColor = colors.cardBackground,
             title = {
                 Text(
                     "Delete Account",
-                    color = Color.Black,
-                    style = getAppTypography().titleMedium
+                    color = colors.textPrimary,
+                    style = getAppTypography(isDarkTheme).titleMedium
                 )
             },
             text = {
                 Text(
                     "Are you sure you want to delete your account? This action cannot be undone.",
-                    style = getAppTypography().titleSmall
-                    )
+                    style = getAppTypography(isDarkTheme).titleSmall,
+                    color = colors.textSecondary
+                )
             },
             confirmButton = {
                 TextButton(
@@ -261,8 +301,8 @@ fun DeleteAccountDialog(
                 ) {
                     Text(
                         "Delete",
-                        color = ErrorRed,
-                        style = getAppTypography().titleSmall
+                        color = deleteColor,
+                        style = getAppTypography(isDarkTheme).titleSmall
                     )
                 }
             },
@@ -270,8 +310,8 @@ fun DeleteAccountDialog(
                 TextButton(onClick = onDismiss) {
                     Text(
                         "Cancel",
-                        color = Color.Black,
-                        style = getAppTypography().titleSmall
+                        color = colors.textPrimary,
+                        style = getAppTypography(isDarkTheme).titleSmall
                     )
                 }
             }

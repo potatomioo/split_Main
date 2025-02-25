@@ -1,6 +1,5 @@
 package com.falcon.split.Presentation.screens.mainNavigation
 
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +26,7 @@ import com.falcon.split.MainViewModel
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.sp
+import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.getAppTypography
 import split.composeapp.generated.resources.HomePic
 import split.composeapp.generated.resources.group_icon_outlined
@@ -53,90 +54,96 @@ fun HomeScreen(
     mainViewModel: MainViewModel,
     navControllerMain: NavHostController
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxSize()
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
+    Scaffold { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.backgroundPrimary)
         ) {
-            // Top Balance Section
-            item {
-                Box(){
-                    Image(
-                        painter = painterResource(Res.drawable.HomePic),
-                        contentDescription = "Home illustration",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(190.dp)
-                            .clip(RectangleShape) // Clip the content to the bounds
-                            .padding(0.dp),
-                        contentScale = ContentScale.FillWidth
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 2.dp, start = 15.dp, bottom = 0.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text(
-                            text = "Total Balance",
-                            style = getAppTypography().titleMedium,
-                            color = Color(0xFF64748B),
-                            fontSize = 15.sp
-                        )
-                        Text(
-                            text = "₹1000.00",
-                            style = getAppTypography().titleLarge,
-                            color = Color(0xFF1E293B),
-                            fontSize = 20.sp
-                        )
-
-                        // Will Get/Pay Row
-                        Row(
+            LazyColumn(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Top Balance Section
+                item {
+                    Box(){
+                        Image(
+                            painter = painterResource(Res.drawable.HomePic),
+                            contentDescription = "Home illustration",
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 0.dp, start = 0.dp, end = 20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(20.dp)
+                                .height(190.dp)
+                                .clip(RectangleShape)
+                                .padding(0.dp),
+                            contentScale = ContentScale.FillWidth
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 2.dp, start = 15.dp, bottom = 0.dp),
+                            horizontalAlignment = Alignment.Start
                         ) {
-                            BalanceItem(
-                                amount = "₹475.00",
-                                label = "you'll get",
-                                color = Color(0xFF22C55E)
+                            Text(
+                                text = "Total Balance",
+                                style = getAppTypography(isDarkTheme).titleMedium,
+                                fontSize = 15.sp,
+                                color = if (isDarkTheme) colors.textSecondary else Color(0xFF64748B)
                             )
-                            BalanceItem(
-                                amount = "₹181.67",
-                                label = "you'll pay",
-                                color = Color(0xFFEF4444)
+                            Text(
+                                text = "₹1000.00",
+                                style = getAppTypography(isDarkTheme).titleLarge,
+                                fontSize = 20.sp,
+                                color = if (isDarkTheme) colors.textPrimary else Color(0xFF1E293B)
                             )
+
+                            // Will Get/Pay Row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 0.dp, start = 0.dp, end = 20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                            ) {
+                                BalanceItem(
+                                    amount = "₹475.00",
+                                    label = "you'll get",
+                                    color = colors.success
+                                )
+                                BalanceItem(
+                                    amount = "₹181.67",
+                                    label = "you'll pay",
+                                    color = colors.error
+                                )
+                            }
                         }
                     }
                 }
+
+                item {
+                    Text(
+                        text = "Recent Groups",
+                        style = getAppTypography(isDarkTheme).titleLarge,
+                        modifier = Modifier.padding(10.dp),
+                        color = colors.textPrimary
+                    )
+                }
+                item {
+                    ExpenseCardList()
+                }
             }
 
-            item {
-                Text(
-                    text = "Recent Groups",
-                    style = getAppTypography().titleLarge,
-                    modifier = Modifier.padding(10.dp)
-                )
-            }
-            item {
-                ExpenseCardList()
-            }
+            // FAB
+            AddExpenseFAB(
+                onClick = { navControllerMain.navigate("create_expense") },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
         }
-
-        // FAB
-        AddExpenseFAB(
-            onClick = { navControllerMain.navigate("create_expense") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        )
     }
 }
 
@@ -146,20 +153,23 @@ private fun BalanceItem(
     label: String,
     color: Color
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(top = 1.dp)
     ) {
         Text(
             text = amount,
-            style = getAppTypography().bodyMedium,
+            style = getAppTypography(isDarkTheme).bodyMedium,
             color = color,
             fontSize = 15.sp
         )
         Text(
             text = label,
-            style = getAppTypography().bodySmall,
-            color = Color(0xFF64748B),
+            style = getAppTypography(isDarkTheme).bodySmall,
+            color = if (isDarkTheme) colors.textSecondary else Color(0xFF64748B),
             fontSize = 10.sp
         )
     }
@@ -174,6 +184,9 @@ fun ExpenseCard(
     isOwed: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -181,7 +194,7 @@ fun ExpenseCard(
             .padding(2.5.dp),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colors.cardBackground
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp
@@ -207,19 +220,19 @@ fun ExpenseCard(
             ) {
                 Text(
                     text = title,
-                    style = getAppTypography().titleLarge,
-                    color = Color(0xFF1E293B)
+                    style = getAppTypography(isDarkTheme).titleLarge,
+                    color = colors.textPrimary
                 )
                 Text(
                     text = primaryText,
-                    style = getAppTypography().titleMedium,
-                    color = if (isOwed) Color(0xFF22C55E) else Color(0xFFEF4444),
+                    style = getAppTypography(isDarkTheme).titleMedium,
+                    color = if (isOwed) colors.success else colors.error,
                     modifier = Modifier.padding(vertical = 2.dp)
                 )
                 Text(
                     text = secondaryText,
-                    style = getAppTypography().titleMedium,
-                    color = Color(0xFF64748B)
+                    style = getAppTypography(isDarkTheme).titleMedium,
+                    color = colors.textSecondary
                 )
             }
         }
@@ -294,7 +307,8 @@ fun AddExpenseFAB(
             )
             Text(
                 text = "Add expense",
-                style = getAppTypography().titleLarge
+                style = getAppTypography().titleLarge,
+                color = Color.White
             )
         }
     }

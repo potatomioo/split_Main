@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -66,6 +67,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
+import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.getAppTypography
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.Presentation.screens.mainNavigation.history.HistoryScreen
@@ -123,6 +125,8 @@ fun NavHostMain(
         factory = MainViewModelFactory(client, prefs)
     )
 
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
 
     Scaffold(
         topBar = {
@@ -132,13 +136,14 @@ fun NavHostMain(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White)
+                    .background(color = colors.backgroundSecondary)
                     .padding(start = 12.dp, top = 12.dp)
             ) {
                 Text(
                     text = title,
                     fontSize = 23.sp,
-                    style = getAppTypography().titleLarge
+                    style = getAppTypography(isDarkTheme).titleLarge,
+                    color = colors.textPrimary
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -149,7 +154,8 @@ fun NavHostMain(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "Settings",
-                            modifier = Modifier.rotate(90F)
+                            modifier = Modifier.rotate(90F),
+                            tint = colors.textPrimary
                         )
                     }
                 }
@@ -293,10 +299,12 @@ fun TopBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalSplitColors.current
+
     TopAppBar(
-        title = { Text(title) },
+        title = { Text(title, color = colors.textPrimary) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = colors.backgroundSecondary
         ),
         modifier = modifier,
         navigationIcon = {
@@ -304,7 +312,8 @@ fun TopBar(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "back_button"
+                        contentDescription = "back_button",
+                        tint = colors.textPrimary
                     )
                 }
             }
@@ -360,9 +369,11 @@ fun AppBottomNavigationBar(
     show: Boolean,
     content: @Composable (RowScope.() -> Unit),
 ) {
+    val colors = LocalSplitColors.current
+
     Surface(
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
+        color = colors.backgroundSecondary,
+        contentColor = colors.textPrimary,
         modifier = modifier.windowInsetsPadding(BottomAppBarDefaults.windowInsets)
     ) {
         if (show) {
@@ -371,7 +382,7 @@ fun AppBottomNavigationBar(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp),
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    color = colors.textSecondary.copy(alpha = 0.2f)
                 )
 
                 Row(
@@ -398,6 +409,8 @@ fun AppBottomNavigationBarItem(
     selected: MutableState<Boolean>,
     badgeCount: MutableState<Int>? = null
 ) {
+    val colors = LocalSplitColors.current
+
     BadgedBox(
         badge = {
             if (badgeCount != null && badgeCount.value != 0) {
@@ -438,6 +451,7 @@ fun AppBottomNavigationBarItem(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
+                color = colors.textPrimary,
                 fontWeight = if (selected.value) {
                     FontWeight.SemiBold
                 } else {
@@ -465,7 +479,7 @@ private val NavController.shouldShowBottomBar
         BottomBarScreen.Home.route,
         BottomBarScreen.Reels.route,
         BottomBarScreen.Profile.route,
-        -> true
+            -> true
 
         else -> false
     }
