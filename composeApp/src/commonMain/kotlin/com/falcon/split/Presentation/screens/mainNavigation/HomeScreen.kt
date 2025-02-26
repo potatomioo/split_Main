@@ -1,49 +1,69 @@
 package com.falcon.split.Presentation.screens.mainNavigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
-import org.jetbrains.compose.resources.painterResource
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.*
-import androidx.compose.ui.layout.ContentScale
-import org.jetbrains.compose.resources.DrawableResource
-import split.composeapp.generated.resources.Res
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.sp
 import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.getAppTypography
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.HomePic
 import split.composeapp.generated.resources.group_icon_outlined
-
 
 @Composable
 fun HomeScreen(
@@ -57,12 +77,27 @@ fun HomeScreen(
     val colors = LocalSplitColors.current
     val isDarkTheme = isSystemInDarkTheme()
 
-    Scaffold { padding ->
+    // Add search state
+    var searchQuery by remember { mutableStateOf("") }
+    val expenses = remember { getExpensesList() }
+    val filteredExpenses = remember(searchQuery, expenses) {
+        if (searchQuery.isEmpty()) {
+            expenses
+        } else {
+            expenses.filter {
+                it.title.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+
+    Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.backgroundPrimary)
+                .padding(paddingValues)
         ) {
+            // Use a single LazyColumn for all content
             LazyColumn(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
@@ -70,7 +105,7 @@ fun HomeScreen(
             ) {
                 // Top Balance Section
                 item {
-                    Box(){
+                    Box {
                         Image(
                             painter = painterResource(Res.drawable.HomePic),
                             contentDescription = "Home illustration",
@@ -123,16 +158,66 @@ fun HomeScreen(
                     }
                 }
 
+                // Recent Groups header
                 item {
-                    Text(
-                        text = "Recent Groups",
-                        style = getAppTypography(isDarkTheme).titleLarge,
-                        modifier = Modifier.padding(10.dp),
-                        color = colors.textPrimary
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Recent Groups",
+                            style = getAppTypography(isDarkTheme).titleLarge,
+                            color = colors.textPrimary
+                        )
+                    }
+                }
+
+                // Search bar
+                item {
+                    GroupSearchBar(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onClearQuery = { searchQuery = "" },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
-                item {
-                    ExpenseCardList()
+
+                // Show no results message if needed
+                if (filteredExpenses.isEmpty() && searchQuery.isNotEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No groups found matching \"$searchQuery\"",
+                                style = getAppTypography(isDarkTheme).bodyMedium,
+                                color = colors.textSecondary
+                            )
+                        }
+                    }
+                } else {
+                    // Expense cards - directly in the main LazyColumn
+                    items(filteredExpenses) { expense ->
+                        ExpenseCard(
+                            title = expense.title,
+                            primaryText = expense.primaryText,
+                            secondaryText = expense.secondaryText,
+                            imageRes = expense.imageRes,
+                            isOwed = expense.isOwed,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
 
@@ -175,6 +260,79 @@ private fun BalanceItem(
     }
 }
 
+// SearchBar component
+@Composable
+fun GroupSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .focusRequester(focusRequester),
+        placeholder = {
+            Text(
+                text = "Search groups",
+                style = getAppTypography(isDarkTheme).bodyMedium,
+                color = colors.textSecondary
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = colors.cardBackground,
+            unfocusedContainerColor = colors.cardBackground,
+            focusedBorderColor = colors.primary,
+            unfocusedBorderColor = colors.textSecondary.copy(alpha = 0.2f),
+            cursorColor = colors.primary,
+            focusedTextColor = colors.textPrimary,
+            unfocusedTextColor = colors.textPrimary
+        ),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search icon",
+                tint = colors.textSecondary
+            )
+        },
+        trailingIcon = {
+            AnimatedVisibility(visible = query.isNotEmpty()) {
+                IconButton(onClick = {
+                    onClearQuery()
+                    focusManager.clearFocus()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear search query",
+                        tint = colors.textSecondary
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                focusManager.clearFocus()
+            }
+        ),
+        shape = RoundedCornerShape(28.dp),
+        textStyle = getAppTypography(isDarkTheme).bodyMedium
+    )
+}
+
 @Composable
 fun ExpenseCard(
     title: String,
@@ -188,10 +346,7 @@ fun ExpenseCard(
     val isDarkTheme = isSystemInDarkTheme()
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(2.5.dp),
+        modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = colors.cardBackground
@@ -239,46 +394,46 @@ fun ExpenseCard(
     }
 }
 
-@Composable
-fun ExpenseCardList() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        ExpenseCard(
+data class ExpenseItem(
+    val title: String,
+    val primaryText: String,
+    val secondaryText: String,
+    val imageRes: DrawableResource,
+    val isOwed: Boolean
+)
+
+// Helper function to get the expense list
+private fun getExpensesList(): List<ExpenseItem> {
+    return listOf(
+        ExpenseItem(
             title = "E-1302",
             primaryText = "you are owed ₹475.00",
             secondaryText = "Kumar K. owes you ₹475.00",
             imageRes = Res.drawable.group_icon_outlined,
             isOwed = true
-        )
-
-        ExpenseCard(
+        ),
+        ExpenseItem(
             title = "SIH TRIP KOTA",
             primaryText = "you owe ₹181.67",
             secondaryText = "You owe Ankur C. ₹181.67",
             imageRes = Res.drawable.group_icon_outlined,
             isOwed = false
-        )
-
-        ExpenseCard(
+        ),
+        ExpenseItem(
+            title = "Non-group expenses",
+            primaryText = "settled up",
+            secondaryText = "",
+            imageRes = Res.drawable.group_icon_outlined,
+            isOwed = false
+        ),
+        ExpenseItem(
             title = "Non-group expenses",
             primaryText = "settled up",
             secondaryText = "",
             imageRes = Res.drawable.group_icon_outlined,
             isOwed = false
         )
-
-        ExpenseCard(
-            title = "Non-group expenses",
-            primaryText = "settled up",
-            secondaryText = "",
-            imageRes = Res.drawable.group_icon_outlined,
-            isOwed = false
-        )
-    }
+    )
 }
 
 @Composable
