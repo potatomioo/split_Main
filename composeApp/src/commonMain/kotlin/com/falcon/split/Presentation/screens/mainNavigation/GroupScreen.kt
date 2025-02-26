@@ -1,3 +1,4 @@
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -7,17 +8,25 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -149,6 +158,79 @@ private fun ErrorView(
     }
 }
 
+// SearchBar component
+@Composable
+fun GroupSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .focusRequester(focusRequester),
+        placeholder = {
+            Text(
+                text = "Search groups",
+                style = getAppTypography(isDarkTheme).bodyMedium,
+                color = colors.textSecondary
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = colors.cardBackground,
+            unfocusedContainerColor = colors.cardBackground,
+            focusedBorderColor = colors.primary,
+            unfocusedBorderColor = colors.textSecondary.copy(alpha = 0.2f),
+            cursorColor = colors.primary,
+            focusedTextColor = colors.textPrimary,
+            unfocusedTextColor = colors.textPrimary
+        ),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search icon",
+                tint = colors.textSecondary
+            )
+        },
+        trailingIcon = {
+            AnimatedVisibility(visible = query.isNotEmpty()) {
+                IconButton(onClick = {
+                    onClearQuery()
+                    focusManager.clearFocus()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear search query",
+                        tint = colors.textSecondary
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                focusManager.clearFocus()
+            }
+        ),
+        shape = RoundedCornerShape(28.dp),
+        textStyle = getAppTypography(isDarkTheme).bodyMedium
+    )
+}
+
 @Composable
 private fun GroupList(
     groups: List<Group>,
@@ -158,6 +240,18 @@ private fun GroupList(
     val colors = LocalSplitColors.current
     val isDarkTheme = isSystemInDarkTheme()
 
+    // Add search state
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredGroups = remember(searchQuery, groups) {
+        if (searchQuery.isEmpty()) {
+            groups
+        } else {
+            groups.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+
     LazyColumn(
         state = lazyState,
         modifier = Modifier
@@ -166,6 +260,7 @@ private fun GroupList(
         contentPadding = PaddingValues(0.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
+        // Header with image
         item {
             Box {
                 UpwardFlipHeaderImage(
@@ -193,11 +288,43 @@ private fun GroupList(
             }
         }
 
-        items(groups) { group ->
-            GroupCard(
-                group = group,
-                onClick = { onGroupClick(group) }
+        // Search bar
+        item {
+            GroupSearchBar(
+                query = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onClearQuery = { searchQuery = "" },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
+        }
+
+        // No results message
+        if (filteredGroups.isEmpty() && searchQuery.isNotEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No groups found matching \"$searchQuery\"",
+                        style = getAppTypography(isDarkTheme).bodyMedium,
+                        color = colors.textSecondary
+                    )
+                }
+            }
+        }
+        // Group items
+        else {
+            items(filteredGroups) { group ->
+                GroupCard(
+                    group = group,
+                    onClick = { onGroupClick(group) }
+                )
+            }
         }
     }
 }
