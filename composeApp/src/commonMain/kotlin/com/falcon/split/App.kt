@@ -6,6 +6,7 @@ import SettingScreen
 import ThemeChangeSwitcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.falcon.split.Presentation.LocalSplitColors
 import com.falcon.split.Presentation.expense.CreateExpenseViewModel
 import com.falcon.split.Presentation.group.CreateGroupViewModel
 import com.falcon.split.Presentation.group.GroupViewModel
@@ -379,12 +381,13 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
         }
     }
 }
-
 @Composable
 fun OptionMenuPopup(
     openUserOptionsMenu: MutableState<Boolean>,
     navController: NavHostController
 ) {
+    val splitColors = LocalSplitColors.current
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -401,6 +404,9 @@ fun OptionMenuPopup(
                     .padding(horizontal = 5.dp)
                     .padding(top = 4.dp),
                 shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = splitColors.cardBackground
+                )
             ) {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically,
@@ -416,12 +422,13 @@ fun OptionMenuPopup(
                             contentDescription = "Profile Icon",
                             modifier = Modifier
                                 .size(24.dp),
+                            tint = splitColors.textPrimary
                         )
                         Text(
                             text = "Profile",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF000000),
+                            color = splitColors.textPrimary,
                             modifier = Modifier
                                 .padding(start = 8.dp)
                         )
@@ -439,12 +446,13 @@ fun OptionMenuPopup(
                             contentDescription = "Settings Icon",
                             modifier = Modifier
                                 .size(24.dp),
+                            tint = splitColors.textPrimary
                         )
                         Text(
                             text = "Settings",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
-                            color = Color(0xFF000000),
+                            color = splitColors.textPrimary,
                             modifier = Modifier
                                 .padding(start = 8.dp)
                         )
@@ -453,7 +461,6 @@ fun OptionMenuPopup(
             }
         }
     }
-
 }
 
 @Composable
