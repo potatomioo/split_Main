@@ -1,11 +1,18 @@
 package com.falcon.split.presentation.screens.mainNavigation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.falcon.split.data.network.models_app.Expense
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,12 +21,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.arkivanov.essenty.backhandler.BackCallback
+import com.arkivanov.essenty.backhandler.BackHandler
 import com.falcon.split.presentation.expense.CreateExpenseState
 import com.falcon.split.presentation.expense.CreateExpenseViewModel
 import com.falcon.split.data.network.models_app.ExpenseSplit
+import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.getAppTypography
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -31,18 +46,47 @@ import split.composeapp.generated.resources.group_icon_outlined
 fun CreateExpense(
     navControllerMain: NavHostController,
     viewModel: CreateExpenseViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    backHandler: BackHandler // Add backHandler as a parameter
 ) {
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var selectedGroup by remember { mutableStateOf<String?>(null) }
     var selectedPayer by remember { mutableStateOf<String?>(null) }
-    var showGroupDropdown by remember { mutableStateOf(false) }
     var showPayerDropdown by remember { mutableStateOf(false) }
+    val colors = LocalSplitColors.current
+    val isDarkTheme = isSystemInDarkTheme()
 
     // Collect state from ViewModel
     val state by viewModel.state.collectAsState()
     val selectedGroupDetails by viewModel.selectedGroup.collectAsState()
+
+    // For dropdown search
+    var isExpanded by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    // Create a back callback for the dropdown
+    val dropdownBackCallback = remember {
+        BackCallback {
+            if (isExpanded) {
+                isExpanded = false
+                searchQuery = ""
+            }
+        }
+    }
+
+    // Register/unregister back callback based on dropdown state
+    DisposableEffect(isExpanded) {
+        if (isExpanded) {
+            backHandler.register(dropdownBackCallback)
+        } else {
+            backHandler.unregister(dropdownBackCallback)
+        }
+
+        onDispose {
+            backHandler.unregister(dropdownBackCallback)
+        }
+    }
 
     // Effect to update selected group details when a group is selected
     LaunchedEffect(selectedGroup) {
@@ -138,16 +182,43 @@ fun CreateExpense(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Group Selection
-                    ExposedDropdownMenuBox(
-                        expanded = showGroupDropdown,
-                        onExpandedChange = { showGroupDropdown = it }
-                    ) {
+                    // Group Selection with Searchable Dropdown
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "Select Group",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                        )
+
+                        // Filter the groups based on search query
+                        val filteredGroups = remember(searchQuery, groups) {
+                            if (searchQuery.isEmpty()) {
+                                groups
+                            } else {
+                                groups.filter { group ->
+                                    group.name.contains(searchQuery, ignoreCase = true)
+                                }
+                            }
+                        }
+
+                        // Selected group display with search functionality
                         OutlinedTextField(
-                            value = groups.find { it.id == selectedGroup }?.name ?: "",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Select Group") },
+                            value = if (isExpanded) searchQuery else groups.find { it.id == selectedGroup }?.name ?: "",
+                            onValueChange = {
+                                if (isExpanded) {
+                                    searchQuery = it
+                                }
+                            },
+                            placeholder = {
+                                Text(
+                                    text = "Search or select a group",
+                                    style = getAppTypography(isDarkTheme).bodyMedium,
+                                    color = colors.textSecondary
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged { if (it.isFocused) isExpanded = true },
                             leadingIcon = {
                                 Image(
                                     painter = painterResource(Res.drawable.group_icon_outlined),
@@ -158,23 +229,97 @@ fun CreateExpense(
                                     contentScale = ContentScale.Fit
                                 )
                             },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGroupDropdown) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
+                            trailingIcon = {
+                                IconButton(onClick = { isExpanded = !isExpanded }) {
+                                    Icon(
+                                        if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                        contentDescription = "Toggle dropdown"
+                                    )
+                                }
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = colors.cardBackground,
+                                unfocusedContainerColor = colors.cardBackground
+                            ),
+                            singleLine = true
                         )
-                        ExposedDropdownMenu(
-                            expanded = showGroupDropdown,
-                            onDismissRequest = { showGroupDropdown = false }
-                        ) {
-                            groups.forEach { group ->
-                                DropdownMenuItem(
-                                    text = { Text(group.name) },
-                                    onClick = {
-                                        selectedGroup = group.id
-                                        showGroupDropdown = false
+
+                        // Dropdown list shown below the field
+                        AnimatedVisibility(visible = isExpanded) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 200.dp)
+                                ) {
+                                    if (filteredGroups.isEmpty() && searchQuery.isNotEmpty()) {
+                                        // No matching groups
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "No groups found",
+                                                style = getAppTypography(isDarkTheme).bodyMedium,
+                                                color = colors.textSecondary
+                                            )
+                                        }
+                                    } else {
+                                        // Using LazyColumn for better performance with many items
+                                        LazyColumn(
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            items(filteredGroups) { group ->
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable {
+                                                            selectedGroup = group.id
+                                                            searchQuery = ""
+                                                            isExpanded = false
+                                                        }
+                                                        .padding(16.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = group.name,
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                }
+                                                if (filteredGroups.indexOf(group) < filteredGroups.size - 1) {
+                                                    HorizontalDivider(
+                                                        color = colors.textSecondary.copy(alpha = 0.1f),
+                                                        modifier = Modifier.padding(horizontal = 8.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
-                                )
+
+                                    // Close button at bottom
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(colors.backgroundSecondary.copy(alpha = 0.1f))
+                                    ) {
+                                        TextButton(
+                                            onClick = {
+                                                isExpanded = false
+                                                searchQuery = ""
+                                            },
+                                            modifier = Modifier.align(Alignment.Center)
+                                        ) {
+                                            Text("Close")
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -273,7 +418,8 @@ fun CreateExpense(
 fun CreateExpenseFromAGroup(
     navControllerMain: NavHostController,
     onExpenseAdded: (Expense) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    backHandler: BackHandler // Add backHandler as a parameter
 ) {
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }

@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -60,6 +61,8 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.arkivanov.essenty.backhandler.BackCallback
+import com.arkivanov.essenty.backhandler.BackHandler
 import com.falcon.split.presentation.LocalSplitColors
 import com.falcon.split.presentation.expense.CreateExpenseViewModel
 import com.falcon.split.presentation.group.CreateGroupViewModel
@@ -97,6 +100,26 @@ import split.composeapp.generated.resources.nunito_regular_1
 import split.composeapp.generated.resources.profile_icon
 import split.composeapp.generated.resources.settings_icon
 
+// Custom BackHandler implementation
+class AppBackHandler : BackHandler {
+    private val callbacks = mutableListOf<BackCallback>()
+
+    override fun register(callback: BackCallback) {
+        callbacks.add(callback)
+    }
+
+    override fun unregister(callback: BackCallback) {
+        callbacks.remove(callback)
+    }
+
+    // Method to trigger back behavior
+    fun onBackPressed(): Boolean {
+        val callback = callbacks.lastOrNull() ?: return false
+        callback.onBack()
+        return true
+    }
+}
+
 @Composable
 @Preview
 fun App(
@@ -116,6 +139,10 @@ fun App(
     val controller = remember(factory) {
         factory.createPermissionsController()
     }
+
+    // Create a shared BackHandler instance
+    val appBackHandler = remember { AppBackHandler() }
+
     BindEffect(controller)
     // Request Permission For Notification
     val viewModel = viewModel {
@@ -165,6 +192,15 @@ fun App(
     val newsViewModel: MainViewModel = viewModel(
         factory = MainViewModelFactory(client, prefs)
     )
+
+    // Handle system back button for the appBackHandler
+    DisposableEffect(Unit) {
+        // This would be platform-specific and needs to be implemented
+        // For Android, you'd need to handle Activity.onBackPressed
+        // For iOS, you'd need to handle a navigation controller delegate
+
+        onDispose { }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -233,7 +269,7 @@ fun App(
                         navControllerMain.popBackStack()
                     },
                     contactManager = contactManager!!,
-                    viewModel = createGroupViewModel!!
+                    viewModel = createGroupViewModel
                 )
             }
             composable(Routes.CREATE_EXPENSE.name) {
@@ -241,7 +277,8 @@ fun App(
                 CreateExpense(
                     navControllerMain = navControllerMain,
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    viewModel = createExpenseViewModel
+                    viewModel = createExpenseViewModel,
+                    backHandler = appBackHandler // Pass the shared BackHandler
                 )
             }
             composable(
@@ -252,7 +289,8 @@ fun App(
                 CreateExpense(
                     navControllerMain = navControllerMain,
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    viewModel = createExpenseViewModel
+                    viewModel = createExpenseViewModel,
+                    backHandler = appBackHandler // Pass the shared BackHandler
                 )
             }
             composable(Routes.PROFILE.name) {
