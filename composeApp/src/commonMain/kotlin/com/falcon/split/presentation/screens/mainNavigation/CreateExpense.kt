@@ -372,17 +372,6 @@ fun CreateExpenseFromAGroup(
                 expanded = showPayerDropdown,
                 onExpandedChange = { showPayerDropdown = it }
             ) {
-                OutlinedTextField(
-                    value = dummyUsers.find { it.second == selectedPayer }?.first ?: "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Paid By") },
-                    leadingIcon = { Icon(Icons.Default.Person, null) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showPayerDropdown) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
                 ExposedDropdownMenu(
                     expanded = showPayerDropdown,
                     onDismissRequest = { showPayerDropdown = false }
