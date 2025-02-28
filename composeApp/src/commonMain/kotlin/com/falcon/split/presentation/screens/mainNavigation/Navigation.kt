@@ -68,10 +68,13 @@ import split.composeapp.generated.resources.history_icon_outlined
 import split.composeapp.generated.resources.home_icon_filled
 import split.composeapp.generated.resources.home_icon_outlined
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.unit.LayoutDirection
 import com.falcon.split.presentation.group.GroupViewModel
 import kotlinx.coroutines.launch
 
@@ -178,7 +181,12 @@ fun NavHostMain(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(
+                    start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = innerPadding.calculateBottomPadding(),
+                    top = innerPadding.calculateTopPadding() - 3.dp
+                )
         ) { page ->
             when (page) {
                 0 -> HomeScreen(
@@ -187,7 +195,8 @@ fun NavHostMain(
                     snackBarHostState,
                     navControllerBottomNav,
                     newsViewModel,
-                    navControllerMain
+                    navControllerMain,
+                    topPadding = innerPadding.calculateTopPadding()
                 )
                 1 -> HistoryScreen(
                     onNavigate,

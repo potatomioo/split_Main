@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -51,6 +52,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
@@ -72,7 +74,8 @@ fun HomeScreen(
     snackBarHostState: SnackbarHostState,
     navControllerBottomNav: NavHostController,
     mainViewModel: MainViewModel,
-    navControllerMain: NavHostController
+    navControllerMain: NavHostController,
+    topPadding: Dp
 ) {
     val colors = LocalSplitColors.current
     val isDarkTheme = isSystemInDarkTheme()
@@ -96,6 +99,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(colors.backgroundPrimary)
                 .padding(paddingValues)
+                .offset(y = (-5).dp)
         ) {
             // Use a single LazyColumn for all content
             LazyColumn(
@@ -105,7 +109,9 @@ fun HomeScreen(
             ) {
                 // Top Balance Section
                 item {
-                    Box {
+                    Box(
+                        modifier = Modifier
+                    ) {
                         Image(
                             painter = painterResource(Res.drawable.HomePic),
                             contentDescription = "Home illustration",
@@ -120,7 +126,7 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 2.dp, start = 15.dp, bottom = 0.dp),
+                                .padding(top = 4.dp, start = 15.dp, bottom = 0.dp),
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
