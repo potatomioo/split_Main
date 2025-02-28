@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens
+package com.falcon.split.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.falcon.split.LottieAnimationSpec
 import com.falcon.split.LottieAnimationView
-import com.falcon.split.Presentation.screens.mainNavigation.Routes
+import com.falcon.split.presentation.screens.mainNavigation.Routes
 import kotlinx.coroutines.launch
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.nunito_bold_1

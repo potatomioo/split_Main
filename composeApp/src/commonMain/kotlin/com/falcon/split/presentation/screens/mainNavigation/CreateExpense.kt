@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.falcon.split.Presentation.expense.CreateExpenseState
-import com.falcon.split.Presentation.expense.CreateExpenseViewModel
+import com.falcon.split.presentation.expense.CreateExpenseState
+import com.falcon.split.presentation.expense.CreateExpenseViewModel
 import com.falcon.split.data.network.models_app.ExpenseSplit
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource

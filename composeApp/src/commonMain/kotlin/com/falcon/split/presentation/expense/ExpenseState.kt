@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.expense
+package com.falcon.split.presentation.expense
 
 import com.falcon.split.data.network.models_app.Expense
 

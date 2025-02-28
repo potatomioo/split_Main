@@ -47,8 +47,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import com.falcon.split.Presentation.SplitTheme
-import com.falcon.split.Presentation.screens.mainNavigation.Routes
+import com.falcon.split.presentation.SplitTheme
+import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
 import com.falcon.split.data.network.ApiClient

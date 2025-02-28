@@ -1,12 +1,9 @@
-package com.falcon.split.Presentation.group
+package com.falcon.split.presentation.group
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.falcon.split.contact.Contact
 import com.falcon.split.data.Repository.GroupRepository
-import com.falcon.split.domain.useCase.group.CreateGroupUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 

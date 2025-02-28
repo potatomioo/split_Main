@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation.history
+package com.falcon.split.presentation.screens.mainNavigation.history
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -45,9 +45,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.falcon.split.Presentation.LocalSplitColors
-import com.falcon.split.Presentation.getAppTypography
-import com.falcon.split.Presentation.screens.AnimationComponents.UpwardFlipHeaderImage
+import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.HistoryPic
 import split.composeapp.generated.resources.Res

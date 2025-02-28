@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -57,8 +57,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
-import com.falcon.split.Presentation.LocalSplitColors
-import com.falcon.split.Presentation.getAppTypography
+import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.getAppTypography
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res

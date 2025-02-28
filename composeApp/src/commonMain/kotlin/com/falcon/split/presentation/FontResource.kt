@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation
+package com.falcon.split.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily

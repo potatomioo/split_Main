@@ -1,13 +1,10 @@
-package com.falcon.split.Presentation.expense
+package com.falcon.split.presentation.expense
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
-import com.falcon.split.data.network.models_app.Expense
-import com.falcon.split.data.network.models_app.ExpenseSplit
 import com.falcon.split.data.network.models_app.Group
-import dev.gitlive.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

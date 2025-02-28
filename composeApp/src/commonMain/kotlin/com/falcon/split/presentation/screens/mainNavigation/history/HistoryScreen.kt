@@ -1,7 +1,6 @@
-package com.falcon.split.Presentation.screens.mainNavigation.history
+package com.falcon.split.presentation.screens.mainNavigation.history
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

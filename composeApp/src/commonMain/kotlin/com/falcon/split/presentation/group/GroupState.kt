@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.group
+package com.falcon.split.presentation.group
 
 import com.falcon.split.data.network.models_app.Group
 

@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 enum class Routes(name: String) {
     APP_CONTENT(name = "app_content"),

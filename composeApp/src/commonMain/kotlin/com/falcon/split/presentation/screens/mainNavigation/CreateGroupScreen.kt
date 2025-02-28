@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 import ContactPicker
 import androidx.compose.foundation.Image
@@ -16,8 +16,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.falcon.split.Presentation.group.CreateGroupState
-import com.falcon.split.Presentation.group.CreateGroupViewModel
+import com.falcon.split.presentation.group.CreateGroupState
+import com.falcon.split.presentation.group.CreateGroupViewModel
 import com.falcon.split.contact.ContactManager
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource

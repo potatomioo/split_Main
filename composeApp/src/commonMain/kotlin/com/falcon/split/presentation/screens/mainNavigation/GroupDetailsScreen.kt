@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,10 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.falcon.split.Presentation.group.GroupState
-import com.falcon.split.Presentation.group.GroupViewModel
-import com.falcon.split.data.Repository.ExpenseRepository
-import com.falcon.split.data.Repository.GroupRepository
+import com.falcon.split.presentation.group.GroupState
+import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.GroupMember
 

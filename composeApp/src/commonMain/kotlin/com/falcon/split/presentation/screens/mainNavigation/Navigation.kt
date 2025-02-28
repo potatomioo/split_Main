@@ -1,8 +1,6 @@
-package com.falcon.split.Presentation.screens.mainNavigation
+package com.falcon.split.presentation.screens.mainNavigation
 
 import GroupsScreen
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -45,13 +41,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,18 +50,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
-import com.falcon.split.Presentation.LocalSplitColors
-import com.falcon.split.Presentation.getAppTypography
+import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.getAppTypography
 import com.falcon.split.data.network.ApiClient
-import com.falcon.split.Presentation.screens.mainNavigation.history.HistoryScreen
+import com.falcon.split.presentation.screens.mainNavigation.history.HistoryScreen
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -80,15 +67,12 @@ import split.composeapp.generated.resources.history_icon_filled
 import split.composeapp.generated.resources.history_icon_outlined
 import split.composeapp.generated.resources.home_icon_filled
 import split.composeapp.generated.resources.home_icon_outlined
-import split.composeapp.generated.resources.nunito_semibold_1
-import split.composeapp.generated.resources.refresh
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import com.falcon.split.Presentation.group.GroupState
-import com.falcon.split.Presentation.group.GroupViewModel
+import com.falcon.split.presentation.group.GroupViewModel
 import kotlinx.coroutines.launch
 
 @Composable

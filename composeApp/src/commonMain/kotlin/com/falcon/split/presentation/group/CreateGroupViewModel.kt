@@ -1,4 +1,4 @@
-package com.falcon.split.Presentation.group
+package com.falcon.split.presentation.group
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

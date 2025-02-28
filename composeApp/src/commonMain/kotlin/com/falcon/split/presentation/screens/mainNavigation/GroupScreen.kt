@@ -20,8 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -32,13 +30,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.falcon.split.Presentation.LocalSplitColors
-import com.falcon.split.Presentation.getAppTypography
-import com.falcon.split.Presentation.group.GroupState
-import com.falcon.split.Presentation.group.GroupViewModel
-import com.falcon.split.Presentation.screens.AnimationComponents.UpwardFlipHeaderImage
+import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.group.GroupState
+import com.falcon.split.presentation.group.GroupViewModel
+import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.data.network.models_app.Group
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.Res
