@@ -63,6 +63,7 @@ import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.Intents
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.launch
@@ -78,6 +79,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var contactManager: AndroidContactManager
     private val groupRepository by lazy { FirebaseGroupRepository() }
     private val expenseRepository by lazy { FirebaseExpenseRepository() }
+
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,27 +134,30 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             ) {
-                App(
-                    client = remember {
-                        ApiClient(createHttpClient(OkHttp.create()))
-                    },
-                    prefs = prefs,
-                    onSignOut = onSignOutFunction,  // Use the explicitly typed function
-                    contactManager = contactManager,
-                    AndroidSignInComposable = remember {
-                        @Composable { navController ->
-                            CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
-                        }
-                    },
-                    AndroidProfileScreenComposable = remember {
-                        @Composable { navController ->
-                            CallProfileScreenInAndroid(navController)
-                        }
-                    },
-                    groupRepository = groupRepository,
-                    expenseRepository = expenseRepository,
-                    darkTheme = darkTheme
-                )
+                if (currentUserId != null) {
+                    App(
+                        client = remember {
+                            ApiClient(createHttpClient(OkHttp.create()))
+                        },
+                        prefs = prefs,
+                        currentUserId = currentUserId,
+                        onSignOut = onSignOutFunction,  // Use the explicitly typed function
+                        contactManager = contactManager,
+                        AndroidSignInComposable = remember {
+                            @Composable { navController ->
+                                CallGoogleSignInAndroid(navController, requestSendForGetUserData, prefs)
+                            }
+                        },
+                        AndroidProfileScreenComposable = remember {
+                            @Composable { navController ->
+                                CallProfileScreenInAndroid(navController)
+                            }
+                        },
+                        groupRepository = groupRepository,
+                        expenseRepository = expenseRepository,
+                        darkTheme = darkTheme
+                    )
+                }
             }
         }
     }

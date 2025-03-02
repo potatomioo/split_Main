@@ -27,7 +27,8 @@ fun GroupDetailsScreen(
     contactManager: ContactManager?,
     onNavigateBack: () -> Unit,
     onAddExpense: (String) -> Unit,
-    navControllerMain: NavHostController
+    navControllerMain: NavHostController,
+    currentUserId : String
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -119,7 +120,8 @@ fun GroupDetailsScreen(
                         MemberBalancesCard(
                             members = group.members,
                             contactManager,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            currentUserId = currentUserId
                         )
                     }
 
@@ -279,7 +281,8 @@ private fun GroupSummaryCard(
 private fun MemberBalancesCard(
     members: List<GroupMember>,
     contactManager: ContactManager?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    currentUserId: String
 ) {
     val nameResolver = remember { MemberNameResolver(contactManager) }
 
@@ -313,7 +316,12 @@ private fun MemberBalancesCard(
 
                         // Use the name resolver to get the appropriate display name
                         val displayName = nameResolver.resolveDisplayName(member)
-                        Text(displayName)
+                        val isCurrentUser = member.userId == currentUserId
+
+                        Text(
+                            text = if (isCurrentUser) "$displayName (You)" else displayName,
+                            fontWeight = if (isCurrentUser) FontWeight.Bold else FontWeight.Normal
+                        )
                     }
 
                     val balance = member.balance ?: 0.0

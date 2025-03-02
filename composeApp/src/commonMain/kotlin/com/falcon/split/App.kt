@@ -125,6 +125,7 @@ class AppBackHandler : BackHandler {
 fun App(
     client: ApiClient,
     prefs: DataStore<Preferences>,
+    currentUserId : String,
     contactManager: ContactManager? = null,
     onSignOut: (() -> Unit)? = null,
     AndroidProfileScreenComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
@@ -333,7 +334,8 @@ fun App(
                     },
                     navControllerMain = navControllerMain,
                     contactManager = contactManager,
-                    viewModel = groupViewModel
+                    viewModel = groupViewModel,
+                    currentUserId = currentUserId
                 )
             }
         }
