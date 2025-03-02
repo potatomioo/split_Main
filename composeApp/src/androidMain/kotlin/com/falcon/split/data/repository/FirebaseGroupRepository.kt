@@ -37,16 +37,33 @@ class FirebaseGroupRepository : GroupRepository {
                     .get()
                     .await()
 
+                val registeredUserId = userDoc.getString("userId")
+                val registeredUserName = if (registeredUserId != null) {
+                    val userProfileDoc = db.collection("users")
+                        .document(registeredUserId)
+                        .get()
+                        .await()
+
+                    userProfileDoc.getString("name")
+                } else {
+                    null
+                }
 
                 GroupMember(
                     userId = userDoc.getString("userId"),
                     phoneNumber = contact.contactNumber,
-                    name = contact.contactName,
+                    name = registeredUserName,
                     balance = 0.0  // Default balance for new member
                 )
             }
 
             val currentUserPhoneNumber = getPhoneNumberFromId(currentUser.uid)
+            val currentUserDoc = db.collection("users")
+                .document(currentUser.uid)
+                .get()
+                .await()
+
+            val currentUserName = currentUserDoc.getString("name") ?: currentUser.displayName
             val currentTime = System.currentTimeMillis()
             val groupRef = db.collection("groups").document()
 
@@ -57,7 +74,7 @@ class FirebaseGroupRepository : GroupRepository {
                 members = groupMembers + GroupMember(
                     userId = currentUser.uid,
                     phoneNumber = currentUserPhoneNumber.toString(),
-                    name = currentUser.displayName,
+                    name = currentUserName,
                     balance = 0.0
                 ),
                 totalAmount = 0.0,

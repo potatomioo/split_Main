@@ -332,6 +332,7 @@ fun App(
                         navControllerMain.navigate("add_expense/$groupId")
                     },
                     navControllerMain = navControllerMain,
+                    contactManager = contactManager,
                     viewModel = groupViewModel
                 )
             }
