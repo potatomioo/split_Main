@@ -12,16 +12,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.falcon.split.contact.ContactManager
 import com.falcon.split.presentation.group.GroupState
 import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.GroupMember
+import com.falcon.split.utils.MemberNameResolver
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupDetailsScreen(
     groupId: String,
     viewModel: GroupViewModel,
+    contactManager: ContactManager?,
     onNavigateBack: () -> Unit,
     onAddExpense: (String) -> Unit,
     navControllerMain: NavHostController
@@ -115,6 +118,7 @@ fun GroupDetailsScreen(
                     item {
                         MemberBalancesCard(
                             members = group.members,
+                            contactManager,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -274,8 +278,11 @@ private fun GroupSummaryCard(
 @Composable
 private fun MemberBalancesCard(
     members: List<GroupMember>,
+    contactManager: ContactManager?,
     modifier: Modifier = Modifier
 ) {
+    val nameResolver = remember { MemberNameResolver(contactManager) }
+
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -303,7 +310,10 @@ private fun MemberBalancesCard(
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(member.name.toString())
+
+                        // Use the name resolver to get the appropriate display name
+                        val displayName = nameResolver.resolveDisplayName(member)
+                        Text(displayName)
                     }
 
                     val balance = member.balance ?: 0.0
@@ -325,9 +335,15 @@ private fun MemberBalancesCard(
 @Composable
 private fun ExpenseListItem(
     expense: Expense,
-    paidByMember: GroupMember?,
+    members: List<GroupMember>,
+    contactManager: ContactManager?,
     modifier: Modifier = Modifier
 ) {
+    val nameResolver = remember { MemberNameResolver(contactManager) }
+
+    // Find the member who paid
+    val paidByMember = members.find { it.userId == expense.paidByUserId }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = { /* Navigate to expense details */ }
@@ -345,8 +361,16 @@ private fun ExpenseListItem(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
+
+                    // Use nameResolver to get the appropriate display name
+                    val payerName = if (paidByMember != null) {
+                        nameResolver.resolveDisplayName(paidByMember)
+                    } else {
+                        expense.paidByUserName ?: "Unknown"
+                    }
+
                     Text(
-                        "Paid by ${paidByMember?.name ?: "Unknown"}",
+                        "Paid by $payerName",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -364,14 +388,24 @@ private fun ExpenseListItem(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 expense.splits.forEach { split ->
+                    // Find the member for this split
+                    val member = members.find { it.userId == split.userId || it.phoneNumber == split.phoneNumber }
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // Use nameResolver if member is found, otherwise use phone number
+                        val displayName = if (member != null) {
+                            nameResolver.resolveDisplayName(member)
+                        } else {
+                            split.phoneNumber
+                        }
+
                         Text(
-                            split.phoneNumber ?: "Unknown",
+                            displayName,
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
