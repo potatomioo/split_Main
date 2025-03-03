@@ -231,7 +231,10 @@ fun App(
             }
             composable(Routes.APP_CONTENT.name) {
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
-                val groupViewModel = remember { GroupViewModel(groupRepository!!) }
+                val groupViewModel = remember { GroupViewModel(
+                    groupRepository!!,
+                    expenseRepository!!
+                ) }
                 NavHostMain(
                     client = client,
                     onNavigate = { routeName ->
@@ -324,7 +327,10 @@ fun App(
                 arguments = listOf(navArgument("groupId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
-                val groupViewModel = remember { GroupViewModel(groupRepository!!) }
+                val groupViewModel = remember { GroupViewModel(
+                    groupRepository!!,
+                    expenseRepository!!
+                ) }
                 GroupDetailsScreen(
                     groupId = groupId,
                     onNavigateBack = { navControllerMain.popBackStack() },

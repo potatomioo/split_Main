@@ -98,23 +98,83 @@ class FirebaseExpenseRepository : ExpenseRepository {
     }
 
     override suspend fun getExpensesByGroup(groupId: String): Flow<List<Expense>> = callbackFlow {
-        val listener = db.collection("expenses")
-            .whereEqualTo("groupId", groupId)
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
+        try {
+            // First get the group to access its expense IDs
+            val groupListener = db.collection("groups")
+                .document(groupId)
+                .addSnapshotListener { groupSnapshot, groupError ->
+                    if (groupError != null) {
+                        close(groupError)
+                        return@addSnapshotListener
+                    }
+
+                    val group = groupSnapshot?.toObject(Group::class.java)
+                    if (group == null) {
+                        trySend(emptyList())
+                        return@addSnapshotListener
+                    }
+
+                    // If there are no expenses, return empty list
+                    if (group.expenses.isEmpty()) {
+                        trySend(emptyList())
+                        return@addSnapshotListener
+                    }
+
+                    // Fetch all expenses by their IDs
+                    db.collection("expenses")
+                        .whereIn("expenseId", group.expenses)
+                        .get()
+                        .addOnSuccessListener { expensesSnapshot ->
+                            val expenses = expensesSnapshot.documents.mapNotNull { doc ->
+                                doc.toObject(Expense::class.java)?.copy(expenseId = doc.id)
+                            }
+                            trySend(expenses)
+                        }
+                        .addOnFailureListener { error ->
+                            // If we can't get expenses by ID (perhaps we exceed the 'whereIn' limit)
+                            // fall back to fetching expenses one by one
+                            if (group.expenses.size > 10) { // whereIn has a limit of 10 items
+                                fetchExpensesOneByOne(group.expenses) { fetchedExpenses ->
+                                    trySend(fetchedExpenses)
+                                }
+                            } else {
+                                close(error)
+                            }
+                        }
                 }
 
-                val expenses = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(Expense::class.java)?.copy(expenseId = doc.id)
-                } ?: emptyList()
+            awaitClose { groupListener.remove() }
+        } catch (e: Exception) {
+            close(e)
+            trySend(emptyList())
+        }
+    }
 
-                trySend(expenses)
-            }
+    private fun fetchExpensesOneByOne(expenseIds: List<String>, callback: (List<Expense>) -> Unit) {
+        val expenses = mutableListOf<Expense>()
+        var completedCount = 0
 
-        awaitClose { listener.remove() }
+        for (expenseId in expenseIds) {
+            db.collection("expenses")
+                .document(expenseId)
+                .get()
+                .addOnSuccessListener { doc ->
+                    doc.toObject(Expense::class.java)?.let { expense ->
+                        expenses.add(expense.copy(expenseId = doc.id))
+                    }
+                    completedCount++
+
+                    if (completedCount == expenseIds.size) {
+                        callback(expenses)
+                    }
+                }
+                .addOnFailureListener {
+                    completedCount++
+                    if (completedCount == expenseIds.size) {
+                        callback(expenses)
+                    }
+                }
+        }
     }
 
     override suspend fun getExpensesByUser(userId: String): Flow<List<Expense>> = callbackFlow {
