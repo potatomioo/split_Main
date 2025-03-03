@@ -11,4 +11,5 @@ interface GroupRepository {
     suspend fun addMembersToGroup(groupId: String, memberPhoneNumbers: List<String>): Result<Unit>
     suspend fun getGroupDetails(groupId: String): Flow<Group>
     suspend fun getPhoneNumberFromId(userId: String) : String?
+    suspend fun deleteGroup(groupId: String): Result<Unit>
 }

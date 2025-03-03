@@ -17,6 +17,7 @@ import com.falcon.split.contact.ContactManager
 import com.falcon.split.presentation.group.GroupState
 import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.data.network.models_app.Expense
+import com.falcon.split.data.network.models_app.Group
 import com.falcon.split.data.network.models_app.GroupMember
 import com.falcon.split.presentation.expense.ExpenseState
 import com.falcon.split.utils.MemberNameResolver
@@ -36,21 +37,16 @@ fun GroupDetailsScreen(
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(true) }
 
-    // Load group details once when screen is opened
+    // Load data immediately when screen is mounted
     LaunchedEffect(groupId) {
+        // Start both loading operations in parallel
         viewModel.loadGroupDetails(groupId)
         viewModel.loadGroupExpenses(groupId)
     }
 
     val groupState by viewModel.groupState.collectAsState()
     val expenseState by viewModel.expenseState.collectAsState()
-
-    // Update loading state based on groupState
-    LaunchedEffect(groupState) {
-        isLoading = groupState is GroupState.Loading
-    }
 
     Scaffold(
         topBar = {
@@ -83,25 +79,26 @@ fun GroupDetailsScreen(
             }
         }
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Show loading indicator while loading initial data
-            if (isLoading && groupState !is GroupState.GroupDetailSuccess) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+        // Show a fullscreen loading indicator if we don't have any group data yet
+        if (groupState is GroupState.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-
-            // Always show the content, even while loading, to avoid jumpy UI
+        } else {
+            // Once we have group data, show the group details with section-specific loading states
             when (groupState) {
                 is GroupState.GroupDetailSuccess -> {
                     val group = (groupState as GroupState.GroupDetailSuccess).group
 
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
@@ -122,97 +119,12 @@ fun GroupDetailsScreen(
                         }
 
                         item {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(16.dp)
-                                ) {
-                                    Text(
-                                        "Recent Expenses",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    when (expenseState) {
-                                        is ExpenseState.Loading -> {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(100.dp),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator()
-                                            }
-                                        }
-                                        is ExpenseState.Error -> {
-                                            Text(
-                                                "Error loading expenses: ${(expenseState as ExpenseState.Error).message}",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.error
-                                            )
-                                        }
-                                        is ExpenseState.Success -> {
-                                            val expenses = (expenseState as ExpenseState.Success).expenses
-                                            if (expenses.isEmpty()) {
-                                                Text(
-                                                    "No expenses yet",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                            } else {
-                                                // Display all expenses directly in this card
-                                                val nameResolver = remember { MemberNameResolver(contactManager) }
-                                                Column(
-                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    expenses.forEach { expense ->
-                                                        // Add divider between expenses
-                                                        if (expense != expenses.first()) {
-                                                            Divider(modifier = Modifier.padding(vertical = 4.dp))
-                                                        }
-
-                                                        // Inline expense item
-                                                        Row(
-                                                            modifier = Modifier.fillMaxWidth(),
-                                                            horizontalArrangement = Arrangement.SpaceBetween
-                                                        ) {
-                                                            Column {
-                                                                Text(
-                                                                    expense.description,
-                                                                    style = MaterialTheme.typography.titleMedium
-                                                                )
-                                                                Spacer(modifier = Modifier.height(4.dp))
-
-                                                                // Find the member who paid
-                                                                val paidByMember = group.members.find { it.userId == expense.paidByUserId }
-                                                                val payerName = if (paidByMember != null) {
-                                                                    nameResolver.resolveDisplayName(paidByMember)
-                                                                } else {
-                                                                    expense.paidByUserName ?: "Unknown"
-                                                                }
-
-                                                                Text(
-                                                                    "Paid by $payerName",
-                                                                    style = MaterialTheme.typography.bodyMedium,
-                                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                                )
-                                                            }
-                                                            Text(
-                                                                "₹${expense.amount}",
-                                                                style = MaterialTheme.typography.titleMedium,
-                                                                color = MaterialTheme.colorScheme.primary
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            ExpensesCard(
+                                expenseState = expenseState,
+                                group = group,
+                                contactManager = contactManager,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                         }
                     }
                 }
@@ -221,6 +133,7 @@ fun GroupDetailsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .padding(padding)
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -234,7 +147,15 @@ fun GroupDetailsScreen(
                 }
 
                 else -> {
-                    // Do nothing for other states - we're showing the loading indicator
+                    // This branch should rarely be hit since we check for Loading earlier
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
@@ -248,10 +169,25 @@ fun GroupDetailsScreen(
                 text = { Text("Share Group") },
                 onClick = {
                     showOptionsMenu = false
-                    // Implement share functionality
+                    println("Sharing group: $groupId")
                 },
                 leadingIcon = {
                     Icon(Icons.Default.Share, "Share Group")
+                }
+            )
+
+            DropdownMenuItem(
+                text = { Text("Delete Group", color = MaterialTheme.colorScheme.error) },
+                onClick = {
+                    showOptionsMenu = false
+                    showDeleteDialog = true
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Delete,
+                        "Delete Group",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             )
         }
@@ -266,6 +202,7 @@ fun GroupDetailsScreen(
                     TextButton(
                         onClick = {
                             showDeleteDialog = false
+                            viewModel.deleteGroup(groupId)
                             onNavigateBack()
                         }
                     ) {
@@ -278,6 +215,109 @@ fun GroupDetailsScreen(
                     }
                 }
             )
+        }
+    }
+}
+
+@Composable
+private fun ExpensesCard(
+    expenseState: ExpenseState,
+    group: Group,
+    contactManager: ContactManager?,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                "Recent Expenses",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when (expenseState) {
+                is ExpenseState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Use a custom loading indicator that will animate smoothly
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+                is ExpenseState.Error -> {
+                    Text(
+                        "Error loading expenses: ${expenseState.message}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                is ExpenseState.Success -> {
+                    val expenses = expenseState.expenses
+                    if (expenses.isEmpty()) {
+                        Text(
+                            "No expenses yet",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        // Create nameResolver here once
+                        val nameResolver = remember { MemberNameResolver(contactManager) }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            expenses.forEach { expense ->
+                                // Add divider between expenses
+                                if (expense != expenses.first()) {
+                                    Divider(modifier = Modifier.padding(vertical = 4.dp))
+                                }
+
+                                // Inline expense item - keep it lightweight
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text(
+                                            expense.description,
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        // Find the member who paid
+                                        val paidByMember = group.members.find { it.userId == expense.paidByUserId }
+                                        val payerName = if (paidByMember != null) {
+                                            nameResolver.resolveDisplayName(paidByMember)
+                                        } else {
+                                            expense.paidByUserName ?: "Unknown"
+                                        }
+
+                                        Text(
+                                            "Paid by $payerName",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Text(
+                                        "₹${expense.amount}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -325,10 +365,12 @@ private fun MemberBalancesCard(
     var resolvedMembers by remember { mutableStateOf<List<Pair<GroupMember, String>>>(emptyList()) }
     val nameResolver = remember { MemberNameResolver(contactManager) }
 
-    // Load contact names in a LaunchedEffect to avoid UI freezing
-    LaunchedEffect(members) {
-        // Use a coroutine to do the heavy work of resolving names
-        withContext(Dispatchers.IO) {
+    // Use a key based on members list to ensure proper recomposition
+    val memberKey = members.hashCode()
+
+    // Load contact names in a coroutine
+    LaunchedEffect(memberKey) {
+        withContext(Dispatchers.Default) {
             val resolved = members.map { member ->
                 member to nameResolver.resolveDisplayName(member)
             }
@@ -348,26 +390,17 @@ private fun MemberBalancesCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isContactsLoading) {
-                // Show loading indicator while contacts are being resolved
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Loading members...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    // Custom loading indicator that will animate smoothly
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(32.dp)
+                    )
                 }
             } else {
                 // Show resolved member list
@@ -404,60 +437,6 @@ private fun MemberBalancesCard(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun ExpenseListItem(
-    expense: Expense,
-    members: List<GroupMember>,
-    contactManager: ContactManager?,
-    modifier: Modifier = Modifier
-) {
-    val nameResolver = remember { MemberNameResolver(contactManager) }
-
-    // Find the member who paid
-    val paidByMember = members.find { it.userId == expense.paidByUserId }
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        expense.description,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Use nameResolver to get the appropriate display name
-                    val payerName = if (paidByMember != null) {
-                        nameResolver.resolveDisplayName(paidByMember)
-                    } else {
-                        expense.paidByUserName ?: "Unknown"
-                    }
-
-                    Text(
-                        "Paid by $payerName",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Text(
-                    "₹${expense.amount}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
             }
         }
     }
