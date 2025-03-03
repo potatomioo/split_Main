@@ -7,11 +7,22 @@ import com.falcon.split.data.network.models_app.GroupMember
 class MemberNameResolver(private val contactManager: ContactManager?) {
 
     fun resolveDisplayName(member: GroupMember): String {
-        // 1. Try to find in user's contacts
+        // 1. Try to find in user's contacts by matching last 10 digits
         if (contactManager != null) {
-            val contactFromDevice = contactManager.getContactByNumber(member.phoneNumber)
-            if (contactFromDevice != null) {
-                return contactFromDevice.contactName
+            val contacts = contactManager.getAllContacts()
+            if (contacts != null) {
+                // Get the stored phone number (already normalized to last 10 digits)
+                val memberPhone = member.phoneNumber
+
+                // Find matching contact by comparing last 10 digits
+                val matchingContact = contacts.find { contact ->
+                    val contactLastDigits = extractLast10Digits(contact.contactNumber)
+                    contactLastDigits == memberPhone
+                }
+
+                if (matchingContact != null) {
+                    return matchingContact.contactName
+                }
             }
         }
 
@@ -31,17 +42,22 @@ class MemberNameResolver(private val contactManager: ContactManager?) {
             phoneNumber
         }
     }
-}
 
-fun ContactManager.getContactByNumber(phoneNumber: String): Contact? {
-    // This would need to be implemented in the platform-specific ContactManager
-    // Here's a stub of what it might look like
-    val contacts = getAllContacts() ?: return null
-    return contacts.find {
-        normalizePhoneNumber(it.contactNumber) == normalizePhoneNumber(phoneNumber)
+    /**
+     * Extracts the last 10 digits from a phone number
+     */
+    private fun extractLast10Digits(phoneNumber: String): String {
+        // Remove all non-digit characters
+        val digitsOnly = phoneNumber.replace(Regex("[^0-9]"), "")
+
+        // Take the last 10 digits or the entire string if less than 10 digits
+        return if (digitsOnly.length > 10) {
+            digitsOnly.substring(digitsOnly.length - 10)
+        } else {
+            digitsOnly
+        }
     }
 }
-
 private fun normalizePhoneNumber(phoneNumber: String): String {
     // Strip all non-digit characters
     return phoneNumber.replace(Regex("[^0-9]"), "")

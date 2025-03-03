@@ -31,9 +31,12 @@ class FirebaseGroupRepository : GroupRepository {
                 ?: return Result.failure(Exception("User not logged in"))
 
             val groupMembers = members.map { contact ->
+                // Extract last 10 digits of phone number before storing
+                val normalizedPhoneNumber = extractLast10Digits(contact.contactNumber)
+
                 // Get user info from phoneNumbers collection if exists
                 val userDoc = db.collection("phoneNumbers")
-                    .document(contact.contactNumber)
+                    .document(normalizedPhoneNumber)
                     .get()
                     .await()
 
@@ -51,13 +54,16 @@ class FirebaseGroupRepository : GroupRepository {
 
                 GroupMember(
                     userId = userDoc.getString("userId"),
-                    phoneNumber = contact.contactNumber,
+                    phoneNumber = normalizedPhoneNumber, // Store the normalized number
                     name = registeredUserName,
-                    balance = 0.0  // Default balance for new member
+                    balance = 0.0
                 )
             }
 
             val currentUserPhoneNumber = getPhoneNumberFromId(currentUser.uid)
+            // Also normalize current user's phone number
+            val normalizedCurrentUserPhone = extractLast10Digits(currentUserPhoneNumber ?: "")
+
             val currentUserDoc = db.collection("users")
                 .document(currentUser.uid)
                 .get()
@@ -73,7 +79,7 @@ class FirebaseGroupRepository : GroupRepository {
                 createdBy = currentUser.uid,
                 members = groupMembers + GroupMember(
                     userId = currentUser.uid,
-                    phoneNumber = currentUserPhoneNumber.toString(),
+                    phoneNumber = normalizedCurrentUserPhone,
                     name = currentUserName,
                     balance = 0.0
                 ),
@@ -89,6 +95,7 @@ class FirebaseGroupRepository : GroupRepository {
             Result.failure(e)
         }
     }
+
 
     override suspend fun getGroupsByUser(userId: String): Flow<List<Group>> = callbackFlow {
         val listener = db.collection("groups")
@@ -199,5 +206,17 @@ class FirebaseGroupRepository : GroupRepository {
             }
 
         awaitClose { listener.remove() }
+    }
+}
+
+private fun extractLast10Digits(phoneNumber: String): String {
+    // Remove all non-digit characters
+    val digitsOnly = phoneNumber.replace(Regex("[^0-9]"), "")
+
+    // Take the last 10 digits or the entire string if less than 10 digits
+    return if (digitsOnly.length > 10) {
+        digitsOnly.substring(digitsOnly.length - 10)
+    } else {
+        digitsOnly
     }
 }
