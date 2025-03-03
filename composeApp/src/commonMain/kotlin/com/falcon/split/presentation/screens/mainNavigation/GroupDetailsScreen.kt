@@ -18,6 +18,9 @@ import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.GroupMember
 import com.falcon.split.utils.MemberNameResolver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +34,19 @@ fun GroupDetailsScreen(
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
 
+    // Load group details once when screen is opened
     LaunchedEffect(groupId) {
         viewModel.loadGroupDetails(groupId)
     }
 
     val groupState by viewModel.groupState.collectAsState()
+
+    // Update loading state based on groupState
+    LaunchedEffect(groupState) {
+        isLoading = groupState is GroupState.Loading
+    }
 
     Scaffold(
         topBar = {
@@ -44,7 +54,7 @@ fun GroupDetailsScreen(
                 title = {
                     when (groupState) {
                         is GroupState.GroupDetailSuccess -> Text((groupState as GroupState.GroupDetailSuccess).group.name)
-                        else -> Text("Loading...")
+                        else -> Text("Group Details")
                     }
                 },
                 navigationIcon = {
@@ -69,175 +79,135 @@ fun GroupDetailsScreen(
             }
         }
     ) { padding ->
-        when (groupState) {
-            is GroupState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            // Show loading indicator while loading initial data
+            if (isLoading && groupState !is GroupState.GroupDetailSuccess) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
 
-            is GroupState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+            // Always show the content, even while loading, to avoid jumpy UI
+            when (groupState) {
+                is GroupState.GroupDetailSuccess -> {
+                    val group = (groupState as GroupState.GroupDetailSuccess).group
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        item {
+                            GroupSummaryCard(
+                                totalAmount = group.totalAmount ?: 0.0,
+                                expenseCount = group.expenses.size,
+                                memberCount = group.members.size,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+
+                        item {
+                            MemberBalancesCard(
+                                members = group.members,
+                                contactManager = contactManager,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+
+                        item {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    Text(
+                                        "Recent Expenses",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    if (group.expenses.isEmpty()) {
+                                        Text(
+                                            "No expenses yet",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Display expenses here if needed
+                    }
+                }
+
+                is GroupState.Error -> {
                     Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Text((groupState as GroupState.Error).message)
+                        Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.loadGroupDetails(groupId) }) {
                             Text("Retry")
                         }
                     }
                 }
-            }
 
-            is GroupState.GroupDetailSuccess -> {
-                val group = (groupState as GroupState.GroupDetailSuccess).group
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        GroupSummaryCard(
-                            totalAmount = group.totalAmount ?: 0.0,
-//                            expenseCount = group.expenses?.size ?: 0,
-                            expenseCount = 2,
-                            memberCount = group.members.size,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-
-                    item {
-                        MemberBalancesCard(
-                            members = group.members,
-                            contactManager,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
-
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text(
-                                    "Recent Expenses",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                if (group.totalAmount == 0.0) {
-                                    Text(
-                                        "No expenses yet",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-//                    items(group.expenses ?: emptyList()) { expense ->
-//                        ExpenseListItem(
-//                            expense = expense,
-//                            paidByMember = group.members.find { it.userId == expense.paidByUserId },
-//                            modifier = Modifier.padding(horizontal = 16.dp)
-//                        )
-//                    }
+                else -> {
+                    // Do nothing for other states - we're showing the loading indicator
                 }
+            }
+        }
 
-                // Options Menu
-                DropdownMenu(
-                    expanded = showOptionsMenu,
-                    onDismissRequest = { showOptionsMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Share Group") },
+        // Options Menu
+        DropdownMenu(
+            expanded = showOptionsMenu,
+            onDismissRequest = { showOptionsMenu = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Share Group") },
+                onClick = {
+                    showOptionsMenu = false
+                    // Implement share functionality
+                },
+                leadingIcon = {
+                    Icon(Icons.Default.Share, "Share Group")
+                }
+            )
+        }
+
+        // Delete Confirmation Dialog
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Delete Group") },
+                text = { Text("Are you sure you want to delete this group? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(
                         onClick = {
-                            showOptionsMenu = false
-                            // Implement share functionality
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Share, "Share Group")
+                            showDeleteDialog = false
+                            onNavigateBack()
                         }
-                    )
-
-//                    if (group.createdByUserId == FirebaseAuth.getInstance().currentUser?.uid) {
-//                        DropdownMenuItem(
-//                            text = { Text("Delete Group", color = MaterialTheme.colorScheme.error) },
-//                            onClick = {
-//                                showOptionsMenu = false
-//                                showDeleteDialog = true
-//                            },
-//                            leadingIcon = {
-//                                Icon(
-//                                    Icons.Default.Delete,
-//                                    "Delete Group",
-//                                    tint = MaterialTheme.colorScheme.error
-//                                )
-//                            }
-//                        )
-//                    }
+                    ) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancel")
+                    }
                 }
-
-                // Delete Confirmation Dialog
-                if (showDeleteDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDialog = false },
-                        title = { Text("Delete Group") },
-                        text = { Text("Are you sure you want to delete this group? This action cannot be undone.") },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    showDeleteDialog = false
-//                                    viewModel.deleteGroup(groupId)
-                                    onNavigateBack()
-                                }
-                            ) {
-                                Text("Delete", color = MaterialTheme.colorScheme.error)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDeleteDialog = false }) {
-                                Text("Cancel")
-                            }
-                        }
-                    )
-                }
-            }
-
-            GroupState.Empty -> {
-                // Handle empty state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No group data available")
-                }
-            }
-
-            is GroupState.Success -> {
-                // Handle general success state if needed
-                // If this state isn't used, you might want to remove it from your GroupState sealed class
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Group loaded successfully")
-                }
-            }
+            )
         }
     }
 }
@@ -281,7 +251,21 @@ private fun MemberBalancesCard(
     contactManager: ContactManager?,
     modifier: Modifier = Modifier
 ) {
+    var isContactsLoading by remember { mutableStateOf(true) }
+    var resolvedMembers by remember { mutableStateOf<List<Pair<GroupMember, String>>>(emptyList()) }
     val nameResolver = remember { MemberNameResolver(contactManager) }
+
+    // Load contact names in a LaunchedEffect to avoid UI freezing
+    LaunchedEffect(members) {
+        // Use a coroutine to do the heavy work of resolving names
+        withContext(Dispatchers.IO) {
+            val resolved = members.map { member ->
+                member to nameResolver.resolveDisplayName(member)
+            }
+            resolvedMembers = resolved
+            isContactsLoading = false
+        }
+    }
 
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -293,39 +277,62 @@ private fun MemberBalancesCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            members.forEach { member ->
-                Row(
+            if (isContactsLoading) {
+                // Show loading indicator while contacts are being resolved
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Loading members...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                // Show resolved member list
+                resolvedMembers.forEach { (member, displayName) ->
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(displayName)
+                        }
+
+                        val balance = member.balance ?: 0.0
+                        Text(
+                            "₹${balance}",
+                            color = when {
+                                balance > 0 -> Color(0xFF4CAF50)  // Green
+                                balance < 0 -> Color(0xFFF44336)  // Red
+                                else -> MaterialTheme.colorScheme.onSurface
+                            },
+                            fontWeight = FontWeight.Medium
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Use the name resolver to get the appropriate display name
-                        val displayName = nameResolver.resolveDisplayName(member)
-                        Text(displayName)
                     }
-
-                    val balance = member.balance ?: 0.0
-                    Text(
-                        "₹${balance}",
-                        color = when {
-                            balance > 0 -> Color(0xFF4CAF50)  // Green
-                            balance < 0 -> Color(0xFFF44336)  // Red
-                            else -> MaterialTheme.colorScheme.onSurface
-                        },
-                        fontWeight = FontWeight.Medium
-                    )
                 }
             }
         }
