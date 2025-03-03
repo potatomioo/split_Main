@@ -12,13 +12,13 @@ data class Expense(
     val amount: Double = 0.0,
     val paidByUserId: String = "",  // userId of person who paid
     val paidByUserName: String? = "",  // userName of person who paid
-    val splits: List<ExpenseSplit>?,
+    val splits: List<ExpenseSplit> = emptyList(),
 )
 
 @Serializable
 data class ExpenseSplit(
-    val userId: String,
-    val amount: Double,
-    val settled: Boolean,
-    val phoneNumber: String,
+    val userId: String = "",
+    val amount: Double = 0.0,
+    val settled: Boolean = false,
+    val phoneNumber: String = ""
 )

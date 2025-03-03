@@ -2,6 +2,7 @@ package com.falcon.split.presentation.screens.mainNavigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,6 +18,7 @@ import com.falcon.split.presentation.group.GroupState
 import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.GroupMember
+import com.falcon.split.presentation.expense.ExpenseState
 import com.falcon.split.utils.MemberNameResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -39,9 +41,11 @@ fun GroupDetailsScreen(
     // Load group details once when screen is opened
     LaunchedEffect(groupId) {
         viewModel.loadGroupDetails(groupId)
+        viewModel.loadGroupExpenses(groupId)
     }
 
     val groupState by viewModel.groupState.collectAsState()
+    val expenseState by viewModel.expenseState.collectAsState()
 
     // Update loading state based on groupState
     LaunchedEffect(groupState) {
@@ -132,18 +136,84 @@ fun GroupDetailsScreen(
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    if (group.expenses.isEmpty()) {
-                                        Text(
-                                            "No expenses yet",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                    when (expenseState) {
+                                        is ExpenseState.Loading -> {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(100.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator()
+                                            }
+                                        }
+                                        is ExpenseState.Error -> {
+                                            Text(
+                                                "Error loading expenses: ${(expenseState as ExpenseState.Error).message}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                        is ExpenseState.Success -> {
+                                            val expenses = (expenseState as ExpenseState.Success).expenses
+                                            if (expenses.isEmpty()) {
+                                                Text(
+                                                    "No expenses yet",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            } else {
+                                                // Display all expenses directly in this card
+                                                val nameResolver = remember { MemberNameResolver(contactManager) }
+                                                Column(
+                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    expenses.forEach { expense ->
+                                                        // Add divider between expenses
+                                                        if (expense != expenses.first()) {
+                                                            Divider(modifier = Modifier.padding(vertical = 4.dp))
+                                                        }
+
+                                                        // Inline expense item
+                                                        Row(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            horizontalArrangement = Arrangement.SpaceBetween
+                                                        ) {
+                                                            Column {
+                                                                Text(
+                                                                    expense.description,
+                                                                    style = MaterialTheme.typography.titleMedium
+                                                                )
+                                                                Spacer(modifier = Modifier.height(4.dp))
+
+                                                                // Find the member who paid
+                                                                val paidByMember = group.members.find { it.userId == expense.paidByUserId }
+                                                                val payerName = if (paidByMember != null) {
+                                                                    nameResolver.resolveDisplayName(paidByMember)
+                                                                } else {
+                                                                    expense.paidByUserName ?: "Unknown"
+                                                                }
+
+                                                                Text(
+                                                                    "Paid by $payerName",
+                                                                    style = MaterialTheme.typography.bodyMedium,
+                                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                )
+                                                            }
+                                                            Text(
+                                                                "₹${expense.amount}",
+                                                                style = MaterialTheme.typography.titleMedium,
+                                                                color = MaterialTheme.colorScheme.primary
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-
-                        // Display expenses here if needed
                     }
                 }
 
@@ -340,7 +410,7 @@ private fun MemberBalancesCard(
 }
 
 @Composable
-private fun ExpenseListItem(
+fun ExpenseListItem(
     expense: Expense,
     members: List<GroupMember>,
     contactManager: ContactManager?,
@@ -352,8 +422,9 @@ private fun ExpenseListItem(
     val paidByMember = members.find { it.userId == expense.paidByUserId }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = { /* Navigate to expense details */ }
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -387,40 +458,6 @@ private fun ExpenseListItem(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-            }
-
-            if (expense.splits?.isNotEmpty() == true) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Divider()
-                Spacer(modifier = Modifier.height(8.dp))
-
-                expense.splits.forEach { split ->
-                    // Find the member for this split
-                    val member = members.find { it.userId == split.userId || it.phoneNumber == split.phoneNumber }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // Use nameResolver if member is found, otherwise use phone number
-                        val displayName = if (member != null) {
-                            nameResolver.resolveDisplayName(member)
-                        } else {
-                            split.phoneNumber
-                        }
-
-                        Text(
-                            displayName,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            "₹${split.amount}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
             }
         }
     }
