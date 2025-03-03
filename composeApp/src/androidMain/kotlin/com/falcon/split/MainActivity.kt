@@ -47,6 +47,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.falcon.split.AndroidUserManager.FirebaseUserManager
 import com.falcon.split.presentation.SplitTheme
 import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
@@ -62,6 +63,7 @@ import com.falcon.split.presentation.sign_in.SignInViewModel
 import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.Intents
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var contactManager: AndroidContactManager
     private val groupRepository by lazy { FirebaseGroupRepository() }
     private val expenseRepository by lazy { FirebaseExpenseRepository() }
+    val userManager = FirebaseUserManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

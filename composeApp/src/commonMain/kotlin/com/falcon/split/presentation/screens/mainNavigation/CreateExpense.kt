@@ -86,8 +86,6 @@ fun CreateExpense(
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var selectedGroup by remember { mutableStateOf<String?>(null) }
-    var selectedPayer by remember { mutableStateOf<String?>(null) }
-    var showPayerDropdown by remember { mutableStateOf(false) }
     val colors = LocalSplitColors.current
     val isDarkTheme = isSystemInDarkTheme()
 
@@ -351,69 +349,6 @@ fun CreateExpense(
                                             modifier = Modifier.align(Alignment.Center)
                                         ) {
                                             Text("Close")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Paid By Selection (showing only group members)
-                    selectedGroupDetails?.let { group ->
-                        ExposedDropdownMenuBox(
-                            expanded = showPayerDropdown,
-                            onExpandedChange = { showPayerDropdown = it }
-                        ) {
-                            OutlinedTextField(
-                                value = group.members.find { it.userId == selectedPayer }?.name ?: "",
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("Paid By") },
-                                leadingIcon = { Icon(Icons.Default.Person, null) },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showPayerDropdown) },
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = showPayerDropdown,
-                                onDismissRequest = { showPayerDropdown = false }
-                            ) {
-                                group.members.forEach { member ->
-                                    DropdownMenuItem(
-                                        text = { member.name?.let { Text(it) } },
-                                        onClick = {
-                                            selectedPayer = member.userId
-                                            showPayerDropdown = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        // Split Options Card
-                        OutlinedCard(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text(
-                                    "Split Equally Between",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                group.members.forEach { member ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        member.name?.let { Text(it) }
-                                        if (amount.isNotEmpty()) {
-                                            val splitAmount = amount.toDoubleOrNull()?.div(group.members.size) ?: 0.0
-                                            Text("₹${splitAmount.toInt()}")
                                         }
                                     }
                                 }
