@@ -214,6 +214,7 @@ fun GroupDetailsScreen(
                                 }
                             }
                         }
+                        // REMOVED: Duplicate expense items section
                     }
                 }
 
@@ -248,10 +249,27 @@ fun GroupDetailsScreen(
                 text = { Text("Share Group") },
                 onClick = {
                     showOptionsMenu = false
-                    // Implement share functionality
+                    // Log the share action
+                    println("Sharing group: $groupId")
                 },
                 leadingIcon = {
                     Icon(Icons.Default.Share, "Share Group")
+                }
+            )
+
+            // Add the Delete Group option
+            DropdownMenuItem(
+                text = { Text("Delete Group", color = MaterialTheme.colorScheme.error) },
+                onClick = {
+                    showOptionsMenu = false
+                    showDeleteDialog = true
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Delete,
+                        "Delete Group",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             )
         }
@@ -266,6 +284,7 @@ fun GroupDetailsScreen(
                     TextButton(
                         onClick = {
                             showDeleteDialog = false
+                            viewModel.deleteGroup(groupId)
                             onNavigateBack()
                         }
                     ) {

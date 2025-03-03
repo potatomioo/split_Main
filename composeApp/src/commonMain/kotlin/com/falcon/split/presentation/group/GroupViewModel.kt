@@ -93,6 +93,27 @@ class GroupViewModel(
         }
     }
 
+    fun deleteGroup(groupId: String) {
+        viewModelScope.launch {
+            try {
+                // Show loading state
+                _groupState.value = GroupState.Loading
+
+                // Call repository method to delete the group
+                groupRepository.deleteGroup(groupId)
+                    .onSuccess {
+                        // Load groups again after successful deletion
+                        loadGroups()
+                    }
+                    .onFailure { error ->
+                        _groupState.value = GroupState.Error(error.message ?: "Failed to delete group")
+                    }
+            } catch (e: Exception) {
+                _groupState.value = GroupState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
     fun retryLoading() {
         loadGroups()
     }

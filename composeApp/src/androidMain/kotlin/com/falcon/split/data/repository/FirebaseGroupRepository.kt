@@ -191,6 +191,39 @@ class FirebaseGroupRepository : GroupRepository {
         }
     }
 
+    override suspend fun deleteGroup(groupId: String): Result<Unit> {
+        return try {
+            // Get the current user
+            val currentUser = auth.currentUser ?: return Result.failure(Exception("User not logged in"))
+
+            // Get the group to check permissions
+            val groupDoc = db.collection("groups").document(groupId).get().await()
+            val group = groupDoc.toObject(Group::class.java)
+                ?: return Result.failure(Exception("Group not found"))
+
+            // Only allow deletion by the creator
+            if (group.createdBy != currentUser.uid) {
+                return Result.failure(Exception("Only the group creator can delete this group"))
+            }
+            val expensesQuery = db.collection("expenses")
+                .whereEqualTo("groupId", groupId)
+                .get()
+                .await()
+
+            // Then, delete each expense document
+            for (expenseDoc in expensesQuery.documents) {
+                db.collection("expenses").document(expenseDoc.id).delete().await()
+            }
+
+            // Finally, delete the group document
+            db.collection("groups").document(groupId).delete().await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun getGroupDetails(groupId: String): Flow<Group> = callbackFlow {
         val listener = db.collection("groups")
             .document(groupId)
