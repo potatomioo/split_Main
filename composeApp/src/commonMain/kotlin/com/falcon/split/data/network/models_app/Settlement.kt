@@ -12,14 +12,15 @@ data class Settlement(
     val toUserId: String = "",    // The person who receives
     val amount: Double = 0.0,
     val timestamp: Long = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
-    val status: SettlementStatus = SettlementStatus.COMPLETED,
+    val status: SettlementStatus = SettlementStatus.PENDING,
     val fromUserName: String? = "",
     val toUserName: String? = ""
 )
 
 enum class SettlementStatus {
     PENDING,
-    COMPLETED
+    APPROVED,
+    DECLINED
 }
 
 sealed class SettlementState {
