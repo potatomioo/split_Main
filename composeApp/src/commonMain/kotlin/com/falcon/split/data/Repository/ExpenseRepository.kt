@@ -12,4 +12,10 @@ interface ExpenseRepository {
     //for settlement
     suspend fun settleBalance(groupId: String, fromUserId: String, toUserId: String, amount: Double): Result<Unit>
     suspend fun getSettlementHistory(groupId: String): Flow<List<Settlement>>
+
+    suspend fun approveSettlement(settlementId: String): Result<Unit>
+    suspend fun declineSettlement(settlementId: String): Result<Unit>
+
+    // Get pending settlements for a user
+    suspend fun getPendingSettlementsForUser(userId: String): Flow<List<Settlement>>
 }
