@@ -31,6 +31,9 @@ class GroupViewModel(
 
     val currentUserId = userManager.getCurrentUserId()
 
+    private val _pendingSettlements = MutableStateFlow<List<Settlement>>(emptyList())
+    val pendingSettlements = _pendingSettlements.asStateFlow()
+
     init {
         loadGroups()
     }
@@ -123,17 +126,68 @@ class GroupViewModel(
             _settlementState.value = SettlementState.Loading
 
             try {
-
                 expenseRepository.settleBalance(
                     groupId = groupId,
-                    fromUserId = currentUserId?:"",
+                    fromUserId = currentUserId ?: "",
                     toUserId = toUserId,
                     amount = amount
                 ).onSuccess {
                     _settlementState.value = SettlementState.Success
+                    // Reload settlements to update UI
+                    loadSettlementHistory(groupId)
+                    loadPendingSettlements()
                 }.onFailure { error ->
                     _settlementState.value = SettlementState.Error(error.message ?: "Failed to settle")
                 }
+            } catch (e: Exception) {
+                _settlementState.value = SettlementState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun loadPendingSettlements() {
+        viewModelScope.launch {
+            try {
+                expenseRepository.getPendingSettlementsForUser(currentUserId?:"")
+                    .collect { settlements ->
+                        _pendingSettlements.value = settlements
+                    }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun approveSettlement(settlementId: String) {
+        viewModelScope.launch {
+            _settlementState.value = SettlementState.Loading
+
+            try {
+                expenseRepository.approveSettlement(settlementId)
+                    .onSuccess {
+                        _settlementState.value = SettlementState.Success
+                    }
+                    .onFailure { error ->
+                        _settlementState.value = SettlementState.Error(error.message ?: "Failed to approve settlement")
+                    }
+            } catch (e: Exception) {
+                _settlementState.value = SettlementState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun declineSettlement(settlementId: String) {
+        viewModelScope.launch {
+            _settlementState.value = SettlementState.Loading
+
+            try {
+                expenseRepository.declineSettlement(settlementId)
+                    .onSuccess {
+                        _settlementState.value = SettlementState.Success
+                    }
+                    .onFailure { error ->
+                        _settlementState.value = SettlementState.Error(error.message ?: "Failed to decline settlement")
+                    }
             } catch (e: Exception) {
                 _settlementState.value = SettlementState.Error(e.message ?: "Unknown error")
             }
