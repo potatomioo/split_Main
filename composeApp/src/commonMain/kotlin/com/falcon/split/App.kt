@@ -81,6 +81,7 @@ import com.falcon.split.presentation.screens.mainNavigation.navigateTo
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
 import com.falcon.split.screens.mainNavigation.PaymentScreen
+import com.falcon.split.userManager.UserManager
 import com.falcon.split.utils.rememberEmailUtils
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
@@ -131,7 +132,8 @@ fun App(
     AndroidSignInComposable: @Composable() ((navController: NavHostController) -> Unit)? = null,
     groupRepository: GroupRepository? = null,
     expenseRepository: ExpenseRepository? = null,
-    darkTheme: MutableState<Boolean>?
+    darkTheme: MutableState<Boolean>?,
+    userManager: UserManager
 ) {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -233,7 +235,8 @@ fun App(
                 val openUserOptionsMenu = remember { mutableStateOf(false) } // In Future Replace It With Bottom - Sheet
                 val groupViewModel = remember { GroupViewModel(
                     groupRepository!!,
-                    expenseRepository!!
+                    expenseRepository!!,
+                    userManager
                 ) }
                 NavHostMain(
                     client = client,
@@ -329,17 +332,19 @@ fun App(
                 val groupId = backStackEntry.arguments?.getString("groupId") ?: return@composable
                 val groupViewModel = remember { GroupViewModel(
                     groupRepository!!,
-                    expenseRepository!!
+                    expenseRepository!!,
+                    userManager
                 ) }
                 GroupDetailsScreen(
                     groupId = groupId,
                     onNavigateBack = { navControllerMain.popBackStack() },
-                    onAddExpense = { groupId ->
-                        navControllerMain.navigate("add_expense/$groupId")
-                    },
+//                    onAddExpense = { groupId ->
+//                        navControllerMain.navigate("add_expense/$groupId")
+//                    },
                     navControllerMain = navControllerMain,
                     contactManager = contactManager,
-                    viewModel = groupViewModel
+                    viewModel = groupViewModel,
+                    userManager = userManager
                 )
             }
         }
