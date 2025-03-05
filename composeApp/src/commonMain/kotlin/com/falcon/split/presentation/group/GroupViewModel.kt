@@ -4,20 +4,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
+import com.falcon.split.data.network.models_app.Settlement
+import com.falcon.split.data.network.models_app.SettlementState
 import com.falcon.split.presentation.expense.ExpenseState
+import com.falcon.split.userManager.UserManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class GroupViewModel(
     private val groupRepository: GroupRepository,
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    userManager: UserManager
 ) : ViewModel() {
     private val _groupState = MutableStateFlow<GroupState>(GroupState.Loading)
     val groupState = _groupState.asStateFlow()
 
     private val _expenseState = MutableStateFlow<ExpenseState>(ExpenseState.Loading)
     val expenseState = _expenseState.asStateFlow()
+
+    private val _settlementState = MutableStateFlow<SettlementState>(SettlementState.Initial)
+    val settlementState = _settlementState.asStateFlow()
+
+    private val _settlements = MutableStateFlow<List<Settlement>>(emptyList())
+    val settlements = _settlements.asStateFlow()
+
+    val currentUserId = userManager.getCurrentUserId()
 
     init {
         loadGroups()
@@ -93,6 +105,41 @@ class GroupViewModel(
         }
     }
 
+    fun loadSettlementHistory(groupId: String) {
+        viewModelScope.launch {
+            try {
+                expenseRepository.getSettlementHistory(groupId)
+                    .collect { settlementList ->
+                        _settlements.value = settlementList
+                    }
+            } catch (e: Exception) {
+                // Handle error if needed
+            }
+        }
+    }
+
+    fun settleBalance(groupId: String, toUserId: String, amount: Double) {
+        viewModelScope.launch {
+            _settlementState.value = SettlementState.Loading
+
+            try {
+
+                expenseRepository.settleBalance(
+                    groupId = groupId,
+                    fromUserId = currentUserId?:"",
+                    toUserId = toUserId,
+                    amount = amount
+                ).onSuccess {
+                    _settlementState.value = SettlementState.Success
+                }.onFailure { error ->
+                    _settlementState.value = SettlementState.Error(error.message ?: "Failed to settle")
+                }
+            } catch (e: Exception) {
+                _settlementState.value = SettlementState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
     fun deleteGroup(groupId: String) {
         viewModelScope.launch {
             try {
@@ -112,6 +159,10 @@ class GroupViewModel(
                 _groupState.value = GroupState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+
+    fun resetSettlementState() {
+        _settlementState.value = SettlementState.Initial
     }
 
     fun retryLoading() {
