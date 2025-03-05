@@ -155,6 +155,8 @@ kotlin {
             implementation(libs.firebase.bom)
             implementation(libs.firebase.auth)
 
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+
 //            implementation("org.jetbrains.compose.ui.tooling-preview.Preview:1.0.0-beta01")
         }
         nativeMain.dependencies {
