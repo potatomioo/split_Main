@@ -153,7 +153,8 @@ class MainActivity : ComponentActivity() {
                     },
                     groupRepository = groupRepository,
                     expenseRepository = expenseRepository,
-                    darkTheme = darkTheme
+                    darkTheme = darkTheme,
+                    userManager = userManager
                 )
             }
         }

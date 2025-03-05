@@ -51,17 +51,4 @@ class ExpenseViewModel(
 //            }
 //        }
 //    }
-
-    fun settleExpense(expenseId: String, userId: String) {
-        viewModelScope.launch {
-            try {
-                expenseRepository.settleExpense(expenseId, userId)
-                    .onFailure { error ->
-                        _expenseState.value = ExpenseState.Error(error.message ?: "Failed to settle expense")
-                    }
-            } catch (e: Exception) {
-                _expenseState.value = ExpenseState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
 }

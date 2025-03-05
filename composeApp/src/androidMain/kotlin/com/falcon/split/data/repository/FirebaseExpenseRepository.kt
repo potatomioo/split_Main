@@ -3,6 +3,8 @@ package com.falcon.split.data.repository
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.data.network.models_app.Settlement
+import com.falcon.split.data.network.models_app.SettlementStatus
 import com.falcon.split.domain.logics.expense.ExpenseCalculator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -55,14 +57,14 @@ class FirebaseExpenseRepository : ExpenseRepository {
 
                 // 4. Update member balances in the group
                 val equalSplitAmount = amount / group.members.size
+
+                // Update overall balances
                 val updatedMembers = group.members.map { member ->
                     when (member.userId) {
                         // For the person who paid
                         paidByUserId -> {
                             val currentBalance = member.balance ?: 0.0
                             // They paid full amount but owe their share
-                            // amount = what they paid
-                            // -equalSplitAmount = what they owe
                             member.copy(
                                 balance = currentBalance + (amount - equalSplitAmount)
                             )
@@ -78,6 +80,13 @@ class FirebaseExpenseRepository : ExpenseRepository {
                     }
                 }
 
+                // Update individual balances
+                val membersWithUpdatedIndividualBalances = expenseCalculator.updateIndividualBalances(
+                    members = updatedMembers,
+                    paidByUserId = paidByUserId,
+                    totalAmount = amount
+                )
+
                 // 5. Get current expenses list and update with new expense ID
                 val currentExpenses = group.expenses.toMutableList() ?: mutableListOf()
                 currentExpenses.add(expenseRef.id)
@@ -85,7 +94,7 @@ class FirebaseExpenseRepository : ExpenseRepository {
                 // 6. Perform all updates in the transaction
                 transaction.set(expenseRef, expense)
                 transaction.update(groupRef, mapOf(
-                    "members" to updatedMembers,
+                    "members" to membersWithUpdatedIndividualBalances,
                     "expenses" to currentExpenses,
                     "totalAmount" to (group.totalAmount ?: 0.0) + amount
                 ))
@@ -197,23 +206,218 @@ class FirebaseExpenseRepository : ExpenseRepository {
         awaitClose { listener.remove() }
     }
 
-    override suspend fun settleExpense(expenseId: String, userId: String): Result<Unit> {
+    override suspend fun settleBalance(
+        groupId: String,
+        fromUserId: String,
+        toUserId: String,
+        amount: Double
+    ): Result<Unit> {
         return try {
-            db.runTransaction { transaction ->
-                val expenseRef = db.collection("expenses").document(expenseId)
-                val expense = transaction.get(expenseRef).toObject(Expense::class.java)!!
+            val currentUser = FirebaseAuth.getInstance().currentUser
+                ?: return Result.failure(Exception("User not logged in"))
 
-                val updatedSplits = expense.splits?.map { split ->
-                    if (split.userId == userId) split.copy(settled = true)
-                    else split
+            if (currentUser.uid != fromUserId) {
+                return Result.failure(Exception("Only the user who owes can initiate settlement"))
+            }
+
+            db.runTransaction { transaction ->
+                // 1. Get the group document
+                val groupRef = db.collection("groups").document(groupId)
+                val group = transaction.get(groupRef).toObject(Group::class.java)
+                    ?: throw Exception("Group not found")
+
+                // 2. Find the members involved
+                val fromMemberIndex = group.members.indexOfFirst { it.userId == fromUserId }
+                val toMemberIndex = group.members.indexOfFirst { it.userId == toUserId }
+
+                if (fromMemberIndex == -1 || toMemberIndex == -1) {
+                    throw Exception("One or more users not found in this group")
                 }
 
-                transaction.update(expenseRef, "splits", updatedSplits)
+                val fromMember = group.members[fromMemberIndex]
+                val toMember = group.members[toMemberIndex]
+
+                // 3. Check if the amount is valid
+                val debtAmount = fromMember.individualBalances[toUserId] ?: 0.0
+                if (debtAmount > 0 || debtAmount == 0.0) {
+                    throw Exception("You don't owe this user any money")
+                }
+
+                if (amount > Math.abs(debtAmount)) {
+                    throw Exception("Settlement amount exceeds the debt amount")
+                }
+
+                // 4. Create a pending settlement record
+                val settlementRef = db.collection("settlements").document()
+                val settlement = Settlement(
+                    id = settlementRef.id,
+                    groupId = groupId,
+                    fromUserId = fromUserId,
+                    toUserId = toUserId,
+                    amount = amount,
+                    timestamp = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
+                    status = SettlementStatus.PENDING,
+                    fromUserName = fromMember.name,
+                    toUserName = toMember.name
+                )
+
+                transaction.set(settlementRef, settlement)
             }.await()
 
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun approveSettlement(settlementId: String): Result<Unit> {
+        return try {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+                ?: return Result.failure(Exception("User not logged in"))
+
+            db.runTransaction { transaction ->
+                // 1. Get the settlement document
+                val settlementRef = db.collection("settlements").document(settlementId)
+                val settlement = transaction.get(settlementRef).toObject(Settlement::class.java)
+                    ?: throw Exception("Settlement not found")
+
+                // 2. Verify that the current user is the recipient
+                if (settlement.toUserId != currentUser.uid) {
+                    throw Exception("Only the recipient can approve a settlement")
+                }
+
+                // 3. Check if settlement is pending
+                if (settlement.status != SettlementStatus.PENDING) {
+                    throw Exception("This settlement has already been processed")
+                }
+
+                // 4. Get the group document
+                val groupRef = db.collection("groups").document(settlement.groupId)
+                val group = transaction.get(groupRef).toObject(Group::class.java)
+                    ?: throw Exception("Group not found")
+
+                // 5. Find the members involved
+                val fromMemberIndex = group.members.indexOfFirst { it.userId == settlement.fromUserId }
+                val toMemberIndex = group.members.indexOfFirst { it.userId == settlement.toUserId }
+
+                if (fromMemberIndex == -1 || toMemberIndex == -1) {
+                    throw Exception("One or more users not found in this group")
+                }
+
+                val fromMember = group.members[fromMemberIndex]
+                val toMember = group.members[toMemberIndex]
+
+                // 6. Update the individual balances
+                val fromMemberUpdatedBalances = fromMember.individualBalances.toMutableMap()
+                val currentFromBalance = fromMemberUpdatedBalances[settlement.toUserId] ?: 0.0
+                fromMemberUpdatedBalances[settlement.toUserId] = currentFromBalance + settlement.amount
+
+                val toMemberUpdatedBalances = toMember.individualBalances.toMutableMap()
+                val currentToBalance = toMemberUpdatedBalances[settlement.fromUserId] ?: 0.0
+                toMemberUpdatedBalances[settlement.fromUserId] = currentToBalance - settlement.amount
+
+                // 7. Update the overall balances
+                val updatedFromMember = fromMember.copy(
+                    balance = fromMember.balance + settlement.amount,
+                    individualBalances = fromMemberUpdatedBalances
+                )
+
+                val updatedToMember = toMember.copy(
+                    balance = toMember.balance - settlement.amount,
+                    individualBalances = toMemberUpdatedBalances
+                )
+
+                // 8. Update the members list
+                val updatedMembers = group.members.toMutableList()
+                updatedMembers[fromMemberIndex] = updatedFromMember
+                updatedMembers[toMemberIndex] = updatedToMember
+
+                // 9. Update the group document
+                transaction.update(groupRef, "members", updatedMembers)
+
+                // 10. Update the settlement status
+                transaction.update(settlementRef, "status", SettlementStatus.APPROVED)
+            }.await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun declineSettlement(settlementId: String): Result<Unit> {
+        return try {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+                ?: return Result.failure(Exception("User not logged in"))
+
+            db.runTransaction { transaction ->
+                // 1. Get the settlement document
+                val settlementRef = db.collection("settlements").document(settlementId)
+                val settlement = transaction.get(settlementRef).toObject(Settlement::class.java)
+                    ?: throw Exception("Settlement not found")
+
+                // 2. Verify that the current user is the recipient
+                if (settlement.toUserId != currentUser.uid) {
+                    throw Exception("Only the recipient can decline a settlement")
+                }
+
+                // 3. Check if settlement is pending
+                if (settlement.status != SettlementStatus.PENDING) {
+                    throw Exception("This settlement has already been processed")
+                }
+
+                // 4. Update the settlement status to declined
+                transaction.update(settlementRef, "status", SettlementStatus.DECLINED)
+            }.await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPendingSettlementsForUser(userId: String): Flow<List<Settlement>> = callbackFlow {
+        println("Getting pending settlements for user: $userId")
+        val listener = db.collection("settlements")
+            .whereEqualTo("toUserId", userId)
+            .whereEqualTo("status", SettlementStatus.PENDING.name) // Check this - enum might not match Firestore value
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    println("Error getting settlements: ${error.message}")
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val settlements = snapshot?.documents?.mapNotNull { doc ->
+                    println("Found settlement: ${doc.id}")
+                    doc.toObject(Settlement::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+
+                println("Total pending settlements: ${settlements.size}")
+                trySend(settlements)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    override suspend fun getSettlementHistory(groupId: String): Flow<List<Settlement>> = callbackFlow {
+        val listener = db.collection("settlements")
+            .whereEqualTo("groupId", groupId)
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val settlements = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(Settlement::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+
+                trySend(settlements)
+            }
+
+        awaitClose { listener.remove() }
     }
 }
