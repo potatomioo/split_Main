@@ -378,10 +378,13 @@ class FirebaseExpenseRepository : ExpenseRepository {
 
     override suspend fun getPendingSettlementsForUser(userId: String): Flow<List<Settlement>> = callbackFlow {
         println("Getting pending settlements for user: $userId")
+
+        // We need to get settlements where this user is either the sender or receiver
+        val pendingStatus = SettlementStatus.PENDING.toString()
+
+        // This will be a combined listener
         val listener = db.collection("settlements")
-            .whereEqualTo("toUserId", userId)
-            .whereEqualTo("status", SettlementStatus.PENDING.name) // Check this - enum might not match Firestore value
-            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .whereEqualTo("status", pendingStatus)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     println("Error getting settlements: ${error.message}")
@@ -389,13 +392,17 @@ class FirebaseExpenseRepository : ExpenseRepository {
                     return@addSnapshotListener
                 }
 
-                val settlements = snapshot?.documents?.mapNotNull { doc ->
-                    println("Found settlement: ${doc.id}")
+                val allSettlements = snapshot?.documents?.mapNotNull { doc ->
                     doc.toObject(Settlement::class.java)?.copy(id = doc.id)
                 } ?: emptyList()
 
-                println("Total pending settlements: ${settlements.size}")
-                trySend(settlements)
+                // Filter to only include settlements where this user is involved
+                val relevantSettlements = allSettlements.filter {
+                    it.fromUserId == userId || it.toUserId == userId
+                }
+
+                println("Total pending settlements: ${relevantSettlements.size}")
+                trySend(relevantSettlements)
             }
 
         awaitClose { listener.remove() }

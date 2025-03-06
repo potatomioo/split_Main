@@ -133,7 +133,9 @@ class GroupViewModel(
                     amount = amount
                 ).onSuccess {
                     _settlementState.value = SettlementState.Success
-                    // Reload settlements to update UI
+
+                    // Reload data immediately after settlement is created
+                    loadGroupDetails(groupId)  // Reload full group data
                     loadSettlementHistory(groupId)
                     loadPendingSettlements()
                 }.onFailure { error ->
