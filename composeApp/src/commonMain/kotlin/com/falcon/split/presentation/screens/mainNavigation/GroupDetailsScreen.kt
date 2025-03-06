@@ -477,32 +477,33 @@ fun GroupBalancesPage(
             }
         } else {
             // Show individual balances for each member
-            // Show individual balances for each member
             items(group.members) { member ->
                 if (member.userId != currentUserId) {
                     // Get the balance between current user and this member
                     val balance = currentUserMember.individualBalances[member.userId] ?: 0.0
                     val displayName = nameResolver.resolveDisplayName(member)
 
-                    // Find if there's a pending settlement from current user to this member
-                    val outgoingSettlement = settlements.find {
-                        it.fromUserId == currentUserId && it.toUserId == member.userId
+                    // Check for pending settlements - properly check both collections
+                    val hasPendingSettlement = pendingSettlements.any {
+                        it.fromUserId == currentUserId &&
+                                it.toUserId == member.userId &&
+                                it.status == SettlementStatus.PENDING
                     }
 
-                    // Find if there's a settlement to this member (any status)
-                    val hasPendingSettlement = outgoingSettlement?.status == SettlementStatus.PENDING
-                    val isApprovedSettlement = outgoingSettlement?.status == SettlementStatus.APPROVED
-
-                    // For UI state, determine what to show
-                    val showSettled = balance >= 0 || isApprovedSettlement
+                    // For approved settlements or zero balance
+                    val isSettled = balance >= 0 || settlements.any {
+                        it.fromUserId == currentUserId &&
+                                it.toUserId == member.userId &&
+                                it.status == SettlementStatus.APPROVED
+                    }
 
                     IndividualBalanceCard(
                         memberName = displayName,
                         balance = balance,
                         hasPendingSettlement = hasPendingSettlement,
-                        isSettled = showSettled,
+                        isSettled = isSettled,
                         onSettleUp = {
-                            if (balance < 0 && !hasPendingSettlement && !showSettled) {
+                            if (balance < 0 && !hasPendingSettlement && !isSettled) {
                                 selectedMember = member
                                 selectedAmount = -balance
                                 showSettleDialog = true
