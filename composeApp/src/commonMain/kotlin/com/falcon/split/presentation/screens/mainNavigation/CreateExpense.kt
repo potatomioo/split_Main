@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,7 +33,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,7 +79,8 @@ fun CreateExpense(
     navControllerMain: NavHostController,
     viewModel: CreateExpenseViewModel,
     onNavigateBack: () -> Unit,
-    backHandler: BackHandler // Add backHandler as a parameter
+    backHandler: BackHandler, // Add backHandler as a parameter
+    groupId: String? = null
 ) {
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
@@ -215,6 +214,10 @@ fun CreateExpense(
                     )
 
                     // Group Selection with Searchable Dropdown
+                    if (groupId != null) {
+                        // If groupId is provided, select the group automatically
+                        selectedGroup = groupId
+                    }
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             "Select Group",

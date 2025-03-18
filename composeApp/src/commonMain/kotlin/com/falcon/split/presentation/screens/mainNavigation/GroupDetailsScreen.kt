@@ -102,7 +102,7 @@ fun GroupDetailsScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navControllerMain.navigate("create_expense/$groupId")
+                    navControllerMain.navigate("create_expense?groupId=$groupId")
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Expense")

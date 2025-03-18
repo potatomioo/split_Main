@@ -307,25 +307,25 @@ fun App(
                     viewModel = createGroupViewModel
                 )
             }
-            composable(Routes.CREATE_EXPENSE.name) {
-                val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository!!,expenseRepository!!) }
-                CreateExpense(
-                    navControllerMain = navControllerMain,
-                    onNavigateBack = { navControllerMain.popBackStack() },
-                    viewModel = createExpenseViewModel,
-                    backHandler = appBackHandler // Pass the shared BackHandler
-                )
-            }
             composable(
-                "create_expense_in_a_group/{groupId}",
-                arguments = listOf(navArgument("groupId") { type = NavType.StringType })
-            ) {
+                route = "create_expense?groupId={groupId}",  /* Now Either Call
+                            navControllerMain.navigate("create_expense")   Or
+                            navControllerMain.navigate("create_expense?groupId=$groupId")
+                        */
+                arguments = listOf(navArgument("groupId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getString("groupId")
                 val createExpenseViewModel = remember{ CreateExpenseViewModel(groupRepository!!,expenseRepository!!) }
                 CreateExpense(
                     navControllerMain = navControllerMain,
                     onNavigateBack = { navControllerMain.popBackStack() },
                     viewModel = createExpenseViewModel,
-                    backHandler = appBackHandler // Pass the shared BackHandler
+                    backHandler = appBackHandler, // Pass the shared BackHandler
+                    groupId = groupId // If coming from GroupDetailsScreen, this will be non-null else null in case of coming from HomeScreen
                 )
             }
             composable(Routes.PROFILE.name) {

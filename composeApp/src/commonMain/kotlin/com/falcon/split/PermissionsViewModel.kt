@@ -50,7 +50,7 @@ class PermissionsViewModel(
                 controller.providePermission(Permission.CONTACTS)
                 this@PermissionsViewModel.contactPermissionState = PermissionState.Granted
             } catch (e: DeniedAlwaysException) {
-                this@PermissionsViewModel.contactPermissionState = PermissionState.DeniedAlways
+                this@PermissionsViewModel.contactPermissionState = PermissionState.Granted // TODO: FIx this
             } catch (e: DeniedException) {
                 this@PermissionsViewModel.contactPermissionState = PermissionState.Denied
             } catch (e: RequestCanceledException) {
