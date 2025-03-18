@@ -178,6 +178,35 @@ fun App(
             viewModel.provideOrRequestNotificationPermission()
         }
     }
+
+    when(viewModel.contactPermissionState) {
+        PermissionState.Granted -> {
+            println("Contact Permission Granted")
+        }
+        PermissionState.DeniedAlways -> {
+            LaunchedEffect(Unit) {
+                snackBarHostState.showSnackbar(
+                    message = "Contact Permission Denied Permanently",
+                    actionLabel = "Settings",
+                    duration = SnackbarDuration.Indefinite,  // Make it stay indefinitely
+                    withDismissAction = false  // Remove dismiss action
+                ).let { result ->
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            controller.openAppSettings()
+                        }
+                        else -> {
+                            // Should never reach here since we removed dismiss action
+                        }
+                    }
+                }
+            }
+        }
+        else -> {
+            viewModel.provideOrRequestContactPermission()
+        }
+    }
+
     setSingletonImageLoaderFactory { context ->
         getAsyncImageLoader(context)
     }

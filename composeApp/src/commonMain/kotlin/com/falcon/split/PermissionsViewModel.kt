@@ -19,10 +19,13 @@ class PermissionsViewModel(
 
     var notificationPermissionState by mutableStateOf(PermissionState.NotDetermined)
         private set
+    var contactPermissionState by mutableStateOf(PermissionState.NotDetermined)
+        private set
 
     init {
         viewModelScope.launch {
             notificationPermissionState = controller.getPermissionState(Permission.REMOTE_NOTIFICATION)
+            contactPermissionState = controller.getPermissionState(Permission.CONTACTS)
         }
     }
 
@@ -30,13 +33,28 @@ class PermissionsViewModel(
         viewModelScope.launch {
             try {
                 controller.providePermission(Permission.REMOTE_NOTIFICATION)
-                notificationPermissionState = PermissionState.Granted
+                this@PermissionsViewModel.notificationPermissionState = PermissionState.Granted
             } catch (e: DeniedAlwaysException) {
-                notificationPermissionState = PermissionState.DeniedAlways
+                this@PermissionsViewModel.notificationPermissionState = PermissionState.DeniedAlways
             } catch (e: DeniedException) {
-                notificationPermissionState = PermissionState.Denied
+                this@PermissionsViewModel.notificationPermissionState = PermissionState.Denied
             } catch (e: RequestCanceledException) {
-                notificationPermissionState = PermissionState.NotGranted
+                this@PermissionsViewModel.notificationPermissionState = PermissionState.NotGranted
+                e.printStackTrace()
+            }
+        }
+    }
+    fun provideOrRequestContactPermission() {
+        viewModelScope.launch {
+            try {
+                controller.providePermission(Permission.CONTACTS)
+                this@PermissionsViewModel.contactPermissionState = PermissionState.Granted
+            } catch (e: DeniedAlwaysException) {
+                this@PermissionsViewModel.contactPermissionState = PermissionState.DeniedAlways
+            } catch (e: DeniedException) {
+                this@PermissionsViewModel.contactPermissionState = PermissionState.Denied
+            } catch (e: RequestCanceledException) {
+                this@PermissionsViewModel.contactPermissionState = PermissionState.NotGranted
                 e.printStackTrace()
             }
         }
