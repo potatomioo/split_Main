@@ -9,5 +9,4 @@ enum class Routes(name: String) {
     CREATE_EXPENSE(name = "create_expense"),
     PROFILE(name = "profile"),
     SETTINGS(name = "settings"),
-    THEME_CHANGE_SCREEN(name = "ThemeChangeScreen")
 }

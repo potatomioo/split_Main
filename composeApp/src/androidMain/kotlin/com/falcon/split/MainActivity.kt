@@ -48,22 +48,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.falcon.split.AndroidUserManager.FirebaseUserManager
-import com.falcon.split.presentation.SplitTheme
-import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.SpecificScreens.PhoneNumberBottomSheet
 import com.falcon.split.contact.AndroidContactManager
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
 import com.falcon.split.data.repository.FirebaseExpenseRepository
 import com.falcon.split.data.repository.FirebaseGroupRepository
+import com.falcon.split.presentation.SplitTheme
+import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModel
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModelFactory
 import com.falcon.split.presentation.sign_in.SignInViewModel
 import com.falcon.split.presentation.sign_in.UserState
 import com.falcon.split.screens.mainNavigation.Intents
+import com.falcon.split.utils.OpenLink
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
 import io.ktor.client.engine.okhttp.OkHttp
@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
         contactManager = AndroidContactManager(this)
         ClipboardManager.init(applicationContext)
         Intents.init(applicationContext)
+        OpenLink.init(applicationContext)
 
         installSplashScreen().apply {
             // Perform Some Code During Splash Screen

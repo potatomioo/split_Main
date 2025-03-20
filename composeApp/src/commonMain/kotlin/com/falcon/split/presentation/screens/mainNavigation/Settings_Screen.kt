@@ -44,9 +44,9 @@ import com.falcon.split.presentation.LocalSplitColors
 import com.falcon.split.presentation.ThemePurple
 import com.falcon.split.presentation.ThemeSwitcher
 import com.falcon.split.presentation.getAppTypography
-import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.toggleDarkTheme
 import com.falcon.split.utils.EmailUtils
+import com.falcon.split.utils.OpenLink
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,12 +109,10 @@ fun SettingScreen(
                     {
                         emailUtils.sendEmail(
                             to = "deeptanshushuklaji@gmail.com",
-                            subject = "Support Request - Split App",
-                            body = "Hello, I need assistance with..."
+                            subject = "Regarding App Split",
                         )
                     }
                 )
-                SettingOption("Theme","Change the theme of app",{navController.navigate(Routes.THEME_CHANGE_SCREEN.name)})
                 SettingOption("Payment Account","Change your current payment account",{})
                 SettingOption(
                     "Delete Account",
@@ -123,10 +121,21 @@ fun SettingScreen(
                     isDeleteOption = true
                 )
                 SettingType("Developer")
-                SettingOption("Resource Used","Resources used for app",{})
-                SettingOption("Bug Report","Report bugs here",{})
-                SettingOption("Terms & Condition","Terms and Condition for using",{})
-                SettingOption("Privacy Policy","All the privacy policies",{})
+                SettingOption("Resource Used","Resources used for app",{
+                    OpenLink.openLink("https://sites.google.com/view/ggsipu-notices/resources-used")
+                })
+                SettingOption("Bug Report","Report bugs here",{
+                    emailUtils.sendEmail(
+                        to = "deeptanshushuklaji@gmail.com",
+                        subject = "Bug Report For Split App",
+                    )
+                })
+                SettingOption("Terms & Condition","Terms and Condition for using",{
+                    OpenLink.openLink("https://sites.google.com/view/split-app/terms-conditions")
+                })
+                SettingOption("Privacy Policy","All the privacy policies",{
+                    OpenLink.openLink("https://sites.google.com/view/split-app/home")
+                })
             }
         }
         DeleteAccountDialog(

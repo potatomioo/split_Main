@@ -15,3 +15,8 @@ expect class EmailUtils {
 // Remember composable for platform-specific instantiation
 @Composable
 expect fun rememberEmailUtils(): EmailUtils
+
+
+expect object OpenLink {
+    fun openLink(linkToOpen: String)
+}

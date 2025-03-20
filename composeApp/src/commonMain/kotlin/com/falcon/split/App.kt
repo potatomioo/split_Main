@@ -352,10 +352,6 @@ fun App(
                     darkTheme = darkTheme!!
                 )
             }
-            composable(Routes.THEME_CHANGE_SCREEN.name){
-                var HowIsTheme = remember{ mutableStateOf(false) }
-                ThemeChangeSwitcher(isDarkMode = false,{},{})
-            }
             composable(
                 route = "group_details/{groupId}",
                 arguments = listOf(navArgument("groupId") { type = NavType.StringType })
