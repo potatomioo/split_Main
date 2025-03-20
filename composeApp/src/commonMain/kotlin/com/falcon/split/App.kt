@@ -308,8 +308,10 @@ fun App(
                 )
             }
             composable(
-                route = "create_expense?groupId={groupId}",  /* Now Either Call
-                            navControllerMain.navigate("create_expense")   Or
+                route = "create_expense?groupId={groupId}",
+                        /* Now Either Call
+                            navControllerMain.navigate("create_expense")
+                            OR
                             navControllerMain.navigate("create_expense?groupId=$groupId")
                         */
                 arguments = listOf(navArgument("groupId") {

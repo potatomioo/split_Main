@@ -20,11 +20,7 @@ class SignInViewModel: ViewModel() {
             delay(2700) // TODO: Remove If Required || delay to fully animate lottie animation
             if (result.data != null) {
                 _userDetails.value = UserState.Success(
-                    UserModelGoogleFirebaseBased(
-                        result.data.userId.toString(),
-                        result.data.username,
-                        result.data.profilePictureUrl
-                    )
+                    result.data
                 )
             } else {
                 _userDetails.value = UserState.Error(
