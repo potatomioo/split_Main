@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val requestSendForGetUserData = remember { mutableStateOf(false) }
             val prefs = remember {
-                createDataStore(context = this@MainActivity)
+                createDataStore(context = applicationContext)
             }
             val darkTheme = remember {
                 mutableStateOf(
