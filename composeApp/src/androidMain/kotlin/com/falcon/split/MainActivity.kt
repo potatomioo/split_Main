@@ -61,6 +61,7 @@ import com.falcon.split.presentation.sign_in.PhoneNumberViewModel
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModelFactory
 import com.falcon.split.presentation.sign_in.SignInViewModel
 import com.falcon.split.presentation.sign_in.UserState
+import com.falcon.split.presentation.theme.lDimens
 import com.falcon.split.screens.mainNavigation.Intents
 import com.falcon.split.utils.OpenLink
 import com.google.android.gms.auth.api.identity.Identity
@@ -250,11 +251,11 @@ class MainActivity : ComponentActivity() {
                     model = userData.profilePictureUrl,
                     contentDescription = "Profile picture",
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(lDimens.dp150)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(lDimens.dp16))
             }
             if (userData?.username != null) {
                 Text(
@@ -263,7 +264,7 @@ class MainActivity : ComponentActivity() {
                     fontSize = 36.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(lDimens.dp16))
             }
             Button(
                 onClick = {
@@ -338,11 +339,11 @@ fun SignInScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LottieAnimationView(LottieAnimationSpec("login_animation.json"))
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(lDimens.dp60))
         GoogleSignInButton(
             onClick = onSignInClick
         )
-        Spacer(modifier = Modifier.height(35.dp))
+        Spacer(modifier = Modifier.height(lDimens.dp35))
     }
 
     if (requestSendForGetUserData.value) {
@@ -358,7 +359,7 @@ fun SignInScreen(
                 ) {
                     Text(
                         text = "Error loading user: $error",
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(lDimens.dp16)
                     )
                 }
             }

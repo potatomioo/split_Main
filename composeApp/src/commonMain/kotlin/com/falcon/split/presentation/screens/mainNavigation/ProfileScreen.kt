@@ -51,6 +51,7 @@ import coil3.compose.AsyncImage
 import com.falcon.split.ClipboardManager
 import com.falcon.split.UserModelGoogleFirebaseBased
 import com.falcon.split.getFirebaseUserAsUserModel
+import com.falcon.split.presentation.theme.lDimens
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.copy_icon
@@ -99,18 +100,18 @@ fun ProfileScreen(
                 model = userModel?.profilePictureUrl ?: Res.drawable.picture_preview, // Show placeholder if no image URL
                 contentDescription = "Profile picture",
                 modifier = Modifier
-                    .size(150.dp)
+                    .size(lDimens.dp150)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp16))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(lDimens.dp10))
                 androidx.compose.material3.Text(
                     text = "Info",
                     fontSize = 21.sp,
@@ -121,7 +122,7 @@ fun ProfileScreen(
             TextWithBorder(headingValue = "Email", descriptionValue = userModel?.email?: "INVALID USER")
             TextWithBorderEditable(headingValue = "UPI ID", descriptionValue = userModel?.upiId?: "billi@paytm")
             TextWithBorderAndCopyIcon("User ID", userModel?.userId ?: "INVALID USER ID")
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp16))
             androidx.compose.material3.Button(
                 onClick = onSignOut,
                 colors = ButtonDefaults.buttonColors(
@@ -145,7 +146,7 @@ fun TextWithBorder(headingValue: String, descriptionValue: String){
     var mTextFieldSize by remember { mutableStateOf(Size.Zero)}
     Column(
         Modifier
-            .padding(10.dp, 5.dp)
+            .padding(lDimens.dp10, 5.dp)
     ) {
         OutlinedTextField(
             readOnly = true,
@@ -176,7 +177,7 @@ fun TextWithBorderEditable(headingValue: String, descriptionValue: String){
     var mTextFieldSize by remember { mutableStateOf(Size.Zero)}
     Column(
         Modifier
-            .padding(10.dp, 5.dp)
+            .padding(lDimens.dp10, 5.dp)
     ) {
         OutlinedTextField(
             readOnly = false,
@@ -224,7 +225,7 @@ fun TextWithBorderAndCopyIcon(
     var mTextFieldSize by remember { mutableStateOf(Size.Zero)}
     Column(
         Modifier
-            .padding(10.dp, 5.dp)
+            .padding(lDimens.dp10, 5.dp)
     ) {
         OutlinedTextField(
             readOnly = true,

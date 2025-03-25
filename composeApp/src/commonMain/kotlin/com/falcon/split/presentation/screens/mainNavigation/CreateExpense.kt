@@ -67,6 +67,7 @@ import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.expense.CreateExpenseState
 import com.falcon.split.presentation.expense.CreateExpenseViewModel
 import com.falcon.split.presentation.theme.getAppTypography
+import com.falcon.split.presentation.theme.lDimens
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -157,22 +158,22 @@ fun CreateExpense(
                         .fillMaxSize()
                         .padding(padding)
                         .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(lDimens.dp16),
+                    verticalArrangement = Arrangement.spacedBy(lDimens.dp16)
                 ) {
                     // Amount Input with Currency Symbol
                     OutlinedCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(lDimens.dp16),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
                                 "Enter Amount",
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(lDimens.dp8))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
@@ -180,7 +181,7 @@ fun CreateExpense(
                                 Text(
                                     "₹",
                                     style = MaterialTheme.typography.headlineMedium,
-                                    modifier = Modifier.padding(end = 8.dp)
+                                    modifier = Modifier.padding(end = lDimens.dp8)
                                 )
                                 OutlinedTextField(
                                     value = amount,
@@ -205,8 +206,8 @@ fun CreateExpense(
                                 painter = painterResource(Res.drawable.description_icon),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .size(48.dp)
-                                    .padding(horizontal = 12.dp),
+                                    .size(lDimens.dp48)
+                                    .padding(horizontal = lDimens.dp12),
                                 contentScale = ContentScale.Fit
                             )
                         },
@@ -222,7 +223,7 @@ fun CreateExpense(
                         Text(
                             "Select Group",
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                            modifier = Modifier.padding(start = lDimens.dp4, bottom = lDimens.dp4)
                         )
 
                         // Filter the groups based on search query
@@ -259,8 +260,8 @@ fun CreateExpense(
                                     painter = painterResource(Res.drawable.group_icon_outlined),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(48.dp)
-                                        .padding(horizontal = 12.dp),
+                                        .size(lDimens.dp48)
+                                        .padding(horizontal = lDimens.dp12),
                                     contentScale = ContentScale.Fit
                                 )
                             },
@@ -284,8 +285,8 @@ fun CreateExpense(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 4.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                    .padding(top = lDimens.dp4),
+                                elevation = CardDefaults.cardElevation(defaultElevation = lDimens.dp4)
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -297,7 +298,7 @@ fun CreateExpense(
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(16.dp),
+                                                .padding(lDimens.dp16),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
@@ -320,7 +321,7 @@ fun CreateExpense(
                                                             searchQuery = ""
                                                             isExpanded = false
                                                         }
-                                                        .padding(16.dp),
+                                                        .padding(lDimens.dp16),
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
                                                     Text(
@@ -331,7 +332,7 @@ fun CreateExpense(
                                                 if (filteredGroups.indexOf(group) < filteredGroups.size - 1) {
                                                     HorizontalDivider(
                                                         color = colors.textSecondary.copy(alpha = 0.1f),
-                                                        modifier = Modifier.padding(horizontal = 8.dp)
+                                                        modifier = Modifier.padding(horizontal = lDimens.dp8)
                                                     )
                                                 }
                                             }
@@ -374,7 +375,7 @@ fun CreateExpense(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = amount.isNotEmpty() && description.isNotEmpty() && selectedGroup != null
                     ) {
-                        Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = 8.dp))
+                        Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = lDimens.dp8))
                         Text("Add Expense")
                     }
                 }
@@ -430,22 +431,22 @@ fun CreateExpenseFromAGroup(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(lDimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(lDimens.dp16)
         ) {
             // Amount Input with Currency Symbol
             OutlinedCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(lDimens.dp16),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         "Enter Amount",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(lDimens.dp8))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -453,7 +454,7 @@ fun CreateExpenseFromAGroup(
                         Text(
                             "₹",
                             style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.padding(end = 8.dp)
+                            modifier = Modifier.padding(end = lDimens.dp8)
                         )
                         OutlinedTextField(
                             value = amount,
@@ -478,8 +479,8 @@ fun CreateExpenseFromAGroup(
                         painter = painterResource(Res.drawable.description_icon),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(48.dp)
-                            .padding(horizontal = 12.dp),
+                            .size(lDimens.dp48)
+                            .padding(horizontal = lDimens.dp12),
                         contentScale = ContentScale.Fit
                     )
                 },
@@ -511,18 +512,18 @@ fun CreateExpenseFromAGroup(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(lDimens.dp16)
                 ) {
                     Text(
                         "Split Equally Between",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(lDimens.dp8))
                     dummyUsers.forEach { (name, _) ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                                .padding(vertical = lDimens.dp4),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(name)
@@ -564,7 +565,7 @@ fun CreateExpenseFromAGroup(
                 enabled = amount.isNotEmpty() && description.isNotEmpty() &&
                         selectedGroup != null && selectedPayer != null
             ) {
-                Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = 8.dp))
+                Icon(Icons.Default.Add, null, modifier = Modifier.padding(end = lDimens.dp8))
                 Text("Add Expense")
             }
         }

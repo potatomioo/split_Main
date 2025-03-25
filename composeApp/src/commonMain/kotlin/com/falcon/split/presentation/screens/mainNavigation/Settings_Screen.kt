@@ -44,6 +44,7 @@ import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.theme.ThemePurple
 import com.falcon.split.presentation.theme.ThemeSwitcher
 import com.falcon.split.presentation.theme.getAppTypography
+import com.falcon.split.presentation.theme.lDimens
 import com.falcon.split.toggleDarkTheme
 import com.falcon.split.utils.EmailUtils
 import com.falcon.split.utils.OpenLink
@@ -159,7 +160,7 @@ fun SettingType(
         style = getAppTypography().titleSmall,
         color = accentColor,
         modifier = Modifier
-            .padding(15.dp)
+            .padding(lDimens.dp15)
     )
 }
 
@@ -183,9 +184,9 @@ fun ThemeOption(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .padding(bottom = 8.dp)
+                .padding(bottom = lDimens.dp8)
                 .fillMaxWidth()
-                .padding(15.dp)
+                .padding(lDimens.dp15)
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -244,9 +245,9 @@ fun SettingOption(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .padding(bottom = 8.dp)
+                .padding(bottom = lDimens.dp8)
                 .fillMaxWidth()
-                .padding(15.dp)
+                .padding(lDimens.dp15)
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,

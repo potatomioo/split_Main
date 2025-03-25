@@ -79,6 +79,7 @@ import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.presentation.screens.mainNavigation.navigateTo
 import com.falcon.split.data.Repository.ExpenseRepository
 import com.falcon.split.data.Repository.GroupRepository
+import com.falcon.split.presentation.theme.lDimens
 import com.falcon.split.screens.mainNavigation.PaymentScreen
 import com.falcon.split.userManager.UserManager
 import com.falcon.split.utils.rememberEmailUtils
@@ -402,7 +403,7 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
         ) {
             LottieAnimationView(LottieAnimationSpec("login_animation.json"))
             Spacer(
-                modifier = Modifier.height(60.dp)
+                modifier = Modifier.height(lDimens.dp60)
             )
             GoogleButtonUiContainer(
                 onGoogleSignInResult = { googleUser ->
@@ -419,7 +420,7 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
                 )
             }
             Spacer(
-                modifier = Modifier.height(35.dp)
+                modifier = Modifier.height(lDimens.dp35)
             )
         }
     }
@@ -436,7 +437,7 @@ private fun GoogleCloudBasedGoogleSignInForKMM( // Don't Remove This, More Menti
                 ) {
                     Text(
                         text = "Error loading user: ${error.name}",
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(lDimens.dp16)
                     )
                 }
             }
@@ -466,7 +467,7 @@ fun OptionMenuPopup(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 25.dp, end = 15.dp),
+            .padding(top = 25.dp, end = lDimens.dp15),
         contentAlignment = Alignment.TopEnd,
     ) {
         Popup(
@@ -477,7 +478,7 @@ fun OptionMenuPopup(
             Card(
                 modifier = Modifier
                     .padding(horizontal = 5.dp)
-                    .padding(top = 4.dp),
+                    .padding(top = lDimens.dp4),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = splitColors.cardBackground
@@ -490,7 +491,7 @@ fun OptionMenuPopup(
                                 openUserOptionsMenu.value = false
                                 navController.navigate(Routes.PROFILE.name)
                             }
-                            .padding(vertical = 16.dp, horizontal = 24.dp)
+                            .padding(vertical = lDimens.dp16, horizontal = 24.dp)
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.profile_icon),
@@ -505,7 +506,7 @@ fun OptionMenuPopup(
                             fontWeight = FontWeight.Normal,
                             color = splitColors.textPrimary,
                             modifier = Modifier
-                                .padding(start = 8.dp)
+                                .padding(start = lDimens.dp8)
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically,
@@ -514,7 +515,7 @@ fun OptionMenuPopup(
                                 openUserOptionsMenu.value = false
                                 navController.navigate(Routes.SETTINGS.name)
                             }
-                            .padding(vertical = 16.dp, horizontal = 24.dp)
+                            .padding(vertical = lDimens.dp16, horizontal = 24.dp)
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.settings_icon),
@@ -529,7 +530,7 @@ fun OptionMenuPopup(
                             fontWeight = FontWeight.Normal,
                             color = splitColors.textPrimary,
                             modifier = Modifier
-                                .padding(start = 8.dp)
+                                .padding(start = lDimens.dp8)
                         )
                     }
                 }
@@ -555,7 +556,7 @@ fun LineWithText() {
         Text(
             text = "OR",
             color = Color.LightGray,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = lDimens.dp8)
         )
         Divider(
             modifier = Modifier
@@ -572,7 +573,7 @@ fun SignInProgressPopup(modifier: Modifier = Modifier) {
         modifier = modifier
             .background(Color.White)
             .fillMaxSize()
-            .padding(bottom = 40.dp),
+            .padding(bottom = lDimens.dp40),
         contentAlignment = Alignment.Center,
     ) {
         Popup(
@@ -582,10 +583,10 @@ fun SignInProgressPopup(modifier: Modifier = Modifier) {
                 Modifier
                     .background(Color.White)
                     .padding(horizontal = 18.dp)
-                    .padding(top = 4.dp)
+                    .padding(top = lDimens.dp4)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(lDimens.dp8)
             ) {
                 Column(
                     Modifier
@@ -601,7 +602,7 @@ fun SignInProgressPopup(modifier: Modifier = Modifier) {
                     ) {
                         LottieAnimationView(LottieAnimationSpec("google_loading.json"))
                     }
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(lDimens.dp40))
                     Text(
                         text = "Please Wait Via We Fetch Details Linked To Your Account..",
                         fontSize = 20.sp,

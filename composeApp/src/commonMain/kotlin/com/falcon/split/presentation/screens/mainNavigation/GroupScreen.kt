@@ -36,6 +36,7 @@ import com.falcon.split.presentation.group.GroupState
 import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import com.falcon.split.data.network.models_app.Group
+import com.falcon.split.presentation.theme.lDimens
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.GroupPic
 import split.composeapp.generated.resources.Res
@@ -133,7 +134,7 @@ private fun ErrorView(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.backgroundPrimary)
-            .padding(16.dp),
+            .padding(lDimens.dp16),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -143,7 +144,7 @@ private fun ErrorView(
             style = getAppTypography(isDarkTheme).bodyLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(lDimens.dp16))
         Button(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
@@ -173,7 +174,7 @@ fun GroupSearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(lDimens.dp56)
             .clip(RoundedCornerShape(28.dp))
             .focusRequester(focusRequester),
         placeholder = {
@@ -254,8 +255,8 @@ private fun GroupList(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.backgroundPrimary),
-        contentPadding = PaddingValues(0.dp),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        contentPadding = PaddingValues(lDimens.dp0),
+        verticalArrangement = Arrangement.spacedBy(lDimens.dp0)
     ) {
         // Header with image
         item {
@@ -267,7 +268,7 @@ private fun GroupList(
                 Column(
                     modifier = Modifier
                         .wrapContentSize()
-                        .padding(16.dp),
+                        .padding(lDimens.dp16),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
@@ -293,7 +294,7 @@ private fun GroupList(
                 onClearQuery = { searchQuery = "" },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = lDimens.dp16, vertical = lDimens.dp8)
             )
         }
 
@@ -303,7 +304,7 @@ private fun GroupList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(32.dp),
+                        .padding(lDimens.dp32),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -340,7 +341,7 @@ private fun GroupCard(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 0.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+            .padding(top = lDimens.dp0, bottom = lDimens.dp10, start = lDimens.dp10, end = lDimens.dp10),
         colors = CardDefaults.outlinedCardColors(
             containerColor = colors.cardBackground,
             contentColor = colors.textPrimary
@@ -349,7 +350,7 @@ private fun GroupCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(lDimens.dp10)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -357,7 +358,7 @@ private fun GroupCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(lDimens.dp12),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Surface(
@@ -368,8 +369,8 @@ private fun GroupCard(
                             painter = painterResource(Res.drawable.group_icon_filled),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(48.dp)
-                                .padding(horizontal = 12.dp),
+                                .size(lDimens.dp48)
+                                .padding(horizontal = lDimens.dp12),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -427,13 +428,13 @@ private fun EmptyGroupsView(
                 painter = painterResource(Res.drawable.group_icon_filled),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(12.dp)
-                    .size(48.dp),
+                    .padding(lDimens.dp12)
+                    .size(lDimens.dp48),
                 contentScale = ContentScale.Fit
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(lDimens.dp16))
 
         Text(
             "No Groups Yet",
@@ -443,7 +444,7 @@ private fun EmptyGroupsView(
             color = colors.textPrimary
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(lDimens.dp8))
 
         Text(
             "Create a group to start splitting expenses with friends",
@@ -466,7 +467,7 @@ private fun EmptyGroupsView(
             Icon(
                 Icons.Default.Add,
                 contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp),
+                modifier = Modifier.padding(end = lDimens.dp8),
                 tint = if (isDarkTheme) Color.White else Color.Black
             )
             Text(

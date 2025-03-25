@@ -210,9 +210,9 @@ fun SplitTheme(
     )
 
     val shapes = Shapes(
-        small = RoundedCornerShape(4.dp),
-        medium = RoundedCornerShape(4.dp),
-        large = RoundedCornerShape(0.dp)
+        small = RoundedCornerShape(lDimens.dp4),
+        medium = RoundedCornerShape(lDimens.dp4),
+        large = RoundedCornerShape(lDimens.dp0)
     )
 
     androidx.compose.runtime.CompositionLocalProvider(
@@ -230,9 +230,9 @@ fun SplitTheme(
 @Composable
 fun ThemeSwitcher(
     darkTheme: Boolean = false,
-    size: Dp = 150.dp,
+    size: Dp = lDimens.dp150,
     iconSize: Dp = size / 3,
-    padding: Dp = 10.dp,
+    padding: Dp = lDimens.dp10,
     borderWidth: Dp = 1.dp,
     parentShape: Shape = CircleShape,
     toggleShape: Shape = CircleShape,
@@ -240,7 +240,7 @@ fun ThemeSwitcher(
     onClick: () -> Unit
 ) {
     val offset by animateDpAsState(
-        targetValue = if (darkTheme) 0.dp else size,
+        targetValue = if (darkTheme) lDimens.dp0 else size,
         animationSpec = animationSpec
     )
     val colors = LocalSplitColors.current

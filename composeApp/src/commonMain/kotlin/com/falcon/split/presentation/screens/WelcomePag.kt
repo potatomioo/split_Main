@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.falcon.split.LottieAnimationSpec
 import com.falcon.split.LottieAnimationView
 import com.falcon.split.presentation.screens.mainNavigation.Routes
+import com.falcon.split.presentation.theme.lDimens
 import kotlinx.coroutines.launch
 import split.composeapp.generated.resources.Res
 import split.composeapp.generated.resources.nunito_bold_1
@@ -38,7 +39,7 @@ fun WelcomePage(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.padding(30.dp))
+        Spacer(modifier = Modifier.padding(lDimens.dp30))
         LottieAnimationView(LottieAnimationSpec("welcome.json"))
         Text(
             text = "WELCOME TO SPLIT!",
@@ -48,9 +49,9 @@ fun WelcomePage(navController: NavHostController) {
                 fontWeight = FontWeight.SemiBold
             ),
             modifier = Modifier
-                .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                .padding(lDimens.dp10, lDimens.dp0, lDimens.dp10, lDimens.dp0)
         )
-        Spacer(modifier = Modifier.padding(40.dp))
+        Spacer(modifier = Modifier.padding(lDimens.dp40))
         FabWelcomePage(navController)
     }
 }
@@ -67,8 +68,8 @@ private fun FabWelcomePage(navController: NavHostController) {
         containerColor = Color.Black,
         contentColor = Color.White,
         modifier = Modifier
-            .padding(4.dp)
-            .size(56.dp),
+            .padding(lDimens.dp4)
+            .size(lDimens.dp56),
         shape = RoundedCornerShape(percent = 30),
     ) {
         Icon(

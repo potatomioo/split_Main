@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.falcon.split.presentation.group.CreateGroupState
 import com.falcon.split.presentation.group.CreateGroupViewModel
 import com.falcon.split.contact.ContactManager
+import com.falcon.split.presentation.theme.lDimens
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -87,8 +88,8 @@ fun CreateGroupScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(lDimens.dp16),
+            verticalArrangement = Arrangement.spacedBy(lDimens.dp16)
         ) {
             // Group Name Section
             OutlinedCard(
@@ -96,7 +97,7 @@ fun CreateGroupScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(lDimens.dp16)
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -104,11 +105,11 @@ fun CreateGroupScreen(
                         painter = painterResource(Res.drawable.group_icon_filled),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(48.dp)
-                            .padding(horizontal = 12.dp),
+                            .size(lDimens.dp48)
+                            .padding(horizontal = lDimens.dp12),
                         contentScale = ContentScale.Fit
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(lDimens.dp16))
                     OutlinedTextField(
                         value = groupName,
                         onValueChange = { groupName = it },
@@ -127,7 +128,7 @@ fun CreateGroupScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(lDimens.dp16)
                         .fillMaxWidth()
                 ) {
                     Row(
@@ -141,29 +142,29 @@ fun CreateGroupScreen(
                         )
                         Button(
                             onClick = { showContactPicker = true },
-                            contentPadding = PaddingValues(horizontal = 12.dp)
+                            contentPadding = PaddingValues(horizontal = lDimens.dp12)
                         ) {
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = "Add member",
                                 modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(lDimens.dp4))
                             Text("Add Member")
                         }
                     }
 
                     if (selectedContacts.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(lDimens.dp8))
                         Text(
                             "${selectedContacts.size} members selected",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(lDimens.dp8))
                         LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(lDimens.dp8)
                         ) {
                             items(selectedContacts) { contact ->
                                 Card(
@@ -172,12 +173,12 @@ fun CreateGroupScreen(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(12.dp),
+                                            .padding(lDimens.dp12),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(lDimens.dp12),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
@@ -217,7 +218,7 @@ fun CreateGroupScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 32.dp),
+                                .padding(vertical = lDimens.dp32),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -235,7 +236,7 @@ fun CreateGroupScreen(
                 onClick = { viewModel.createGroup(groupName) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(lDimens.dp56),
                 enabled = groupName.isNotEmpty() && selectedContacts.isNotEmpty() &&
                         state !is CreateGroupState.Loading
             ) {
@@ -250,7 +251,7 @@ fun CreateGroupScreen(
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(lDimens.dp8))
                     Text(
                         "Create Group",
                         style = MaterialTheme.typography.titleMedium

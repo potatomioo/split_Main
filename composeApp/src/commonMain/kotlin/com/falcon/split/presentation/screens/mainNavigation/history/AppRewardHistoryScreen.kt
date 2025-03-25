@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.theme.getAppTypography
 import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
+import com.falcon.split.presentation.theme.lDimens
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.HistoryPic
 import split.composeapp.generated.resources.Res
@@ -113,7 +114,7 @@ fun MyRewardsUpperComposable() {
                     onClearQuery = { searchQuery = "" },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = lDimens.dp16, vertical = lDimens.dp8)
                 )
             }
 
@@ -123,7 +124,7 @@ fun MyRewardsUpperComposable() {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(lDimens.dp32),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -142,7 +143,7 @@ fun MyRewardsUpperComposable() {
                     amount = content.amount.toString()
                 )
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = lDimens.dp16),
                     color = colors.textSecondary.copy(alpha = 0.2f)
                 )
             }
@@ -168,7 +169,7 @@ fun RewardSearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(lDimens.dp56)
             .clip(RoundedCornerShape(28.dp))
             .focusRequester(focusRequester),
         placeholder = {
@@ -230,7 +231,7 @@ private fun RewardComposable(date: String, amount: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(15.dp)
+            .padding(lDimens.dp15)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -243,7 +244,7 @@ private fun RewardComposable(date: String, amount: String) {
             )
             Column(
                 modifier = Modifier
-                    .padding(12.dp)
+                    .padding(lDimens.dp12)
             ) {
                 Text(
                     text = date,

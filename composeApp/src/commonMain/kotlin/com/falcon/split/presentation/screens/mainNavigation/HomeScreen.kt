@@ -61,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
 import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.theme.getAppTypography
+import com.falcon.split.presentation.theme.lDimens
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res
@@ -119,14 +120,14 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .height(190.dp)
                                 .clip(RectangleShape)
-                                .padding(0.dp),
+                                .padding(lDimens.dp0),
                             contentScale = ContentScale.FillWidth
                         )
 
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 4.dp, start = 15.dp, bottom = 0.dp),
+                                .padding(top = lDimens.dp4, start = lDimens.dp15, bottom = lDimens.dp0),
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
@@ -146,7 +147,7 @@ fun HomeScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 0.dp, start = 0.dp, end = 20.dp),
+                                    .padding(top = lDimens.dp0, start = lDimens.dp0, end = 20.dp),
                                 horizontalArrangement = Arrangement.spacedBy(20.dp)
                             ) {
                                 BalanceItem(
@@ -169,7 +170,7 @@ fun HomeScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                            .padding(horizontal = lDimens.dp10, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -189,7 +190,7 @@ fun HomeScreen(
                         onClearQuery = { searchQuery = "" },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = lDimens.dp16, vertical = lDimens.dp8)
                     )
                 }
 
@@ -199,7 +200,7 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp),
+                                .padding(lDimens.dp32),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -221,7 +222,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentHeight()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                                .padding(horizontal = lDimens.dp16, vertical = lDimens.dp4)
                         )
                     }
                 }
@@ -232,7 +233,7 @@ fun HomeScreen(
                 onClick = { navControllerMain.navigate("create_expense") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .padding(lDimens.dp16)
             )
         }
     }
@@ -284,7 +285,7 @@ fun GroupSearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(lDimens.dp56)
             .clip(RoundedCornerShape(28.dp))
             .focusRequester(focusRequester),
         placeholder = {
@@ -364,14 +365,14 @@ fun ExpenseCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(lDimens.dp12),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(imageRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(lDimens.dp30)
                     .padding(end = 5.dp),
                 contentScale = ContentScale.Fit
             )
@@ -454,11 +455,11 @@ fun AddExpenseFAB(
         contentColor = Color.White,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 6.dp,
-            pressedElevation = 12.dp
+            pressedElevation = lDimens.dp12
         )
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(lDimens.dp8),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

@@ -44,6 +44,7 @@ import split.composeapp.generated.resources.Res
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import com.falcon.split.presentation.theme.lDimens
 import org.jetbrains.compose.resources.DrawableResource
 import split.composeapp.generated.resources.google_pay
 import split.composeapp.generated.resources.paytm
@@ -89,7 +90,7 @@ fun PaymentScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     modifier = Modifier
-                        .padding(top = 0.dp, bottom = 5.dp, start = 0.dp)
+                        .padding(top = lDimens.dp0, bottom = 5.dp, start = lDimens.dp0)
                 )
                 Text(
                     "Amount to pay : $ $paymentAmount",
@@ -97,7 +98,7 @@ fun PaymentScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray,
                     modifier = Modifier
-                        .padding(top = 0.dp, bottom = 0.dp)
+                        .padding(top = lDimens.dp0, bottom = lDimens.dp0)
                 )
             }
             Card(
@@ -106,7 +107,7 @@ fun PaymentScreen(
                 ),
                 border = BorderStroke(2.dp,Color.Black),
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(lDimens.dp8)
             ) {
                 Text(
                     "Pay Using Apps",
@@ -114,7 +115,7 @@ fun PaymentScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray,
                     modifier = Modifier
-                        .padding(top = 8.dp, start = 15.dp)
+                        .padding(top = lDimens.dp8, start = lDimens.dp15)
                 )
                 UpiMethod(appName = "Paytm", snackBarHostState = snackBarHostState, drawable = Res.drawable.paytm) {
                     ClipboardManager.copyToClipboard(paymentUpiId)
@@ -171,27 +172,27 @@ fun UpiMethod(
             containerColor = Color.Transparent
         ),
         modifier = Modifier
-            .padding(4.dp)
+            .padding(lDimens.dp4)
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .padding(bottom = 8.dp)
+                .padding(bottom = lDimens.dp8)
                 .fillMaxWidth()
-                .padding(15.dp)
+                .padding(lDimens.dp15)
         ) {
             Card(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(lDimens.dp16)
                     .width(90.dp),
                 elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
+                    defaultElevation = lDimens.dp4
                 )
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp),
+                        .padding(lDimens.dp16),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -199,8 +200,8 @@ fun UpiMethod(
                         painter = painterResource(drawable),
                         contentDescription = "GPay Icon",
                         modifier = Modifier
-                            .size(48.dp)
-                            .padding(bottom = 8.dp)
+                            .size(lDimens.dp48)
+                            .padding(bottom = lDimens.dp8)
                     )
 
                     Text(

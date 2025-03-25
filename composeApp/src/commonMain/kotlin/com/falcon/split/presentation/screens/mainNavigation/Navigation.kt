@@ -76,6 +76,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.LayoutDirection
 import com.falcon.split.presentation.group.GroupViewModel
+import com.falcon.split.presentation.theme.lDimens
 import kotlinx.coroutines.launch
 
 @Composable
@@ -124,7 +125,7 @@ fun NavHostMain(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = colors.backgroundSecondary)
-                    .padding(start = 12.dp, top = 12.dp)
+                    .padding(start = lDimens.dp12, top = lDimens.dp12)
             ) {
                 Text(
                     text = title,
@@ -421,7 +422,7 @@ fun AppBottomNavigationBarItem(
                     onClick = onClick,
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(lDimens.dp4)
         ) {
             Image(
                 painter = painterResource(

@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.falcon.split.presentation.theme.lDimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,8 +54,8 @@ fun PhoneNumberBottomSheet(
                 // Handle bar
                 Box(
                     modifier = Modifier
-                        .width(40.dp)
-                        .height(4.dp)
+                        .width(lDimens.dp40)
+                        .height(lDimens.dp4)
                         .clip(RoundedCornerShape(2.dp))
                         .background(Color(0xFFE5E7EB))
                 )
@@ -68,7 +69,7 @@ fun PhoneNumberBottomSheet(
                     color = Color(0xFF8fcb39)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(lDimens.dp16))
 
                 OutlinedTextField(
                     value = phoneNumber,
@@ -83,7 +84,7 @@ fun PhoneNumberBottomSheet(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = lDimens.dp8),
                     label = { Text("Phone Number") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number

@@ -29,6 +29,7 @@ import com.falcon.split.data.network.models_app.Settlement
 import com.falcon.split.data.network.models_app.SettlementState
 import com.falcon.split.data.network.models_app.SettlementStatus
 import com.falcon.split.presentation.expense.ExpenseState
+import com.falcon.split.presentation.theme.lDimens
 import com.falcon.split.userManager.UserManager
 import com.falcon.split.utils.MemberNameResolver
 import io.ktor.http.HttpHeaders.Date
@@ -135,7 +136,7 @@ fun GroupDetailsScreen(
                             totalAmount = group.totalAmount ?: 0.0,
                             expenseCount = group.expenses.size,
                             memberCount = group.members.size,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = lDimens.dp16, vertical = lDimens.dp8)
                         )
 
                         // Tabs
@@ -176,7 +177,7 @@ fun GroupDetailsScreen(
                             state = pagerState,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 8.dp)
+                                .padding(top = lDimens.dp8)
                         ) { page ->
                             when (page) {
                                 0 -> GroupExpensesPage(
@@ -219,12 +220,12 @@ fun GroupDetailsScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(padding)
-                            .padding(16.dp),
+                            .padding(lDimens.dp16),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text((groupState as GroupState.Error).message)
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(lDimens.dp16))
                         Button(onClick = { viewModel.loadGroupDetails(groupId) }) {
                             Text("Retry")
                         }
@@ -345,14 +346,14 @@ fun GroupExpensesPage(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = lDimens.dp16),
+        verticalArrangement = Arrangement.spacedBy(lDimens.dp8)
     ) {
         item {
             Text(
                 "Expenses & Settlements",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = lDimens.dp8)
             )
         }
 
@@ -456,14 +457,14 @@ fun GroupBalancesPage(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = lDimens.dp16),
+        verticalArrangement = Arrangement.spacedBy(lDimens.dp8)
     ) {
         item {
             Text(
                 "Individual Balances",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = lDimens.dp8)
             )
         }
 
@@ -539,10 +540,10 @@ fun ExpenseCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = lDimens.dp4)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(lDimens.dp16)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -559,7 +560,7 @@ fun ExpenseCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp4))
 
             // Find the member who paid
             val paidByMember = group.members.find { it.userId == expense.paidByUserId }
@@ -596,13 +597,13 @@ fun SettlementCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = lDimens.dp4),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(lDimens.dp16)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -619,7 +620,7 @@ fun SettlementCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp4))
 
             Text(
                 "${settlement.fromUserName ?: "Unknown"} paid ${settlement.toUserName ?: "Unknown"}",
@@ -648,12 +649,12 @@ fun IndividualBalanceCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = lDimens.dp4)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(lDimens.dp16),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -667,14 +668,14 @@ fun IndividualBalanceCard(
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(lDimens.dp8))
                     Text(
                         memberName,
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(lDimens.dp4))
 
                 Text(
                     when {
@@ -741,14 +742,14 @@ private fun StatusIndicator(
         modifier = Modifier.height(36.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = lDimens.dp12, vertical = lDimens.dp8),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(lDimens.dp4)
         ) {
             Icon(
                 icon,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(lDimens.dp16),
                 tint = contentColor
             )
             Text(
@@ -781,7 +782,7 @@ fun SettleUpDialog(
                     "How much are you settling?",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(lDimens.dp16))
 
                 OutlinedTextField(
                     value = amount,
@@ -860,7 +861,7 @@ fun GroupSummaryCard(
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(lDimens.dp16)
         ) {
             Text(
                 "Total Expenses",
@@ -874,7 +875,7 @@ fun GroupSummaryCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp),
+                    .padding(top = lDimens.dp8),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("$expenseCount expenses")
@@ -897,14 +898,14 @@ fun SettlementRequestsPage(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = lDimens.dp16),
+        verticalArrangement = Arrangement.spacedBy(lDimens.dp8)
     ) {
         item {
             Text(
                 "Pending Settlement Requests",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = lDimens.dp8)
             )
         }
 
@@ -916,7 +917,7 @@ fun SettlementRequestsPage(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(lDimens.dp32),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -953,13 +954,13 @@ fun SettlementRequestCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = lDimens.dp4),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(lDimens.dp16)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -976,7 +977,7 @@ fun SettlementRequestCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp8))
 
             Text(
                 "${settlement.fromUserName ?: "Someone"} wants to settle ₹${settlement.amount}",
@@ -989,7 +990,7 @@ fun SettlementRequestCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(lDimens.dp16))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1001,7 +1002,7 @@ fun SettlementRequestCard(
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     ),
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = lDimens.dp8)
                 ) {
                     Text("Decline")
                 }
