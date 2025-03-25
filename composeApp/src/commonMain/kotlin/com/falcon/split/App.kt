@@ -3,7 +3,6 @@
 package com.falcon.split
 
 import SettingScreen
-import ThemeChangeSwitcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,7 +62,7 @@ import coil3.request.crossfade
 import coil3.util.DebugLogger
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.backhandler.BackHandler
-import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.expense.CreateExpenseViewModel
 import com.falcon.split.presentation.group.CreateGroupViewModel
 import com.falcon.split.presentation.group.GroupViewModel

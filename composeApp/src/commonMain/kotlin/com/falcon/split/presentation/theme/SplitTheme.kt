@@ -1,4 +1,4 @@
-package com.falcon.split.presentation
+package com.falcon.split.presentation.theme
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.falcon.split.presentation.AppFontFamily
 
 // Light theme colors
 val ThemeGrey = Color(0xFFfff6f6)

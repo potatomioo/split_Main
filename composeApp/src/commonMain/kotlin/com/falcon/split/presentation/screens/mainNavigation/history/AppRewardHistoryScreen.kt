@@ -45,8 +45,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.falcon.split.presentation.LocalSplitColors
-import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.theme.LocalSplitColors
+import com.falcon.split.presentation.theme.getAppTypography
 import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.HistoryPic

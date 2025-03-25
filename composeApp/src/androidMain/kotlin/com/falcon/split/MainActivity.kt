@@ -54,7 +54,7 @@ import com.falcon.split.data.network.ApiClient
 import com.falcon.split.data.network.createHttpClient
 import com.falcon.split.data.repository.FirebaseExpenseRepository
 import com.falcon.split.data.repository.FirebaseGroupRepository
-import com.falcon.split.presentation.SplitTheme
+import com.falcon.split.presentation.theme.SplitTheme
 import com.falcon.split.presentation.screens.mainNavigation.Routes
 import com.falcon.split.presentation.sign_in.GoogleAuthUiClient
 import com.falcon.split.presentation.sign_in.PhoneNumberViewModel

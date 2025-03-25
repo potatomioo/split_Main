@@ -59,8 +59,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import com.falcon.split.MainViewModel
-import com.falcon.split.presentation.LocalSplitColors
-import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.theme.LocalSplitColors
+import com.falcon.split.presentation.theme.getAppTypography
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res

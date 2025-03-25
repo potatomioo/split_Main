@@ -63,10 +63,10 @@ import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.backhandler.BackHandler
 import com.falcon.split.data.network.models_app.Expense
 import com.falcon.split.data.network.models_app.ExpenseSplit
-import com.falcon.split.presentation.LocalSplitColors
+import com.falcon.split.presentation.theme.LocalSplitColors
 import com.falcon.split.presentation.expense.CreateExpenseState
 import com.falcon.split.presentation.expense.CreateExpenseViewModel
-import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.theme.getAppTypography
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
 import split.composeapp.generated.resources.Res

@@ -54,8 +54,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.falcon.split.MainViewModel
 import com.falcon.split.MainViewModelFactory
-import com.falcon.split.presentation.LocalSplitColors
-import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.theme.LocalSplitColors
+import com.falcon.split.presentation.theme.getAppTypography
 import com.falcon.split.data.network.ApiClient
 import com.falcon.split.presentation.screens.mainNavigation.history.HistoryScreen
 import org.jetbrains.compose.resources.DrawableResource

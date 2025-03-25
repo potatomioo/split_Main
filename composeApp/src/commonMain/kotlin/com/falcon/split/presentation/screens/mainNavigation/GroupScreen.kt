@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.falcon.split.presentation.LocalSplitColors
-import com.falcon.split.presentation.getAppTypography
+import com.falcon.split.presentation.theme.LocalSplitColors
+import com.falcon.split.presentation.theme.getAppTypography
 import com.falcon.split.presentation.group.GroupState
 import com.falcon.split.presentation.group.GroupViewModel
 import com.falcon.split.presentation.screens.AnimationComponents.UpwardFlipHeaderImage
