@@ -3,13 +3,14 @@
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.falcon.split.utils.DATA_STORE_FILE_NAME
+import com.falcon.split.utils.DataStoreManager
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 fun createDataStore():DataStore<Preferences>{
-    return com.falcon.split.utils.createDataStore {
+    return DataStoreManager.getDataStore {
         val directory = NSFileManager.defaultManager.URLForDirectory(
             directory = NSDocumentDirectory,
             inDomain = NSUserDomainMask,
