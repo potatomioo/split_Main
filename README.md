@@ -62,6 +62,10 @@ Unlike basic calculator apps or complex financial tools, Split combines intuitiv
 
 Split isn't just an app—it's peace of mind for your shared finances.
 
+## Developers
+
+1. Deeptanshu Shukla
+2. Avishisht Gupta
 
 ## Preview
 <img src="https://github.com/user-attachments/assets/10cc2dad-36b7-4268-92eb-461e3c5127be" width="250" alt="Authentication Screen" />
